@@ -611,6 +611,7 @@ end;
 procedure TCastle3DParticleEmitterGPU.LocalRender(const Params: TRenderParams);
 var
   M: TMatrix4;
+  S: Single;
 begin
   inherited;
   if not Assigned(Self.FEffect) then
@@ -626,12 +627,13 @@ begin
   if (not Self.FStartEmitting) and (Self.FCountdownTillRemove <= 0) then
     Exit;
 
-  M := Params.RenderingCamera.Matrix * Params.Transform^;
   if not Self.FEffect.BBox.IsEmpty then
   begin
     if not Params.Frustum^.Box3DCollisionPossibleSimple(Self.FEffect.BBox) then
       Exit;
   end;
+
+  M := Params.RenderingCamera.Matrix * Params.Transform^;
 
   // Update particles
   glEnable(GL_RASTERIZER_DISCARD);
@@ -646,8 +648,10 @@ begin
   TransformFeedbackProgram.Uniform('effect.sourcePositionVariance').SetValue(Self.FEffect.SourcePositionVariance);
   TransformFeedbackProgram.Uniform('effect.maxParticles').SetValue(Self.FEffect.MaxParticles);
   if Self.FEffect.MiddleAnchor = 0 then
-    Self.FEffect.MiddleAnchor := 0.001;
-  TransformFeedbackProgram.Uniform('effect.middleAnchor').SetValue(Self.FEffect.MiddleAnchor);
+    S := 0.001
+  else
+    S := Self.FEffect.MiddleAnchor;
+  TransformFeedbackProgram.Uniform('effect.middleAnchor').SetValue(S);
   TransformFeedbackProgram.Uniform('effect.startColor').SetValue(Self.FEffect.StartColor);
   TransformFeedbackProgram.Uniform('effect.startColorVariance').SetValue(Self.FEffect.StartColorVariance);
   TransformFeedbackProgram.Uniform('effect.middleColor').SetValue(Self.FEffect.MiddleColor);
