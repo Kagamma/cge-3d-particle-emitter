@@ -114,18 +114,58 @@
               "$ClassName" : "TCastleLabel"
             },
             {
-              "CaptureAllInput" : false,
-              "FontScale" : 8.0000001192092896E-001,
+              "Height" : 2.8000000000000000E+001,
               "HorizontalAnchorDelta" : 1.0000000000000000E+001,
-              "Name" : "EditTexture",
-              "Text" : "EditTexture",
+              "Name" : "Group21",
               "VerticalAnchorDelta" : -4.2000000000000000E+001,
               "VerticalAnchorParent" : "vpTop",
               "VerticalAnchorSelf" : "vpTop",
-              "Width" : 3.0000000000000000E+002,
+              "Width" : 3.1000000000000000E+002,
               "$Children" : [
+                {
+                  "CaptureAllInput" : false,
+                  "FontScale" : 8.0000001192092896E-001,
+                  "Name" : "EditTexture",
+                  "Text" : "EditTexture",
+                  "VerticalAnchorParent" : "vpMiddle",
+                  "VerticalAnchorSelf" : "vpMiddle",
+                  "Width" : 2.7000000000000000E+002,
+                  "$Children" : [
+                  ],
+                  "$ClassName" : "TCastleEdit"
+                },
+                {
+                  "AutoSizeWidth" : false,
+                  "CustomBackgroundDisabled" : {
+                    "$ClassName" : "TCastleImagePersistent"
+                  },
+                  "CustomBackgroundFocused" : {
+                    "$ClassName" : "TCastleImagePersistent"
+                  },
+                  "CustomBackgroundNormal" : {
+                    "$ClassName" : "TCastleImagePersistent"
+                  },
+                  "CustomBackgroundPressed" : {
+                    "$ClassName" : "TCastleImagePersistent"
+                  },
+                  "FontScale" : 3.0000001192092896E-001,
+                  "Height" : 4.0000000000000000E+001,
+                  "HorizontalAnchorParent" : "hpRight",
+                  "HorizontalAnchorSelf" : "hpRight",
+                  "Image" : {
+                    "$ClassName" : "TCastleImagePersistent"
+                  },
+                  "Name" : "ButtonTextureOpen",
+                  "PaddingHorizontal" : 0.0000000000000000E+000,
+                  "VerticalAnchorParent" : "vpMiddle",
+                  "VerticalAnchorSelf" : "vpMiddle",
+                  "Width" : 4.0000000000000000E+001,
+                  "$Children" : [
+                  ],
+                  "$ClassName" : "TCastleButton"
+                }
               ],
-              "$ClassName" : "TCastleEdit"
+              "$ClassName" : "TCastleUserInterface"
             },
             {
               "ColorPersistent" : {
@@ -139,7 +179,7 @@
               "Text" : [
                 "Start Color"
               ],
-              "VerticalAnchorDelta" : -7.9199996948242188E+001,
+              "VerticalAnchorDelta" : -8.0000000000000000E+001,
               "VerticalAnchorParent" : "vpTop",
               "VerticalAnchorSelf" : "vpTop",
               "$Children" : [
@@ -150,7 +190,7 @@
               "AutoSizeToChildren" : true,
               "HorizontalAnchorDelta" : 1.0000000000000000E+001,
               "Name" : "Group2",
-              "VerticalAnchorDelta" : -1.1119999694824219E+002,
+              "VerticalAnchorDelta" : -1.1200000000000000E+002,
               "VerticalAnchorParent" : "vpTop",
               "VerticalAnchorSelf" : "vpTop",
               "Width" : 3.2000000000000000E+002,
@@ -225,7 +265,7 @@
               "Text" : [
                 "Middle Color"
               ],
-              "VerticalAnchorDelta" : -1.4650000000000000E+002,
+              "VerticalAnchorDelta" : -1.4729998779296875E+002,
               "VerticalAnchorParent" : "vpTop",
               "VerticalAnchorSelf" : "vpTop",
               "$Children" : [
@@ -236,7 +276,7 @@
               "AutoSizeToChildren" : true,
               "HorizontalAnchorDelta" : 1.0000000000000000E+001,
               "Name" : "Group4",
-              "VerticalAnchorDelta" : -1.7850000000000000E+002,
+              "VerticalAnchorDelta" : -1.7929998779296875E+002,
               "VerticalAnchorParent" : "vpTop",
               "VerticalAnchorSelf" : "vpTop",
               "Width" : 3.2000000000000000E+002,
@@ -311,7 +351,7 @@
               "Text" : [
                 "Finish Color"
               ],
-              "VerticalAnchorDelta" : -2.1379998779296875E+002,
+              "VerticalAnchorDelta" : -2.1459997558593750E+002,
               "VerticalAnchorParent" : "vpTop",
               "VerticalAnchorSelf" : "vpTop",
               "$Children" : [
@@ -322,7 +362,7 @@
               "AutoSizeToChildren" : true,
               "HorizontalAnchorDelta" : 1.0000000000000000E+001,
               "Name" : "Group5",
-              "VerticalAnchorDelta" : -2.4579998779296875E+002,
+              "VerticalAnchorDelta" : -2.4659997558593750E+002,
               "VerticalAnchorParent" : "vpTop",
               "VerticalAnchorSelf" : "vpTop",
               "Width" : 3.2000000000000000E+002,
@@ -397,7 +437,7 @@
               "Text" : [
                 "Direction"
               ],
-              "VerticalAnchorDelta" : -2.8109997558593750E+002,
+              "VerticalAnchorDelta" : -2.8189996337890625E+002,
               "VerticalAnchorParent" : "vpTop",
               "VerticalAnchorSelf" : "vpTop",
               "$Children" : [
@@ -408,7 +448,7 @@
               "AutoSizeToChildren" : true,
               "HorizontalAnchorDelta" : 1.0000000000000000E+001,
               "Name" : "Group9",
-              "VerticalAnchorDelta" : -3.1309997558593750E+002,
+              "VerticalAnchorDelta" : -3.1389996337890625E+002,
               "VerticalAnchorParent" : "vpTop",
               "VerticalAnchorSelf" : "vpTop",
               "Width" : 3.2000000000000000E+002,
@@ -463,7 +503,7 @@
               "Text" : [
                 "Blend Source"
               ],
-              "VerticalAnchorDelta" : -3.4839996337890625E+002,
+              "VerticalAnchorDelta" : -3.4919995117187500E+002,
               "VerticalAnchorParent" : "vpTop",
               "VerticalAnchorSelf" : "vpTop",
               "$Children" : [
@@ -476,7 +516,7 @@
               "HorizontalAnchorDelta" : 1.0000000000000000E+001,
               "Min" : 1,
               "Name" : "EditBlendSrc",
-              "VerticalAnchorDelta" : -3.8039996337890625E+002,
+              "VerticalAnchorDelta" : -3.8119995117187500E+002,
               "VerticalAnchorParent" : "vpTop",
               "VerticalAnchorSelf" : "vpTop",
               "$Children" : [
@@ -495,7 +535,7 @@
               "Text" : [
                 "Blend Destination"
               ],
-              "VerticalAnchorDelta" : -4.1759997558593750E+002,
+              "VerticalAnchorDelta" : -4.1839996337890625E+002,
               "VerticalAnchorParent" : "vpTop",
               "VerticalAnchorSelf" : "vpTop",
               "$Children" : [
@@ -508,7 +548,7 @@
               "HorizontalAnchorDelta" : 1.0000000000000000E+001,
               "Min" : 1,
               "Name" : "EditBlendDst",
-              "VerticalAnchorDelta" : -4.4959997558593750E+002,
+              "VerticalAnchorDelta" : -4.5039996337890625E+002,
               "VerticalAnchorParent" : "vpTop",
               "VerticalAnchorSelf" : "vpTop",
               "$Children" : [
@@ -527,7 +567,7 @@
               "Text" : [
                 "Maximum Particles"
               ],
-              "VerticalAnchorDelta" : -4.8679998779296875E+002,
+              "VerticalAnchorDelta" : -4.8759997558593750E+002,
               "VerticalAnchorParent" : "vpTop",
               "VerticalAnchorSelf" : "vpTop",
               "$Children" : [
@@ -540,7 +580,7 @@
               "HorizontalAnchorDelta" : 1.0000000000000000E+001,
               "Min" : 1,
               "Name" : "EditMaxParticles",
-              "VerticalAnchorDelta" : -5.1879998779296875E+002,
+              "VerticalAnchorDelta" : -5.1959997558593750E+002,
               "VerticalAnchorParent" : "vpTop",
               "VerticalAnchorSelf" : "vpTop",
               "$Children" : [
@@ -559,7 +599,7 @@
               "Text" : [
                 "Bounding Box"
               ],
-              "VerticalAnchorDelta" : -5.5600000000000000E+002,
+              "VerticalAnchorDelta" : -5.5679998779296875E+002,
               "VerticalAnchorParent" : "vpTop",
               "VerticalAnchorSelf" : "vpTop",
               "$Children" : [
@@ -570,7 +610,7 @@
               "AutoSizeToChildren" : true,
               "HorizontalAnchorDelta" : 1.0000000000000000E+001,
               "Name" : "Group19",
-              "VerticalAnchorDelta" : -5.8800000000000000E+002,
+              "VerticalAnchorDelta" : -5.8879998779296875E+002,
               "VerticalAnchorParent" : "vpTop",
               "VerticalAnchorSelf" : "vpTop",
               "Width" : 3.2000000000000000E+002,
@@ -617,7 +657,7 @@
               "AutoSizeToChildren" : true,
               "HorizontalAnchorDelta" : 1.0000000000000000E+001,
               "Name" : "Group20",
-              "VerticalAnchorDelta" : -6.2329998779296875E+002,
+              "VerticalAnchorDelta" : -6.2409997558593750E+002,
               "VerticalAnchorParent" : "vpTop",
               "VerticalAnchorSelf" : "vpTop",
               "Width" : 3.2000000000000000E+002,
@@ -664,7 +704,7 @@
               "Height" : 6.0000000000000000E+001,
               "HorizontalAnchorDelta" : 1.0000000000000000E+001,
               "Name" : "Group17",
-              "VerticalAnchorDelta" : -6.5859997558593750E+002,
+              "VerticalAnchorDelta" : -6.5939996337890625E+002,
               "VerticalAnchorParent" : "vpTop",
               "VerticalAnchorSelf" : "vpTop",
               "$Children" : [
@@ -675,7 +715,7 @@
               "Height" : 6.0000000000000000E+001,
               "HorizontalAnchorDelta" : 1.0000000000000000E+001,
               "Name" : "Group18",
-              "VerticalAnchorDelta" : -7.2859997558593750E+002,
+              "VerticalAnchorDelta" : -7.2939996337890625E+002,
               "VerticalAnchorParent" : "vpTop",
               "VerticalAnchorSelf" : "vpTop",
               "Width" : 3.0000000000000000E+002,

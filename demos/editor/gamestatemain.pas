@@ -83,6 +83,7 @@ type
     EditBlendDestination: TCastleIntegerEdit;
     ButtonSave,
     ButtonLoad,
+    ButtonTextureOpen,
     ButtonApply: TCastleButton;
     Effect: TCastle3DParticleEffect;
     Emitter: TCastle3DParticleEmitterGPU;
@@ -92,6 +93,7 @@ type
     procedure ButtonSaveClick(Sender: TObject);
     procedure ButtonLoadClick(Sender: TObject);
     procedure ButtonApplyClick(Sender: TObject);
+    procedure ButtonTextureOpenClick(Sender: TObject);
   public
     procedure Start; override;
     procedure Update(const SecondsPassed: Single; var HandleInput: Boolean); override;
@@ -226,10 +228,12 @@ begin
   ButtonSave := UiOwner.FindRequiredComponent('ButtonSave') as TCastleButton;
   ButtonLoad := UiOwner.FindRequiredComponent('ButtonLoad') as TCastleButton;
   ButtonApply := UiOwner.FindRequiredComponent('ButtonApply') as TCastleButton;
+  ButtonTextureOpen := UiOwner.FindRequiredComponent('ButtonTextureOpen') as TCastleButton;
 
   ButtonApply.OnClick := @ButtonApplyClick;
   ButtonSave.OnClick := @ButtonSaveClick;
   ButtonLoad.OnClick := @ButtonLoadClick;
+  ButtonTextureOpen.OnClick := @ButtonTextureOpenClick;
 
   Effect := TCastle3DParticleEffect.Create;
   Effect.Load('castle-data://default.json');
@@ -443,6 +447,16 @@ end;
 procedure TStateMain.Render;
 begin
   
+end;
+
+procedure TStateMain.ButtonTextureOpenClick(Sender: TObject);
+var
+  URL: String;
+begin
+  if Window.FileDialog('Open Image', URL, True, '*.*') then
+  begin
+    EditTexture.Text := URL;
+  end;
 end;
 
 end.
