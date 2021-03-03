@@ -847,7 +847,7 @@
               "HorizontalAnchorDelta" : 1.0000000000000000E+001,
               "Name" : "Label15",
               "Text" : [
-                "Color Middle Anchor"
+                "Middle Color Anchor"
               ],
               "VerticalAnchorDelta" : -1.0000000000000000E+001,
               "VerticalAnchorParent" : "vpTop",
