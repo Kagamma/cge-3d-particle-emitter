@@ -648,7 +648,7 @@ begin
   TransformFeedbackProgram.Uniform('effect.sourcePositionVariance').SetValue(Self.FEffect.SourcePositionVariance);
   TransformFeedbackProgram.Uniform('effect.maxParticles').SetValue(Self.FEffect.MaxParticles);
   if Self.FEffect.MiddleAnchor = 0 then
-    S := 0.001
+    S := 0.01
   else
     S := Self.FEffect.MiddleAnchor;
   TransformFeedbackProgram.Uniform('effect.middleAnchor').SetValue(S);
