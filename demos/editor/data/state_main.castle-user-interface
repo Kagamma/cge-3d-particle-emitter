@@ -1,0 +1,1626 @@
+{
+  "FullSize" : true,
+  "Name" : "Group1",
+  "$Children" : [
+    {
+      "AutoNavigation" : true,
+      "Camera" : {
+        "InitialPositionPersistent" : {
+          "X" : 1.0625057220458984E+000,
+          "Y" : 1.2499867379665375E-001,
+          "Z" : 4.2000083923339844E+000,
+          "$ClassName" : "TCastleVector3Persistent"
+        },
+        "Name" : "Camera",
+        "Orthographic" : {
+          "Name" : "Orthographic",
+          "$Children" : [
+          ],
+          "$ClassName" : "TCastleOrthographic"
+        },
+        "Perspective" : {
+          "Name" : "Perspective",
+          "$Children" : [
+          ],
+          "$ClassName" : "TCastlePerspective"
+        },
+        "$Children" : [
+        ],
+        "$ClassName" : "TCastleCamera"
+      },
+      "FullSize" : true,
+      "Items" : {
+        "MainScene" : "SceneMain",
+        "Name" : "Items",
+        "PhysicsProperties" : {
+          "Name" : "PhysicsProperties",
+          "$Children" : [
+          ],
+          "$ClassName" : "TPhysicsProperties"
+        },
+        "$Children" : [
+          {
+            "ExposeTransforms" : [
+            ],
+            "Name" : "SceneMain",
+            "RenderOptions" : {
+              "Name" : "RenderOptions",
+              "$Children" : [
+              ],
+              "$ClassName" : "TCastleScene.TSceneRenderOptions"
+            },
+            "URL" : "castle-data:/grid.x3dv",
+            "$Children" : [
+            ],
+            "$ClassName" : "TCastleScene"
+          }
+        ],
+        "$ClassName" : "TCastleRootTransform"
+      },
+      "Name" : "Viewport",
+      "Navigation" : "ExamineNavigation1",
+      "$Children" : [
+        {
+          "Name" : "ExamineNavigation1",
+          "$Children" : [
+          ],
+          "$ClassName" : "TCastleExamineNavigation"
+        }
+      ],
+      "$ClassName" : "TCastleViewport"
+    },
+    {
+      "AutoSizeToChildren" : true,
+      "ColorPersistent" : {
+        "Alpha" : 7.4901962280273437E-001,
+        "Blue" : 1.4117647707462311E-001,
+        "Green" : 0.0000000000000000E+000,
+        "Red" : 0.0000000000000000E+000,
+        "$ClassName" : "TCastleColorPersistent"
+      },
+      "Height" : 2.4000000000000000E+002,
+      "HorizontalAnchorDelta" : -3.3000000000000000E+002,
+      "HorizontalAnchorParent" : "hpRight",
+      "HorizontalAnchorSelf" : "hpRight",
+      "Name" : "Rectangle1",
+      "VerticalAnchorParent" : "vpTop",
+      "VerticalAnchorSelf" : "vpTop",
+      "Width" : 8.2000000000000000E+002,
+      "$Children" : [
+        {
+          "Name" : "VerticalGroup1",
+          "Padding" : 1.0000000000000000E+001,
+          "Spacing" : 1.0000000000000000E+001,
+          "VerticalAnchorParent" : "vpTop",
+          "VerticalAnchorSelf" : "vpTop",
+          "$Children" : [
+            {
+              "ColorPersistent" : {
+                "Blue" : 1.0000000000000000E+000,
+                "Green" : 1.0000000000000000E+000,
+                "Red" : 1.0000000000000000E+000,
+                "$ClassName" : "TCastleColorPersistent"
+              },
+              "HorizontalAnchorDelta" : 1.0000000000000000E+001,
+              "Name" : "Label10",
+              "Text" : [
+                "Texture"
+              ],
+              "VerticalAnchorDelta" : -1.0000000000000000E+001,
+              "VerticalAnchorParent" : "vpTop",
+              "VerticalAnchorSelf" : "vpTop",
+              "$Children" : [
+              ],
+              "$ClassName" : "TCastleLabel"
+            },
+            {
+              "CaptureAllInput" : false,
+              "FontScale" : 8.0000001192092896E-001,
+              "HorizontalAnchorDelta" : 1.0000000000000000E+001,
+              "Name" : "EditTexture",
+              "Text" : "EditTexture",
+              "VerticalAnchorDelta" : -4.2000000000000000E+001,
+              "VerticalAnchorParent" : "vpTop",
+              "VerticalAnchorSelf" : "vpTop",
+              "Width" : 3.0000000000000000E+002,
+              "$Children" : [
+              ],
+              "$ClassName" : "TCastleEdit"
+            },
+            {
+              "ColorPersistent" : {
+                "Blue" : 1.0000000000000000E+000,
+                "Green" : 1.0000000000000000E+000,
+                "Red" : 1.0000000000000000E+000,
+                "$ClassName" : "TCastleColorPersistent"
+              },
+              "HorizontalAnchorDelta" : 1.0000000000000000E+001,
+              "Name" : "Label1",
+              "Text" : [
+                "Start Color"
+              ],
+              "VerticalAnchorDelta" : -7.9199996948242188E+001,
+              "VerticalAnchorParent" : "vpTop",
+              "VerticalAnchorSelf" : "vpTop",
+              "$Children" : [
+              ],
+              "$ClassName" : "TCastleLabel"
+            },
+            {
+              "AutoSizeToChildren" : true,
+              "HorizontalAnchorDelta" : 1.0000000000000000E+001,
+              "Name" : "Group2",
+              "VerticalAnchorDelta" : -1.1119999694824219E+002,
+              "VerticalAnchorParent" : "vpTop",
+              "VerticalAnchorSelf" : "vpTop",
+              "Width" : 3.2000000000000000E+002,
+              "$Children" : [
+                {
+                  "CaptureAllInput" : false,
+                  "FontScale" : 6.9999998807907104E-001,
+                  "Max" : 1.0000000000000000E+000,
+                  "Min" : 0.0000000000000000E+000,
+                  "Name" : "EditStartColorRed",
+                  "VerticalAnchorParent" : "vpTop",
+                  "VerticalAnchorSelf" : "vpTop",
+                  "Width" : 7.0000000000000000E+001,
+                  "$Children" : [
+                  ],
+                  "$ClassName" : "TCastleFloatEdit"
+                },
+                {
+                  "CaptureAllInput" : false,
+                  "FontScale" : 6.9999998807907104E-001,
+                  "HorizontalAnchorDelta" : 8.0000000000000000E+001,
+                  "Max" : 1.0000000000000000E+000,
+                  "Min" : 0.0000000000000000E+000,
+                  "Name" : "EditStartColorGreen",
+                  "VerticalAnchorParent" : "vpTop",
+                  "VerticalAnchorSelf" : "vpTop",
+                  "Width" : 7.0000000000000000E+001,
+                  "$Children" : [
+                  ],
+                  "$ClassName" : "TCastleFloatEdit"
+                },
+                {
+                  "CaptureAllInput" : false,
+                  "FontScale" : 6.9999998807907104E-001,
+                  "HorizontalAnchorDelta" : 1.6000000000000000E+002,
+                  "Max" : 1.0000000000000000E+000,
+                  "Min" : 0.0000000000000000E+000,
+                  "Name" : "EditStartColorBlue",
+                  "VerticalAnchorParent" : "vpTop",
+                  "VerticalAnchorSelf" : "vpTop",
+                  "Width" : 7.0000000000000000E+001,
+                  "$Children" : [
+                  ],
+                  "$ClassName" : "TCastleFloatEdit"
+                },
+                {
+                  "CaptureAllInput" : false,
+                  "FontScale" : 6.9999998807907104E-001,
+                  "HorizontalAnchorDelta" : 2.4000000000000000E+002,
+                  "Max" : 1.0000000000000000E+000,
+                  "Min" : 0.0000000000000000E+000,
+                  "Name" : "EditStartColorAlpha",
+                  "VerticalAnchorParent" : "vpTop",
+                  "VerticalAnchorSelf" : "vpTop",
+                  "Width" : 7.0000000000000000E+001,
+                  "$Children" : [
+                  ],
+                  "$ClassName" : "TCastleFloatEdit"
+                }
+              ],
+              "$ClassName" : "TCastleUserInterface"
+            },
+            {
+              "ColorPersistent" : {
+                "Blue" : 1.0000000000000000E+000,
+                "Green" : 1.0000000000000000E+000,
+                "Red" : 1.0000000000000000E+000,
+                "$ClassName" : "TCastleColorPersistent"
+              },
+              "HorizontalAnchorDelta" : 1.0000000000000000E+001,
+              "Name" : "Label3",
+              "Text" : [
+                "Middle Color"
+              ],
+              "VerticalAnchorDelta" : -1.4650000000000000E+002,
+              "VerticalAnchorParent" : "vpTop",
+              "VerticalAnchorSelf" : "vpTop",
+              "$Children" : [
+              ],
+              "$ClassName" : "TCastleLabel"
+            },
+            {
+              "AutoSizeToChildren" : true,
+              "HorizontalAnchorDelta" : 1.0000000000000000E+001,
+              "Name" : "Group4",
+              "VerticalAnchorDelta" : -1.7850000000000000E+002,
+              "VerticalAnchorParent" : "vpTop",
+              "VerticalAnchorSelf" : "vpTop",
+              "Width" : 3.2000000000000000E+002,
+              "$Children" : [
+                {
+                  "CaptureAllInput" : false,
+                  "FontScale" : 6.9999998807907104E-001,
+                  "Max" : 1.0000000000000000E+000,
+                  "Min" : 0.0000000000000000E+000,
+                  "Name" : "EditMiddleColorRed",
+                  "VerticalAnchorParent" : "vpTop",
+                  "VerticalAnchorSelf" : "vpTop",
+                  "Width" : 7.0000000000000000E+001,
+                  "$Children" : [
+                  ],
+                  "$ClassName" : "TCastleFloatEdit"
+                },
+                {
+                  "CaptureAllInput" : false,
+                  "FontScale" : 6.9999998807907104E-001,
+                  "HorizontalAnchorDelta" : 8.0000000000000000E+001,
+                  "Max" : 1.0000000000000000E+000,
+                  "Min" : 0.0000000000000000E+000,
+                  "Name" : "EditMiddleColorGreen",
+                  "VerticalAnchorParent" : "vpTop",
+                  "VerticalAnchorSelf" : "vpTop",
+                  "Width" : 7.0000000000000000E+001,
+                  "$Children" : [
+                  ],
+                  "$ClassName" : "TCastleFloatEdit"
+                },
+                {
+                  "CaptureAllInput" : false,
+                  "FontScale" : 6.9999998807907104E-001,
+                  "HorizontalAnchorDelta" : 1.6000000000000000E+002,
+                  "Max" : 1.0000000000000000E+000,
+                  "Min" : 0.0000000000000000E+000,
+                  "Name" : "EditMiddleColorBlue",
+                  "VerticalAnchorParent" : "vpTop",
+                  "VerticalAnchorSelf" : "vpTop",
+                  "Width" : 7.0000000000000000E+001,
+                  "$Children" : [
+                  ],
+                  "$ClassName" : "TCastleFloatEdit"
+                },
+                {
+                  "CaptureAllInput" : false,
+                  "FontScale" : 6.9999998807907104E-001,
+                  "HorizontalAnchorDelta" : 2.4000000000000000E+002,
+                  "Max" : 1.0000000000000000E+000,
+                  "Min" : 0.0000000000000000E+000,
+                  "Name" : "EditMiddleColorAlpha",
+                  "VerticalAnchorParent" : "vpTop",
+                  "VerticalAnchorSelf" : "vpTop",
+                  "Width" : 7.0000000000000000E+001,
+                  "$Children" : [
+                  ],
+                  "$ClassName" : "TCastleFloatEdit"
+                }
+              ],
+              "$ClassName" : "TCastleUserInterface"
+            },
+            {
+              "ColorPersistent" : {
+                "Blue" : 1.0000000000000000E+000,
+                "Green" : 1.0000000000000000E+000,
+                "Red" : 1.0000000000000000E+000,
+                "$ClassName" : "TCastleColorPersistent"
+              },
+              "HorizontalAnchorDelta" : 1.0000000000000000E+001,
+              "Name" : "Label4",
+              "Text" : [
+                "Finish Color"
+              ],
+              "VerticalAnchorDelta" : -2.1379998779296875E+002,
+              "VerticalAnchorParent" : "vpTop",
+              "VerticalAnchorSelf" : "vpTop",
+              "$Children" : [
+              ],
+              "$ClassName" : "TCastleLabel"
+            },
+            {
+              "AutoSizeToChildren" : true,
+              "HorizontalAnchorDelta" : 1.0000000000000000E+001,
+              "Name" : "Group5",
+              "VerticalAnchorDelta" : -2.4579998779296875E+002,
+              "VerticalAnchorParent" : "vpTop",
+              "VerticalAnchorSelf" : "vpTop",
+              "Width" : 3.2000000000000000E+002,
+              "$Children" : [
+                {
+                  "CaptureAllInput" : false,
+                  "FontScale" : 6.9999998807907104E-001,
+                  "Max" : 1.0000000000000000E+000,
+                  "Min" : 0.0000000000000000E+000,
+                  "Name" : "EditFinishColorRed",
+                  "VerticalAnchorParent" : "vpTop",
+                  "VerticalAnchorSelf" : "vpTop",
+                  "Width" : 7.0000000000000000E+001,
+                  "$Children" : [
+                  ],
+                  "$ClassName" : "TCastleFloatEdit"
+                },
+                {
+                  "CaptureAllInput" : false,
+                  "FontScale" : 6.9999998807907104E-001,
+                  "HorizontalAnchorDelta" : 8.0000000000000000E+001,
+                  "Max" : 1.0000000000000000E+000,
+                  "Min" : 0.0000000000000000E+000,
+                  "Name" : "EditFinishColorGreen",
+                  "VerticalAnchorParent" : "vpTop",
+                  "VerticalAnchorSelf" : "vpTop",
+                  "Width" : 7.0000000000000000E+001,
+                  "$Children" : [
+                  ],
+                  "$ClassName" : "TCastleFloatEdit"
+                },
+                {
+                  "CaptureAllInput" : false,
+                  "FontScale" : 6.9999998807907104E-001,
+                  "HorizontalAnchorDelta" : 1.6000000000000000E+002,
+                  "Max" : 1.0000000000000000E+000,
+                  "Min" : 0.0000000000000000E+000,
+                  "Name" : "EditFinishColorBlue",
+                  "VerticalAnchorParent" : "vpTop",
+                  "VerticalAnchorSelf" : "vpTop",
+                  "Width" : 7.0000000000000000E+001,
+                  "$Children" : [
+                  ],
+                  "$ClassName" : "TCastleFloatEdit"
+                },
+                {
+                  "CaptureAllInput" : false,
+                  "FontScale" : 6.9999998807907104E-001,
+                  "HorizontalAnchorDelta" : 2.4000000000000000E+002,
+                  "Max" : 1.0000000000000000E+000,
+                  "Min" : 0.0000000000000000E+000,
+                  "Name" : "EditFinishColorAlpha",
+                  "VerticalAnchorParent" : "vpTop",
+                  "VerticalAnchorSelf" : "vpTop",
+                  "Width" : 7.0000000000000000E+001,
+                  "$Children" : [
+                  ],
+                  "$ClassName" : "TCastleFloatEdit"
+                }
+              ],
+              "$ClassName" : "TCastleUserInterface"
+            },
+            {
+              "ColorPersistent" : {
+                "Blue" : 1.0000000000000000E+000,
+                "Green" : 1.0000000000000000E+000,
+                "Red" : 1.0000000000000000E+000,
+                "$ClassName" : "TCastleColorPersistent"
+              },
+              "HorizontalAnchorDelta" : 1.0000000000000000E+001,
+              "Name" : "Label8",
+              "Text" : [
+                "Direction"
+              ],
+              "VerticalAnchorDelta" : -2.8109997558593750E+002,
+              "VerticalAnchorParent" : "vpTop",
+              "VerticalAnchorSelf" : "vpTop",
+              "$Children" : [
+              ],
+              "$ClassName" : "TCastleLabel"
+            },
+            {
+              "AutoSizeToChildren" : true,
+              "HorizontalAnchorDelta" : 1.0000000000000000E+001,
+              "Name" : "Group9",
+              "VerticalAnchorDelta" : -3.1309997558593750E+002,
+              "VerticalAnchorParent" : "vpTop",
+              "VerticalAnchorSelf" : "vpTop",
+              "Width" : 3.2000000000000000E+002,
+              "$Children" : [
+                {
+                  "CaptureAllInput" : false,
+                  "FontScale" : 6.9999998807907104E-001,
+                  "Name" : "EditDirectionX",
+                  "VerticalAnchorParent" : "vpTop",
+                  "VerticalAnchorSelf" : "vpTop",
+                  "Width" : 7.0000000000000000E+001,
+                  "$Children" : [
+                  ],
+                  "$ClassName" : "TCastleFloatEdit"
+                },
+                {
+                  "CaptureAllInput" : false,
+                  "FontScale" : 6.9999998807907104E-001,
+                  "HorizontalAnchorDelta" : 8.0000000000000000E+001,
+                  "Name" : "EditDirectionY",
+                  "VerticalAnchorParent" : "vpTop",
+                  "VerticalAnchorSelf" : "vpTop",
+                  "Width" : 7.0000000000000000E+001,
+                  "$Children" : [
+                  ],
+                  "$ClassName" : "TCastleFloatEdit"
+                },
+                {
+                  "CaptureAllInput" : false,
+                  "FontScale" : 6.9999998807907104E-001,
+                  "HorizontalAnchorDelta" : 1.6000000000000000E+002,
+                  "Name" : "EditDirectionZ",
+                  "VerticalAnchorParent" : "vpTop",
+                  "VerticalAnchorSelf" : "vpTop",
+                  "Width" : 7.0000000000000000E+001,
+                  "$Children" : [
+                  ],
+                  "$ClassName" : "TCastleFloatEdit"
+                }
+              ],
+              "$ClassName" : "TCastleUserInterface"
+            },
+            {
+              "ColorPersistent" : {
+                "Blue" : 1.0000000000000000E+000,
+                "Green" : 1.0000000000000000E+000,
+                "Red" : 1.0000000000000000E+000,
+                "$ClassName" : "TCastleColorPersistent"
+              },
+              "HorizontalAnchorDelta" : 1.0000000000000000E+001,
+              "Name" : "Label11",
+              "Text" : [
+                "Blend Source"
+              ],
+              "VerticalAnchorDelta" : -3.4839996337890625E+002,
+              "VerticalAnchorParent" : "vpTop",
+              "VerticalAnchorSelf" : "vpTop",
+              "$Children" : [
+              ],
+              "$ClassName" : "TCastleLabel"
+            },
+            {
+              "CaptureAllInput" : false,
+              "FontScale" : 8.0000001192092896E-001,
+              "HorizontalAnchorDelta" : 1.0000000000000000E+001,
+              "Min" : 1,
+              "Name" : "EditBlendSrc",
+              "VerticalAnchorDelta" : -3.8039996337890625E+002,
+              "VerticalAnchorParent" : "vpTop",
+              "VerticalAnchorSelf" : "vpTop",
+              "$Children" : [
+              ],
+              "$ClassName" : "TCastleIntegerEdit"
+            },
+            {
+              "ColorPersistent" : {
+                "Blue" : 1.0000000000000000E+000,
+                "Green" : 1.0000000000000000E+000,
+                "Red" : 1.0000000000000000E+000,
+                "$ClassName" : "TCastleColorPersistent"
+              },
+              "HorizontalAnchorDelta" : 1.0000000000000000E+001,
+              "Name" : "Label12",
+              "Text" : [
+                "Blend Destination"
+              ],
+              "VerticalAnchorDelta" : -4.1759997558593750E+002,
+              "VerticalAnchorParent" : "vpTop",
+              "VerticalAnchorSelf" : "vpTop",
+              "$Children" : [
+              ],
+              "$ClassName" : "TCastleLabel"
+            },
+            {
+              "CaptureAllInput" : false,
+              "FontScale" : 8.0000001192092896E-001,
+              "HorizontalAnchorDelta" : 1.0000000000000000E+001,
+              "Min" : 1,
+              "Name" : "EditBlendDst",
+              "VerticalAnchorDelta" : -4.4959997558593750E+002,
+              "VerticalAnchorParent" : "vpTop",
+              "VerticalAnchorSelf" : "vpTop",
+              "$Children" : [
+              ],
+              "$ClassName" : "TCastleIntegerEdit"
+            },
+            {
+              "ColorPersistent" : {
+                "Blue" : 1.0000000000000000E+000,
+                "Green" : 1.0000000000000000E+000,
+                "Red" : 1.0000000000000000E+000,
+                "$ClassName" : "TCastleColorPersistent"
+              },
+              "HorizontalAnchorDelta" : 1.0000000000000000E+001,
+              "Name" : "Label13",
+              "Text" : [
+                "Maximum Particles"
+              ],
+              "VerticalAnchorDelta" : -4.8679998779296875E+002,
+              "VerticalAnchorParent" : "vpTop",
+              "VerticalAnchorSelf" : "vpTop",
+              "$Children" : [
+              ],
+              "$ClassName" : "TCastleLabel"
+            },
+            {
+              "CaptureAllInput" : false,
+              "FontScale" : 8.0000001192092896E-001,
+              "HorizontalAnchorDelta" : 1.0000000000000000E+001,
+              "Min" : 1,
+              "Name" : "EditMaxParticles",
+              "VerticalAnchorDelta" : -5.1879998779296875E+002,
+              "VerticalAnchorParent" : "vpTop",
+              "VerticalAnchorSelf" : "vpTop",
+              "$Children" : [
+              ],
+              "$ClassName" : "TCastleIntegerEdit"
+            },
+            {
+              "ColorPersistent" : {
+                "Blue" : 1.0000000000000000E+000,
+                "Green" : 1.0000000000000000E+000,
+                "Red" : 1.0000000000000000E+000,
+                "$ClassName" : "TCastleColorPersistent"
+              },
+              "HorizontalAnchorDelta" : 1.0000000000000000E+001,
+              "Name" : "Label17",
+              "Text" : [
+                "Bounding Box"
+              ],
+              "VerticalAnchorDelta" : -5.5600000000000000E+002,
+              "VerticalAnchorParent" : "vpTop",
+              "VerticalAnchorSelf" : "vpTop",
+              "$Children" : [
+              ],
+              "$ClassName" : "TCastleLabel"
+            },
+            {
+              "AutoSizeToChildren" : true,
+              "HorizontalAnchorDelta" : 1.0000000000000000E+001,
+              "Name" : "Group19",
+              "VerticalAnchorDelta" : -5.8800000000000000E+002,
+              "VerticalAnchorParent" : "vpTop",
+              "VerticalAnchorSelf" : "vpTop",
+              "Width" : 3.2000000000000000E+002,
+              "$Children" : [
+                {
+                  "CaptureAllInput" : false,
+                  "FontScale" : 6.9999998807907104E-001,
+                  "Name" : "EditBBoxX1",
+                  "VerticalAnchorParent" : "vpTop",
+                  "VerticalAnchorSelf" : "vpTop",
+                  "Width" : 7.0000000000000000E+001,
+                  "$Children" : [
+                  ],
+                  "$ClassName" : "TCastleFloatEdit"
+                },
+                {
+                  "CaptureAllInput" : false,
+                  "FontScale" : 6.9999998807907104E-001,
+                  "HorizontalAnchorDelta" : 8.0000000000000000E+001,
+                  "Name" : "EditBBoxY1",
+                  "VerticalAnchorParent" : "vpTop",
+                  "VerticalAnchorSelf" : "vpTop",
+                  "Width" : 7.0000000000000000E+001,
+                  "$Children" : [
+                  ],
+                  "$ClassName" : "TCastleFloatEdit"
+                },
+                {
+                  "CaptureAllInput" : false,
+                  "FontScale" : 6.9999998807907104E-001,
+                  "HorizontalAnchorDelta" : 1.6000000000000000E+002,
+                  "Name" : "EditBBoxZ1",
+                  "VerticalAnchorParent" : "vpTop",
+                  "VerticalAnchorSelf" : "vpTop",
+                  "Width" : 7.0000000000000000E+001,
+                  "$Children" : [
+                  ],
+                  "$ClassName" : "TCastleFloatEdit"
+                }
+              ],
+              "$ClassName" : "TCastleUserInterface"
+            },
+            {
+              "AutoSizeToChildren" : true,
+              "HorizontalAnchorDelta" : 1.0000000000000000E+001,
+              "Name" : "Group20",
+              "VerticalAnchorDelta" : -6.2329998779296875E+002,
+              "VerticalAnchorParent" : "vpTop",
+              "VerticalAnchorSelf" : "vpTop",
+              "Width" : 3.2000000000000000E+002,
+              "$Children" : [
+                {
+                  "CaptureAllInput" : false,
+                  "FontScale" : 6.9999998807907104E-001,
+                  "Name" : "EditBBoxX2",
+                  "VerticalAnchorParent" : "vpTop",
+                  "VerticalAnchorSelf" : "vpTop",
+                  "Width" : 7.0000000000000000E+001,
+                  "$Children" : [
+                  ],
+                  "$ClassName" : "TCastleFloatEdit"
+                },
+                {
+                  "CaptureAllInput" : false,
+                  "FontScale" : 6.9999998807907104E-001,
+                  "HorizontalAnchorDelta" : 8.0000000000000000E+001,
+                  "Name" : "EditBBoxY2",
+                  "VerticalAnchorParent" : "vpTop",
+                  "VerticalAnchorSelf" : "vpTop",
+                  "Width" : 7.0000000000000000E+001,
+                  "$Children" : [
+                  ],
+                  "$ClassName" : "TCastleFloatEdit"
+                },
+                {
+                  "CaptureAllInput" : false,
+                  "FontScale" : 6.9999998807907104E-001,
+                  "HorizontalAnchorDelta" : 1.6000000000000000E+002,
+                  "Name" : "EditBBoxZ2",
+                  "VerticalAnchorParent" : "vpTop",
+                  "VerticalAnchorSelf" : "vpTop",
+                  "Width" : 7.0000000000000000E+001,
+                  "$Children" : [
+                  ],
+                  "$ClassName" : "TCastleFloatEdit"
+                }
+              ],
+              "$ClassName" : "TCastleUserInterface"
+            },
+            {
+              "Height" : 6.0000000000000000E+001,
+              "HorizontalAnchorDelta" : 1.0000000000000000E+001,
+              "Name" : "Group17",
+              "VerticalAnchorDelta" : -6.5859997558593750E+002,
+              "VerticalAnchorParent" : "vpTop",
+              "VerticalAnchorSelf" : "vpTop",
+              "$Children" : [
+              ],
+              "$ClassName" : "TCastleUserInterface"
+            },
+            {
+              "Height" : 6.0000000000000000E+001,
+              "HorizontalAnchorDelta" : 1.0000000000000000E+001,
+              "Name" : "Group18",
+              "VerticalAnchorDelta" : -7.2859997558593750E+002,
+              "VerticalAnchorParent" : "vpTop",
+              "VerticalAnchorSelf" : "vpTop",
+              "Width" : 3.0000000000000000E+002,
+              "$Children" : [
+                {
+                  "AutoSizeWidth" : false,
+                  "Caption" : "Save",
+                  "CustomBackgroundDisabled" : {
+                    "$ClassName" : "TCastleImagePersistent"
+                  },
+                  "CustomBackgroundFocused" : {
+                    "$ClassName" : "TCastleImagePersistent"
+                  },
+                  "CustomBackgroundNormal" : {
+                    "$ClassName" : "TCastleImagePersistent"
+                  },
+                  "CustomBackgroundPressed" : {
+                    "$ClassName" : "TCastleImagePersistent"
+                  },
+                  "Image" : {
+                    "$ClassName" : "TCastleImagePersistent"
+                  },
+                  "Name" : "ButtonSave",
+                  "VerticalAnchorParent" : "vpTop",
+                  "VerticalAnchorSelf" : "vpTop",
+                  "Width" : 9.6000000000000000E+001,
+                  "$Children" : [
+                  ],
+                  "$ClassName" : "TCastleButton"
+                },
+                {
+                  "AutoSizeWidth" : false,
+                  "Caption" : "Load",
+                  "CustomBackgroundDisabled" : {
+                    "$ClassName" : "TCastleImagePersistent"
+                  },
+                  "CustomBackgroundFocused" : {
+                    "$ClassName" : "TCastleImagePersistent"
+                  },
+                  "CustomBackgroundNormal" : {
+                    "$ClassName" : "TCastleImagePersistent"
+                  },
+                  "CustomBackgroundPressed" : {
+                    "$ClassName" : "TCastleImagePersistent"
+                  },
+                  "HorizontalAnchorParent" : "hpMiddle",
+                  "HorizontalAnchorSelf" : "hpMiddle",
+                  "Image" : {
+                    "$ClassName" : "TCastleImagePersistent"
+                  },
+                  "Name" : "ButtonLoad",
+                  "VerticalAnchorParent" : "vpTop",
+                  "VerticalAnchorSelf" : "vpTop",
+                  "Width" : 9.6000000000000000E+001,
+                  "$Children" : [
+                  ],
+                  "$ClassName" : "TCastleButton"
+                },
+                {
+                  "AutoSizeWidth" : false,
+                  "Caption" : "Apply",
+                  "CustomBackgroundDisabled" : {
+                    "$ClassName" : "TCastleImagePersistent"
+                  },
+                  "CustomBackgroundFocused" : {
+                    "$ClassName" : "TCastleImagePersistent"
+                  },
+                  "CustomBackgroundNormal" : {
+                    "$ClassName" : "TCastleImagePersistent"
+                  },
+                  "CustomBackgroundPressed" : {
+                    "$ClassName" : "TCastleImagePersistent"
+                  },
+                  "HorizontalAnchorParent" : "hpRight",
+                  "HorizontalAnchorSelf" : "hpRight",
+                  "Image" : {
+                    "$ClassName" : "TCastleImagePersistent"
+                  },
+                  "Name" : "ButtonApply",
+                  "VerticalAnchorParent" : "vpTop",
+                  "VerticalAnchorSelf" : "vpTop",
+                  "Width" : 9.6000000000000000E+001,
+                  "$Children" : [
+                  ],
+                  "$ClassName" : "TCastleButton"
+                }
+              ],
+              "$ClassName" : "TCastleUserInterface"
+            }
+          ],
+          "$ClassName" : "TCastleVerticalGroup"
+        }
+      ],
+      "$ClassName" : "TCastleRectangleControl"
+    },
+    {
+      "AutoSizeToChildren" : true,
+      "ColorPersistent" : {
+        "Alpha" : 7.4901962280273437E-001,
+        "Blue" : 1.4117647707462311E-001,
+        "Green" : 0.0000000000000000E+000,
+        "Red" : 0.0000000000000000E+000,
+        "$ClassName" : "TCastleColorPersistent"
+      },
+      "Height" : 2.4000000000000000E+002,
+      "HorizontalAnchorParent" : "hpRight",
+      "HorizontalAnchorSelf" : "hpRight",
+      "Name" : "Rectangle2",
+      "VerticalAnchorParent" : "vpTop",
+      "VerticalAnchorSelf" : "vpTop",
+      "Width" : 8.2000000000000000E+002,
+      "$Children" : [
+        {
+          "HorizontalAnchorParent" : "hpMiddle",
+          "HorizontalAnchorSelf" : "hpMiddle",
+          "Name" : "VerticalGroup2",
+          "Padding" : 1.0000000000000000E+001,
+          "Spacing" : 1.0000000000000000E+001,
+          "VerticalAnchorParent" : "vpTop",
+          "VerticalAnchorSelf" : "vpTop",
+          "$Children" : [
+            {
+              "ColorPersistent" : {
+                "Blue" : 1.0000000000000000E+000,
+                "Green" : 1.0000000000000000E+000,
+                "Red" : 1.0000000000000000E+000,
+                "$ClassName" : "TCastleColorPersistent"
+              },
+              "HorizontalAnchorDelta" : 1.0000000000000000E+001,
+              "Name" : "Label15",
+              "Text" : [
+                "Color Middle Anchor"
+              ],
+              "VerticalAnchorDelta" : -1.0000000000000000E+001,
+              "VerticalAnchorParent" : "vpTop",
+              "VerticalAnchorSelf" : "vpTop",
+              "$Children" : [
+              ],
+              "$ClassName" : "TCastleLabel"
+            },
+            {
+              "CaptureAllInput" : false,
+              "FontScale" : 8.0000001192092896E-001,
+              "HorizontalAnchorDelta" : 1.0000000000000000E+001,
+              "Max" : 1.0000000000000000E+000,
+              "Min" : 0.0000000000000000E+000,
+              "Name" : "EditMiddleAnchor",
+              "VerticalAnchorDelta" : -4.2000000000000000E+001,
+              "VerticalAnchorParent" : "vpTop",
+              "VerticalAnchorSelf" : "vpTop",
+              "$Children" : [
+              ],
+              "$ClassName" : "TCastleFloatEdit"
+            },
+            {
+              "ColorPersistent" : {
+                "Blue" : 1.0000000000000000E+000,
+                "Green" : 1.0000000000000000E+000,
+                "Red" : 1.0000000000000000E+000,
+                "$ClassName" : "TCastleColorPersistent"
+              },
+              "HorizontalAnchorDelta" : 1.0000000000000000E+001,
+              "Name" : "Label6",
+              "Text" : [
+                "Start Color Variance"
+              ],
+              "VerticalAnchorDelta" : -7.9199996948242188E+001,
+              "VerticalAnchorParent" : "vpTop",
+              "VerticalAnchorSelf" : "vpTop",
+              "$Children" : [
+              ],
+              "$ClassName" : "TCastleLabel"
+            },
+            {
+              "AutoSizeToChildren" : true,
+              "HorizontalAnchorDelta" : 1.0000000000000000E+001,
+              "Name" : "Group3",
+              "VerticalAnchorDelta" : -1.1119999694824219E+002,
+              "VerticalAnchorParent" : "vpTop",
+              "VerticalAnchorSelf" : "vpTop",
+              "Width" : 3.2000000000000000E+002,
+              "$Children" : [
+                {
+                  "CaptureAllInput" : false,
+                  "FontScale" : 6.9999998807907104E-001,
+                  "Max" : 1.0000000000000000E+000,
+                  "Min" : 0.0000000000000000E+000,
+                  "Name" : "EditStartColorVarianceRed",
+                  "VerticalAnchorParent" : "vpTop",
+                  "VerticalAnchorSelf" : "vpTop",
+                  "Width" : 7.0000000000000000E+001,
+                  "$Children" : [
+                  ],
+                  "$ClassName" : "TCastleFloatEdit"
+                },
+                {
+                  "CaptureAllInput" : false,
+                  "FontScale" : 6.9999998807907104E-001,
+                  "HorizontalAnchorDelta" : 8.0000000000000000E+001,
+                  "Max" : 1.0000000000000000E+000,
+                  "Min" : 0.0000000000000000E+000,
+                  "Name" : "EditStartColorVarianceGreen",
+                  "VerticalAnchorParent" : "vpTop",
+                  "VerticalAnchorSelf" : "vpTop",
+                  "Width" : 7.0000000000000000E+001,
+                  "$Children" : [
+                  ],
+                  "$ClassName" : "TCastleFloatEdit"
+                },
+                {
+                  "CaptureAllInput" : false,
+                  "FontScale" : 6.9999998807907104E-001,
+                  "HorizontalAnchorDelta" : 1.6000000000000000E+002,
+                  "Max" : 1.0000000000000000E+000,
+                  "Min" : 0.0000000000000000E+000,
+                  "Name" : "EditStartColorVarianceBlue",
+                  "VerticalAnchorParent" : "vpTop",
+                  "VerticalAnchorSelf" : "vpTop",
+                  "Width" : 7.0000000000000000E+001,
+                  "$Children" : [
+                  ],
+                  "$ClassName" : "TCastleFloatEdit"
+                },
+                {
+                  "CaptureAllInput" : false,
+                  "FontScale" : 6.9999998807907104E-001,
+                  "HorizontalAnchorDelta" : 2.4000000000000000E+002,
+                  "Max" : 1.0000000000000000E+000,
+                  "Min" : 0.0000000000000000E+000,
+                  "Name" : "EditStartColorVarianceAlpha",
+                  "VerticalAnchorParent" : "vpTop",
+                  "VerticalAnchorSelf" : "vpTop",
+                  "Width" : 7.0000000000000000E+001,
+                  "$Children" : [
+                  ],
+                  "$ClassName" : "TCastleFloatEdit"
+                }
+              ],
+              "$ClassName" : "TCastleUserInterface"
+            },
+            {
+              "ColorPersistent" : {
+                "Blue" : 1.0000000000000000E+000,
+                "Green" : 1.0000000000000000E+000,
+                "Red" : 1.0000000000000000E+000,
+                "$ClassName" : "TCastleColorPersistent"
+              },
+              "HorizontalAnchorDelta" : 1.0000000000000000E+001,
+              "Name" : "Label5",
+              "Text" : [
+                "Middle Color Variance"
+              ],
+              "VerticalAnchorDelta" : -1.4650000000000000E+002,
+              "VerticalAnchorParent" : "vpTop",
+              "VerticalAnchorSelf" : "vpTop",
+              "$Children" : [
+              ],
+              "$ClassName" : "TCastleLabel"
+            },
+            {
+              "AutoSizeToChildren" : true,
+              "HorizontalAnchorDelta" : 1.0000000000000000E+001,
+              "Name" : "Group6",
+              "VerticalAnchorDelta" : -1.7850000000000000E+002,
+              "VerticalAnchorParent" : "vpTop",
+              "VerticalAnchorSelf" : "vpTop",
+              "Width" : 3.2000000000000000E+002,
+              "$Children" : [
+                {
+                  "CaptureAllInput" : false,
+                  "FontScale" : 6.9999998807907104E-001,
+                  "Max" : 1.0000000000000000E+000,
+                  "Min" : 0.0000000000000000E+000,
+                  "Name" : "EditMiddleColorVarianceRed",
+                  "VerticalAnchorParent" : "vpTop",
+                  "VerticalAnchorSelf" : "vpTop",
+                  "Width" : 7.0000000000000000E+001,
+                  "$Children" : [
+                  ],
+                  "$ClassName" : "TCastleFloatEdit"
+                },
+                {
+                  "CaptureAllInput" : false,
+                  "FontScale" : 6.9999998807907104E-001,
+                  "HorizontalAnchorDelta" : 8.0000000000000000E+001,
+                  "Max" : 1.0000000000000000E+000,
+                  "Min" : 0.0000000000000000E+000,
+                  "Name" : "EditMiddleColorVarianceGreen",
+                  "VerticalAnchorParent" : "vpTop",
+                  "VerticalAnchorSelf" : "vpTop",
+                  "Width" : 7.0000000000000000E+001,
+                  "$Children" : [
+                  ],
+                  "$ClassName" : "TCastleFloatEdit"
+                },
+                {
+                  "CaptureAllInput" : false,
+                  "FontScale" : 6.9999998807907104E-001,
+                  "HorizontalAnchorDelta" : 1.6000000000000000E+002,
+                  "Max" : 1.0000000000000000E+000,
+                  "Min" : 0.0000000000000000E+000,
+                  "Name" : "EditMiddleColorVarianceBlue",
+                  "VerticalAnchorParent" : "vpTop",
+                  "VerticalAnchorSelf" : "vpTop",
+                  "Width" : 7.0000000000000000E+001,
+                  "$Children" : [
+                  ],
+                  "$ClassName" : "TCastleFloatEdit"
+                },
+                {
+                  "CaptureAllInput" : false,
+                  "FontScale" : 6.9999998807907104E-001,
+                  "HorizontalAnchorDelta" : 2.4000000000000000E+002,
+                  "Max" : 1.0000000000000000E+000,
+                  "Min" : 0.0000000000000000E+000,
+                  "Name" : "EditMiddleColorVarianceAlpha",
+                  "VerticalAnchorParent" : "vpTop",
+                  "VerticalAnchorSelf" : "vpTop",
+                  "Width" : 7.0000000000000000E+001,
+                  "$Children" : [
+                  ],
+                  "$ClassName" : "TCastleFloatEdit"
+                }
+              ],
+              "$ClassName" : "TCastleUserInterface"
+            },
+            {
+              "ColorPersistent" : {
+                "Blue" : 1.0000000000000000E+000,
+                "Green" : 1.0000000000000000E+000,
+                "Red" : 1.0000000000000000E+000,
+                "$ClassName" : "TCastleColorPersistent"
+              },
+              "HorizontalAnchorDelta" : 1.0000000000000000E+001,
+              "Name" : "Label2",
+              "Text" : [
+                "Finish Color Variance"
+              ],
+              "VerticalAnchorDelta" : -2.1379998779296875E+002,
+              "VerticalAnchorParent" : "vpTop",
+              "VerticalAnchorSelf" : "vpTop",
+              "$Children" : [
+              ],
+              "$ClassName" : "TCastleLabel"
+            },
+            {
+              "AutoSizeToChildren" : true,
+              "HorizontalAnchorDelta" : 1.0000000000000000E+001,
+              "Name" : "Group7",
+              "VerticalAnchorDelta" : -2.4579998779296875E+002,
+              "VerticalAnchorParent" : "vpTop",
+              "VerticalAnchorSelf" : "vpTop",
+              "Width" : 3.2000000000000000E+002,
+              "$Children" : [
+                {
+                  "CaptureAllInput" : false,
+                  "FontScale" : 6.9999998807907104E-001,
+                  "Max" : 1.0000000000000000E+000,
+                  "Min" : 0.0000000000000000E+000,
+                  "Name" : "EditFinishColorVarianceRed",
+                  "VerticalAnchorParent" : "vpTop",
+                  "VerticalAnchorSelf" : "vpTop",
+                  "Width" : 7.0000000000000000E+001,
+                  "$Children" : [
+                  ],
+                  "$ClassName" : "TCastleFloatEdit"
+                },
+                {
+                  "CaptureAllInput" : false,
+                  "FontScale" : 6.9999998807907104E-001,
+                  "HorizontalAnchorDelta" : 8.0000000000000000E+001,
+                  "Max" : 1.0000000000000000E+000,
+                  "Min" : 0.0000000000000000E+000,
+                  "Name" : "EditFinishColorVarianceGreen",
+                  "VerticalAnchorParent" : "vpTop",
+                  "VerticalAnchorSelf" : "vpTop",
+                  "Width" : 7.0000000000000000E+001,
+                  "$Children" : [
+                  ],
+                  "$ClassName" : "TCastleFloatEdit"
+                },
+                {
+                  "CaptureAllInput" : false,
+                  "FontScale" : 6.9999998807907104E-001,
+                  "HorizontalAnchorDelta" : 1.6000000000000000E+002,
+                  "Max" : 1.0000000000000000E+000,
+                  "Min" : 0.0000000000000000E+000,
+                  "Name" : "EditFinishColorVarianceBlue",
+                  "VerticalAnchorParent" : "vpTop",
+                  "VerticalAnchorSelf" : "vpTop",
+                  "Width" : 7.0000000000000000E+001,
+                  "$Children" : [
+                  ],
+                  "$ClassName" : "TCastleFloatEdit"
+                },
+                {
+                  "CaptureAllInput" : false,
+                  "FontScale" : 6.9999998807907104E-001,
+                  "HorizontalAnchorDelta" : 2.4000000000000000E+002,
+                  "Max" : 1.0000000000000000E+000,
+                  "Min" : 0.0000000000000000E+000,
+                  "Name" : "EditFinishColorVarianceAlpha",
+                  "VerticalAnchorParent" : "vpTop",
+                  "VerticalAnchorSelf" : "vpTop",
+                  "Width" : 7.0000000000000000E+001,
+                  "$Children" : [
+                  ],
+                  "$ClassName" : "TCastleFloatEdit"
+                }
+              ],
+              "$ClassName" : "TCastleUserInterface"
+            },
+            {
+              "ColorPersistent" : {
+                "Blue" : 1.0000000000000000E+000,
+                "Green" : 1.0000000000000000E+000,
+                "Red" : 1.0000000000000000E+000,
+                "$ClassName" : "TCastleColorPersistent"
+              },
+              "HorizontalAnchorDelta" : 1.0000000000000000E+001,
+              "Name" : "Label16",
+              "Text" : [
+                "Direction Variance"
+              ],
+              "VerticalAnchorDelta" : -2.8109997558593750E+002,
+              "VerticalAnchorParent" : "vpTop",
+              "VerticalAnchorSelf" : "vpTop",
+              "$Children" : [
+              ],
+              "$ClassName" : "TCastleLabel"
+            },
+            {
+              "CaptureAllInput" : false,
+              "FontScale" : 8.0000001192092896E-001,
+              "HorizontalAnchorDelta" : 1.0000000000000000E+001,
+              "Name" : "EditDirectionVariance",
+              "VerticalAnchorDelta" : -3.1309997558593750E+002,
+              "VerticalAnchorParent" : "vpTop",
+              "VerticalAnchorSelf" : "vpTop",
+              "$Children" : [
+              ],
+              "$ClassName" : "TCastleFloatEdit"
+            },
+            {
+              "ColorPersistent" : {
+                "Blue" : 1.0000000000000000E+000,
+                "Green" : 1.0000000000000000E+000,
+                "Red" : 1.0000000000000000E+000,
+                "$ClassName" : "TCastleColorPersistent"
+              },
+              "HorizontalAnchorDelta" : 1.0000000000000000E+001,
+              "Name" : "Label24",
+              "Text" : [
+                "Speed / Variance"
+              ],
+              "VerticalAnchorDelta" : -3.5029998779296875E+002,
+              "VerticalAnchorParent" : "vpTop",
+              "VerticalAnchorSelf" : "vpTop",
+              "$Children" : [
+              ],
+              "$ClassName" : "TCastleLabel"
+            },
+            {
+              "AutoSizeToChildren" : true,
+              "HorizontalAnchorDelta" : 1.0000000000000000E+001,
+              "Name" : "Group11",
+              "VerticalAnchorDelta" : -3.8229998779296875E+002,
+              "VerticalAnchorParent" : "vpTop",
+              "VerticalAnchorSelf" : "vpTop",
+              "Width" : 3.2000000000000000E+002,
+              "$Children" : [
+                {
+                  "CaptureAllInput" : false,
+                  "FontScale" : 8.0000001192092896E-001,
+                  "HorizontalAnchorDelta" : -1.6321271687047556E-005,
+                  "Name" : "EditSpeed",
+                  "VerticalAnchorParent" : "vpTop",
+                  "VerticalAnchorSelf" : "vpTop",
+                  "$Children" : [
+                  ],
+                  "$ClassName" : "TCastleFloatEdit"
+                },
+                {
+                  "CaptureAllInput" : false,
+                  "FontScale" : 8.0000001192092896E-001,
+                  "HorizontalAnchorDelta" : 1.2000000000000000E+002,
+                  "Name" : "EditSpeedVariance",
+                  "VerticalAnchorParent" : "vpTop",
+                  "VerticalAnchorSelf" : "vpTop",
+                  "$Children" : [
+                  ],
+                  "$ClassName" : "TCastleFloatEdit"
+                }
+              ],
+              "$ClassName" : "TCastleUserInterface"
+            },
+            {
+              "ColorPersistent" : {
+                "Blue" : 1.0000000000000000E+000,
+                "Green" : 1.0000000000000000E+000,
+                "Red" : 1.0000000000000000E+000,
+                "$ClassName" : "TCastleColorPersistent"
+              },
+              "HorizontalAnchorDelta" : 1.0000000000000000E+001,
+              "Name" : "Label7",
+              "Text" : [
+                "Position Variance"
+              ],
+              "VerticalAnchorDelta" : -4.1950000000000000E+002,
+              "VerticalAnchorParent" : "vpTop",
+              "VerticalAnchorSelf" : "vpTop",
+              "$Children" : [
+              ],
+              "$ClassName" : "TCastleLabel"
+            },
+            {
+              "AutoSizeToChildren" : true,
+              "HorizontalAnchorDelta" : 1.0000000000000000E+001,
+              "Name" : "Group8",
+              "VerticalAnchorDelta" : -4.5150000000000000E+002,
+              "VerticalAnchorParent" : "vpTop",
+              "VerticalAnchorSelf" : "vpTop",
+              "Width" : 3.2000000000000000E+002,
+              "$Children" : [
+                {
+                  "CaptureAllInput" : false,
+                  "FontScale" : 6.9999998807907104E-001,
+                  "Name" : "EditPositionVarianceX",
+                  "VerticalAnchorParent" : "vpTop",
+                  "VerticalAnchorSelf" : "vpTop",
+                  "Width" : 7.0000000000000000E+001,
+                  "$Children" : [
+                  ],
+                  "$ClassName" : "TCastleFloatEdit"
+                },
+                {
+                  "CaptureAllInput" : false,
+                  "FontScale" : 6.9999998807907104E-001,
+                  "HorizontalAnchorDelta" : 8.0000000000000000E+001,
+                  "Name" : "EditPositionVarianceY",
+                  "VerticalAnchorParent" : "vpTop",
+                  "VerticalAnchorSelf" : "vpTop",
+                  "Width" : 7.0000000000000000E+001,
+                  "$Children" : [
+                  ],
+                  "$ClassName" : "TCastleFloatEdit"
+                },
+                {
+                  "CaptureAllInput" : false,
+                  "FontScale" : 6.9999998807907104E-001,
+                  "HorizontalAnchorDelta" : 1.6000000000000000E+002,
+                  "Name" : "EditPositionVarianceZ",
+                  "VerticalAnchorParent" : "vpTop",
+                  "VerticalAnchorSelf" : "vpTop",
+                  "Width" : 7.0000000000000000E+001,
+                  "$Children" : [
+                  ],
+                  "$ClassName" : "TCastleFloatEdit"
+                }
+              ],
+              "$ClassName" : "TCastleUserInterface"
+            },
+            {
+              "ColorPersistent" : {
+                "Blue" : 1.0000000000000000E+000,
+                "Green" : 1.0000000000000000E+000,
+                "Red" : 1.0000000000000000E+000,
+                "$ClassName" : "TCastleColorPersistent"
+              },
+              "HorizontalAnchorDelta" : 1.0000000000000000E+001,
+              "Name" : "Label9",
+              "Text" : [
+                "Gravity"
+              ],
+              "VerticalAnchorDelta" : -4.8679998779296875E+002,
+              "VerticalAnchorParent" : "vpTop",
+              "VerticalAnchorSelf" : "vpTop",
+              "$Children" : [
+              ],
+              "$ClassName" : "TCastleLabel"
+            },
+            {
+              "AutoSizeToChildren" : true,
+              "HorizontalAnchorDelta" : 1.0000000000000000E+001,
+              "Name" : "Group10",
+              "VerticalAnchorDelta" : -5.1879998779296875E+002,
+              "VerticalAnchorParent" : "vpTop",
+              "VerticalAnchorSelf" : "vpTop",
+              "Width" : 3.2000000000000000E+002,
+              "$Children" : [
+                {
+                  "CaptureAllInput" : false,
+                  "FontScale" : 6.9999998807907104E-001,
+                  "Name" : "EditGravityX",
+                  "VerticalAnchorParent" : "vpTop",
+                  "VerticalAnchorSelf" : "vpTop",
+                  "Width" : 7.0000000000000000E+001,
+                  "$Children" : [
+                  ],
+                  "$ClassName" : "TCastleFloatEdit"
+                },
+                {
+                  "CaptureAllInput" : false,
+                  "FontScale" : 6.9999998807907104E-001,
+                  "HorizontalAnchorDelta" : 8.0000000000000000E+001,
+                  "Name" : "EditGravityY",
+                  "VerticalAnchorParent" : "vpTop",
+                  "VerticalAnchorSelf" : "vpTop",
+                  "Width" : 7.0000000000000000E+001,
+                  "$Children" : [
+                  ],
+                  "$ClassName" : "TCastleFloatEdit"
+                },
+                {
+                  "CaptureAllInput" : false,
+                  "FontScale" : 6.9999998807907104E-001,
+                  "HorizontalAnchorDelta" : 1.6000000000000000E+002,
+                  "Name" : "EditGravityZ",
+                  "VerticalAnchorParent" : "vpTop",
+                  "VerticalAnchorSelf" : "vpTop",
+                  "Width" : 7.0000000000000000E+001,
+                  "$Children" : [
+                  ],
+                  "$ClassName" : "TCastleFloatEdit"
+                }
+              ],
+              "$ClassName" : "TCastleUserInterface"
+            },
+            {
+              "ColorPersistent" : {
+                "Blue" : 1.0000000000000000E+000,
+                "Green" : 1.0000000000000000E+000,
+                "Red" : 1.0000000000000000E+000,
+                "$ClassName" : "TCastleColorPersistent"
+              },
+              "HorizontalAnchorDelta" : 1.0000000000000000E+001,
+              "Name" : "Label14",
+              "Text" : [
+                "Duration"
+              ],
+              "VerticalAnchorDelta" : -5.5409997558593750E+002,
+              "VerticalAnchorParent" : "vpTop",
+              "VerticalAnchorSelf" : "vpTop",
+              "$Children" : [
+              ],
+              "$ClassName" : "TCastleLabel"
+            },
+            {
+              "CaptureAllInput" : false,
+              "FontScale" : 8.0000001192092896E-001,
+              "HorizontalAnchorDelta" : 1.0000000000000000E+001,
+              "Name" : "EditDuration",
+              "VerticalAnchorDelta" : -5.8609997558593750E+002,
+              "VerticalAnchorParent" : "vpTop",
+              "VerticalAnchorSelf" : "vpTop",
+              "$Children" : [
+              ],
+              "$ClassName" : "TCastleFloatEdit"
+            },
+            {
+              "ColorPersistent" : {
+                "Blue" : 1.0000000000000000E+000,
+                "Green" : 1.0000000000000000E+000,
+                "Red" : 1.0000000000000000E+000,
+                "$ClassName" : "TCastleColorPersistent"
+              },
+              "HorizontalAnchorDelta" : 1.0000000000000000E+001,
+              "Name" : "Label18",
+              "Text" : [
+                "Lifespan / Variance"
+              ],
+              "VerticalAnchorDelta" : -6.2329998779296875E+002,
+              "VerticalAnchorParent" : "vpTop",
+              "VerticalAnchorSelf" : "vpTop",
+              "$Children" : [
+              ],
+              "$ClassName" : "TCastleLabel"
+            },
+            {
+              "AutoSizeToChildren" : true,
+              "HorizontalAnchorDelta" : 1.0000000000000000E+001,
+              "Name" : "Group12",
+              "VerticalAnchorDelta" : -6.5529998779296875E+002,
+              "VerticalAnchorParent" : "vpTop",
+              "VerticalAnchorSelf" : "vpTop",
+              "Width" : 3.2000000000000000E+002,
+              "$Children" : [
+                {
+                  "CaptureAllInput" : false,
+                  "FontScale" : 8.0000001192092896E-001,
+                  "HorizontalAnchorDelta" : -1.6321271687047556E-005,
+                  "Name" : "EditLifeSpan",
+                  "VerticalAnchorParent" : "vpTop",
+                  "VerticalAnchorSelf" : "vpTop",
+                  "$Children" : [
+                  ],
+                  "$ClassName" : "TCastleFloatEdit"
+                },
+                {
+                  "CaptureAllInput" : false,
+                  "FontScale" : 8.0000001192092896E-001,
+                  "HorizontalAnchorDelta" : 1.2000000000000000E+002,
+                  "Name" : "EditLifeSpanVariance",
+                  "VerticalAnchorParent" : "vpTop",
+                  "VerticalAnchorSelf" : "vpTop",
+                  "$Children" : [
+                  ],
+                  "$ClassName" : "TCastleFloatEdit"
+                }
+              ],
+              "$ClassName" : "TCastleUserInterface"
+            },
+            {
+              "ColorPersistent" : {
+                "Blue" : 1.0000000000000000E+000,
+                "Green" : 1.0000000000000000E+000,
+                "Red" : 1.0000000000000000E+000,
+                "$ClassName" : "TCastleColorPersistent"
+              },
+              "HorizontalAnchorDelta" : 1.0000000000000000E+001,
+              "Name" : "Label25",
+              "Text" : [
+                "Start Particle Size / Variance"
+              ],
+              "VerticalAnchorDelta" : -6.9250000000000000E+002,
+              "VerticalAnchorParent" : "vpTop",
+              "VerticalAnchorSelf" : "vpTop",
+              "$Children" : [
+              ],
+              "$ClassName" : "TCastleLabel"
+            },
+            {
+              "AutoSizeToChildren" : true,
+              "HorizontalAnchorDelta" : 1.0000000000000000E+001,
+              "Name" : "Group13",
+              "VerticalAnchorDelta" : -7.2450000000000000E+002,
+              "VerticalAnchorParent" : "vpTop",
+              "VerticalAnchorSelf" : "vpTop",
+              "Width" : 3.2000000000000000E+002,
+              "$Children" : [
+                {
+                  "CaptureAllInput" : false,
+                  "FontScale" : 8.0000001192092896E-001,
+                  "HorizontalAnchorDelta" : -1.6321271687047556E-005,
+                  "Name" : "EditStartParticleSize",
+                  "VerticalAnchorParent" : "vpTop",
+                  "VerticalAnchorSelf" : "vpTop",
+                  "$Children" : [
+                  ],
+                  "$ClassName" : "TCastleFloatEdit"
+                },
+                {
+                  "CaptureAllInput" : false,
+                  "FontScale" : 8.0000001192092896E-001,
+                  "HorizontalAnchorDelta" : 1.2000000000000000E+002,
+                  "Name" : "EditStartParticleSizeVariance",
+                  "VerticalAnchorParent" : "vpTop",
+                  "VerticalAnchorSelf" : "vpTop",
+                  "$Children" : [
+                  ],
+                  "$ClassName" : "TCastleFloatEdit"
+                }
+              ],
+              "$ClassName" : "TCastleUserInterface"
+            },
+            {
+              "ColorPersistent" : {
+                "Blue" : 1.0000000000000000E+000,
+                "Green" : 1.0000000000000000E+000,
+                "Red" : 1.0000000000000000E+000,
+                "$ClassName" : "TCastleColorPersistent"
+              },
+              "HorizontalAnchorDelta" : 1.0000000000000000E+001,
+              "Name" : "Label28",
+              "Text" : [
+                "Finish Particle Size / Variance"
+              ],
+              "VerticalAnchorDelta" : -7.6170001220703125E+002,
+              "VerticalAnchorParent" : "vpTop",
+              "VerticalAnchorSelf" : "vpTop",
+              "$Children" : [
+              ],
+              "$ClassName" : "TCastleLabel"
+            },
+            {
+              "AutoSizeToChildren" : true,
+              "HorizontalAnchorDelta" : 1.0000000000000000E+001,
+              "Name" : "Group14",
+              "VerticalAnchorDelta" : -7.9370001220703125E+002,
+              "VerticalAnchorParent" : "vpTop",
+              "VerticalAnchorSelf" : "vpTop",
+              "Width" : 3.2000000000000000E+002,
+              "$Children" : [
+                {
+                  "CaptureAllInput" : false,
+                  "FontScale" : 8.0000001192092896E-001,
+                  "HorizontalAnchorDelta" : -1.6321271687047556E-005,
+                  "Name" : "EditFinishParticleSize",
+                  "VerticalAnchorParent" : "vpTop",
+                  "VerticalAnchorSelf" : "vpTop",
+                  "$Children" : [
+                  ],
+                  "$ClassName" : "TCastleFloatEdit"
+                },
+                {
+                  "CaptureAllInput" : false,
+                  "FontScale" : 8.0000001192092896E-001,
+                  "HorizontalAnchorDelta" : 1.2000000000000000E+002,
+                  "Name" : "EditFinishParticleSizeVariance",
+                  "VerticalAnchorParent" : "vpTop",
+                  "VerticalAnchorSelf" : "vpTop",
+                  "$Children" : [
+                  ],
+                  "$ClassName" : "TCastleFloatEdit"
+                }
+              ],
+              "$ClassName" : "TCastleUserInterface"
+            },
+            {
+              "ColorPersistent" : {
+                "Blue" : 1.0000000000000000E+000,
+                "Green" : 1.0000000000000000E+000,
+                "Red" : 1.0000000000000000E+000,
+                "$ClassName" : "TCastleColorPersistent"
+              },
+              "HorizontalAnchorDelta" : 1.0000000000000000E+001,
+              "Name" : "Label27",
+              "Text" : [
+                "Start Rotation / Variance"
+              ],
+              "VerticalAnchorDelta" : -8.3090002441406250E+002,
+              "VerticalAnchorParent" : "vpTop",
+              "VerticalAnchorSelf" : "vpTop",
+              "$Children" : [
+              ],
+              "$ClassName" : "TCastleLabel"
+            },
+            {
+              "AutoSizeToChildren" : true,
+              "HorizontalAnchorDelta" : 1.0000000000000000E+001,
+              "Name" : "Group15",
+              "VerticalAnchorDelta" : -8.6290002441406250E+002,
+              "VerticalAnchorParent" : "vpTop",
+              "VerticalAnchorSelf" : "vpTop",
+              "Width" : 3.2000000000000000E+002,
+              "$Children" : [
+                {
+                  "CaptureAllInput" : false,
+                  "FontScale" : 8.0000001192092896E-001,
+                  "HorizontalAnchorDelta" : -1.6321271687047556E-005,
+                  "Name" : "EditStartRotation",
+                  "VerticalAnchorParent" : "vpTop",
+                  "VerticalAnchorSelf" : "vpTop",
+                  "$Children" : [
+                  ],
+                  "$ClassName" : "TCastleFloatEdit"
+                },
+                {
+                  "CaptureAllInput" : false,
+                  "FontScale" : 8.0000001192092896E-001,
+                  "HorizontalAnchorDelta" : 1.2000000000000000E+002,
+                  "Name" : "EditStartRotationVariance",
+                  "VerticalAnchorParent" : "vpTop",
+                  "VerticalAnchorSelf" : "vpTop",
+                  "$Children" : [
+                  ],
+                  "$ClassName" : "TCastleFloatEdit"
+                }
+              ],
+              "$ClassName" : "TCastleUserInterface"
+            },
+            {
+              "ColorPersistent" : {
+                "Blue" : 1.0000000000000000E+000,
+                "Green" : 1.0000000000000000E+000,
+                "Red" : 1.0000000000000000E+000,
+                "$ClassName" : "TCastleColorPersistent"
+              },
+              "HorizontalAnchorDelta" : 1.0000000000000000E+001,
+              "Name" : "Label26",
+              "Text" : [
+                "Finish Rotation / Variance"
+              ],
+              "VerticalAnchorDelta" : -9.0010003662109375E+002,
+              "VerticalAnchorParent" : "vpTop",
+              "VerticalAnchorSelf" : "vpTop",
+              "$Children" : [
+              ],
+              "$ClassName" : "TCastleLabel"
+            },
+            {
+              "AutoSizeToChildren" : true,
+              "HorizontalAnchorDelta" : 1.0000000000000000E+001,
+              "Name" : "Group16",
+              "VerticalAnchorDelta" : -9.3210003662109375E+002,
+              "VerticalAnchorParent" : "vpTop",
+              "VerticalAnchorSelf" : "vpTop",
+              "Width" : 3.2000000000000000E+002,
+              "$Children" : [
+                {
+                  "CaptureAllInput" : false,
+                  "FontScale" : 8.0000001192092896E-001,
+                  "HorizontalAnchorDelta" : -1.6321271687047556E-005,
+                  "Name" : "EditFinishRotation",
+                  "VerticalAnchorParent" : "vpTop",
+                  "VerticalAnchorSelf" : "vpTop",
+                  "$Children" : [
+                  ],
+                  "$ClassName" : "TCastleFloatEdit"
+                },
+                {
+                  "CaptureAllInput" : false,
+                  "FontScale" : 8.0000001192092896E-001,
+                  "HorizontalAnchorDelta" : 1.2000000000000000E+002,
+                  "Name" : "EditFinishRotationVariance",
+                  "VerticalAnchorParent" : "vpTop",
+                  "VerticalAnchorSelf" : "vpTop",
+                  "$Children" : [
+                  ],
+                  "$ClassName" : "TCastleFloatEdit"
+                }
+              ],
+              "$ClassName" : "TCastleUserInterface"
+            }
+          ],
+          "$ClassName" : "TCastleVerticalGroup"
+        }
+      ],
+      "$ClassName" : "TCastleRectangleControl"
+    },
+    {
+      "ColorPersistent" : {
+        "Green" : 1.0000000000000000E+000,
+        "Red" : 1.0000000000000000E+000,
+        "$ClassName" : "TCastleColorPersistent"
+      },
+      "FontSize" : 2.0000000000000000E+001,
+      "Name" : "LabelFps",
+      "Text" : [
+        "FPS: xxx"
+      ],
+      "$Children" : [
+      ],
+      "$ClassName" : "TCastleLabel"
+    }
+  ],
+  "$ClassName" : "TCastleUserInterface"
+}

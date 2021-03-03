@@ -1,0 +1,80 @@
+{
+  "texture": "default.png",
+  "maxParticles": 100,
+  "duration": -1.0,
+  "particleLifeSpan": 1.0,
+  "particleLifeSpanVariance": 0.5,
+  "middleAnchor": 0.4,
+  "startColor": {
+    "red": 1.0,
+    "green": 0.0,
+    "blue": 0.0,
+    "alpha": 1.0
+  },
+  "startColorVariance": {
+    "red": 0.0,
+    "green": 0.0,
+    "blue": 0.0,
+    "alpha": 0.0
+  },
+  "middleColor": {
+    "red": 1.0,
+    "green": 0.5,
+    "blue": 0.0,
+    "alpha": 0.5
+  },
+  "middleColorVariance": {
+    "red": 0.0,
+    "green": 0.0,
+    "blue": 0.0,
+    "alpha": 0.0
+  },
+  "finishColor": {
+    "red": 0.3,
+    "green": 0.3,
+    "blue": 0.3,
+    "alpha": 0.3
+  },
+  "finishColorVariance": {
+    "red": 0.0,
+    "green": 0.0,
+    "blue": 0.0,
+    "alpha": 0.0
+  },
+  "startParticleSize": 0.1,
+  "startParticleSizeVariance": 0.0,
+  "finishParticleSize": 0.1,
+  "finishParticleSizeVariance": 0.0,
+  "rotationStart": 0.0,
+  "rotationStartVariance": 0.0,
+  "rotationFinish": 0.0,
+  "rotationFinishVariance": 0.0,
+  "sourcePositionVariance": {
+    "x": 0.02,
+    "y": 0.02,
+    "z": 0.02
+  },
+  "direction": {
+    "x": 0.0,
+    "y": 1.0,
+    "z": 0.0
+  },
+  "directionVariance": 0.4,
+  "speed": 0.3,
+  "speedVariance": 0.1,
+  "gravity": {
+    "x": 0.0,
+    "y": 0.0,
+    "z": 0.0
+  },
+  "blendFuncSource": 770,
+  "blendFuncDestination": 1,
+  "bbox": {
+    "minx": 0.0,
+    "miny": 0.0,
+    "minz": 0.0,
+    "maxx": -1.0,
+    "maxy": -1.0,
+    "maxz": -1.0
+  }
+}

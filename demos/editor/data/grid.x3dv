@@ -1,0 +1,55 @@
+#X3D V4.0 utf8
+
+PROFILE Interchange
+
+Transform {
+  children DEF grid Shape {
+    appearance Appearance {
+      material UnlitMaterial {
+        transparency 0.8
+        emissiveColor 1 1 1
+      }
+    }
+    geometry IndexedLineSet	{
+      coordIndex [
+        0 9 -1
+        1 10 -1
+        2 11 -1
+        3 12 -1
+        4 13 -1
+        5 14 -1
+        6 15 -1
+        7 16 -1
+        8 17 -1
+      ]
+      coord Coordinate	{
+        point [
+          -4 0 -4,
+          -3 0 -4,
+          -2 0 -4,
+          -1 0 -4,
+          0 0 -4,
+          1 0 -4,
+          2 0 -4,
+          3 0 -4,
+          4 0 -4,
+
+          -4 0 4,
+          -3 0 4,
+          -2 0 4,
+          -1 0 4,
+          0 0 4,
+          1 0 4,
+          2 0 4,
+          3 0 4,
+          4 0 4,
+        ]
+      }
+    }
+  }
+}
+
+Transform {
+  rotation 0 1 0 1.5708
+  children USE grid
+}
