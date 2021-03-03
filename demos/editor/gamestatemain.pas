@@ -327,6 +327,7 @@ begin
   EditMaxParticles.Value := Effect.MaxParticles;
   EditBlendSource.Value := Effect.BlendFuncSource;
   EditBlendDestination.Value := Effect.BlendFuncDestination;
+  BoundingBoxScene.UpdateBox(Effect.BBox);
 end;
 
 procedure TStateMain.UIToEffect;
