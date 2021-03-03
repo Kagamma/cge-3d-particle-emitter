@@ -632,6 +632,8 @@ begin
     if not Params.Frustum^.Box3DCollisionPossibleSimple(Self.FEffect.BBox) then
       Exit;
   end;
+  Inc(Params.Statistics.ShapesRendered);
+  Inc(Params.Statistics.ShapesVisible);
 
   M := Params.RenderingCamera.Matrix * Params.Transform^;
 
