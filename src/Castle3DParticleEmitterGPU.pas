@@ -634,6 +634,8 @@ begin
   end;
   Inc(Params.Statistics.ShapesRendered);
   Inc(Params.Statistics.ShapesVisible);
+  Inc(Params.Statistics.ScenesRendered);
+  Inc(Params.Statistics.ScenesVisible);
 
   M := Params.RenderingCamera.Matrix * Params.Transform^;
 
