@@ -99,8 +99,7 @@ type
     FEffect: TCastle3DParticleEffect;
     FParticleCount: Integer;
     FSecondsPassed: Single;
-    FIsUpdated,
-    FIsUpdatedDuringRender: Boolean;
+    FIsUpdated: Boolean;
     { Countdown before remove the emitter }
     FCountdownTillRemove,
     { The value is in miliseconds. Set it to -1 for infinite emitting, 0 to
@@ -561,7 +560,6 @@ constructor TCastle3DParticleEmitterGPU.Create(AOwner: TComponent);
 begin
   inherited;
   Self.FIsUpdated := False;
-  Self.FIsUpdatedDuringRender := False;
   Self.Texture := 0;
   Self.FSecondsPassed := 0;
   Self.FPosition := Vector3(0, 0, 0);
@@ -590,7 +588,6 @@ begin
     Self.InternalRefreshEffect;
 
   Self.FSecondsPassed := SecondsPassed;
-  Self.FIsUpdatedDuringRender := False;
 
   if not Self.FIsUpdated then
   begin
@@ -604,52 +601,7 @@ begin
     begin
       Self.FCountdownTillRemove := Self.FCountdownTillRemove - SecondsPassed;
     end;
-  end;
 
-  RemoveMe := rtNone;
-  if Self.FReleaseWhenDone then
-  begin
-    if (Self.FEmissionTime = 0) then
-    begin
-      if not Self.FIsUpdated then
-        Self.FCountdownTillRemove := Self.FCountdownTillRemove - SecondsPassed;
-      if (Self.FCountdownTillRemove <= 0) then
-      begin
-        RemoveMe := rtRemoveAndFree;
-      end;
-    end;
-  end;
-  Self.FIsUpdated := True;
-end;
-
-procedure TCastle3DParticleEmitterGPU.LocalRender(const Params: TRenderParams);
-var
-  M: TMatrix4;
-  S: Single;
-begin
-  inherited;
-  Self.FIsUpdated := False;
-  if not Assigned(Self.FEffect) then
-    Exit;
-  if not Self.FIsGLContextInitialized then
-    Exit;
-  if (not Self.Visible) or Params.InShadow or (not Params.Transparent) or (Params.StencilTest > 0) then
-    Exit;
-  if (not Self.FStartEmitting) and (Self.FCountdownTillRemove <= 0) then
-    Exit;
-  if not Self.FEffect.BBox.IsEmpty then
-    if not Params.Frustum^.Box3DCollisionPossibleSimple(Self.FEffect.BBox) then
-      Exit;
-  Inc(Params.Statistics.ShapesRendered);
-  Inc(Params.Statistics.ShapesVisible);
-  Inc(Params.Statistics.ScenesRendered);
-  Inc(Params.Statistics.ScenesVisible);
-
-  M := Params.RenderingCamera.Matrix * Params.Transform^;
-
-  // Update particles (only run 1 time, by checking FIsUpdatedDuringRender)
-  if not Self.FIsUpdatedDuringRender then
-  begin
     glEnable(GL_RASTERIZER_DISCARD);
     TransformFeedbackProgram.Enable;
     TransformFeedbackProgram.Uniform('deltaTime').SetValue(Self.FSecondsPassed);
@@ -693,7 +645,50 @@ begin
     glDrawArrays(GL_POINTS, 0, Self.FEffect.MaxParticles);
     glEndTransformFeedback();
     glDisable(GL_RASTERIZER_DISCARD);
+    glBindVertexArray(0); // Just in case :)
+    CurrentBuffer := (CurrentBuffer + 1) mod 2;
   end;
+
+  RemoveMe := rtNone;
+  if Self.FReleaseWhenDone then
+  begin
+    if (Self.FEmissionTime = 0) then
+    begin
+      if not Self.FIsUpdated then
+        Self.FCountdownTillRemove := Self.FCountdownTillRemove - SecondsPassed;
+      if (Self.FCountdownTillRemove <= 0) then
+      begin
+        RemoveMe := rtRemoveAndFree;
+      end;
+    end;
+  end;
+  Self.FIsUpdated := True;
+end;
+
+procedure TCastle3DParticleEmitterGPU.LocalRender(const Params: TRenderParams);
+var
+  M: TMatrix4;
+  S: Single;
+begin
+  inherited;
+  Self.FIsUpdated := False;
+  if not Assigned(Self.FEffect) then
+    Exit;
+  if not Self.FIsGLContextInitialized then
+    Exit;
+  if (not Self.Visible) or Params.InShadow or (not Params.Transparent) or (Params.StencilTest > 0) then
+    Exit;
+  if (not Self.FStartEmitting) and (Self.FCountdownTillRemove <= 0) then
+    Exit;
+  if not Self.FEffect.BBox.IsEmpty then
+    if not Params.Frustum^.Box3DCollisionPossibleSimple(Self.FEffect.BBox) then
+      Exit;
+  Inc(Params.Statistics.ShapesRendered);
+  Inc(Params.Statistics.ShapesVisible);
+  Inc(Params.Statistics.ScenesRendered);
+  Inc(Params.Statistics.ScenesVisible);
+
+  M := Params.RenderingCamera.Matrix * Params.Transform^;
 
   // Draw particles
   glDepthMask(GL_FALSE);
@@ -703,7 +698,7 @@ begin
   RenderProgram.Enable;
   RenderProgram.Uniform('mvMatrix').SetValue(M);
   RenderProgram.Uniform('pMatrix').SetValue(RenderContext.ProjectionMatrix);
-  glBindVertexArray(Self.VAOs[CurrentBuffer]);
+  glBindVertexArray(Self.VAOs[(CurrentBuffer + 1) mod 2]);
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, Self.Texture);
   glDrawArrays(GL_POINTS, 0, Self.FEffect.MaxParticles);
@@ -713,12 +708,6 @@ begin
   // Which pass is this?
   glDisable(GL_DEPTH_TEST);
   glDepthMask(GL_TRUE);
-
-  if not Self.FIsUpdatedDuringRender then
-  begin
-    CurrentBuffer := (CurrentBuffer + 1) mod 2;
-    Self.FIsUpdatedDuringRender := True;
-  end;
 end;
 
 procedure TCastle3DParticleEmitterGPU.SaveEffect(const AURL: String);
