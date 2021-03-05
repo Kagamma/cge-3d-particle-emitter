@@ -131,6 +131,7 @@ type
     procedure GLContextOpen; virtual;
     procedure GLContextClose; virtual;
     procedure RefreshEffect;
+    function LocalBoundingBox: TBox3D; override;
     { Move the position of emitter only }
     property Position: TVector3 read FPosition write FPosition;
   published
@@ -637,10 +638,8 @@ begin
   if (not Self.FStartEmitting) and (Self.FCountdownTillRemove <= 0) then
     Exit;
   if not Self.FEffect.BBox.IsEmpty then
-  begin
     if not Params.Frustum^.Box3DCollisionPossibleSimple(Self.FEffect.BBox) then
       Exit;
-  end;
   Inc(Params.Statistics.ShapesRendered);
   Inc(Params.Statistics.ShapesVisible);
   Inc(Params.Statistics.ScenesRendered);
@@ -867,6 +866,17 @@ end;
 procedure TCastle3DParticleEmitterGPU.RefreshEffect;
 begin
   Self.FIsNeedRefresh := True;
+end;
+
+function TCastle3DParticleEmitterGPU.LocalBoundingBox: TBox3D;
+var
+  I: Integer;
+begin
+  if GetExists then
+    Result := Self.FEffect.BBox
+  else
+    Result := TBox3D.Empty;
+  Result.Include(inherited LocalBoundingBox);
 end;
 
 initialization
