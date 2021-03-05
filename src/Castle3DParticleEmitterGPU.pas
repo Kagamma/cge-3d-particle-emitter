@@ -588,6 +588,8 @@ begin
   Self.GLContextOpen;
   if Self.FIsNeedRefresh then
     Self.InternalRefreshEffect;
+  if not Self.ProcessEvents then
+    Exit;
 
   Self.FSecondsPassed := SecondsPassed;
 
