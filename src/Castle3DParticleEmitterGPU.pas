@@ -641,8 +641,8 @@ begin
     TransformFeedbackProgram.Uniform('effect.speed').SetValue(Self.FEffect.Speed);
     TransformFeedbackProgram.Uniform('effect.speedVariance').SetValue(Self.FEffect.SpeedVariance);
     TransformFeedbackProgram.Uniform('effect.gravity').SetValue(Self.FEffect.Gravity);
-    glBindVertexArray(Self.VAOs[(CurrentBuffer + 1) mod 2]);
-    glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, Self.VBOs[CurrentBuffer]);
+    glBindVertexArray(Self.VAOs[CurrentBuffer]);
+    glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, Self.VBOs[(CurrentBuffer + 1) mod 2]);
     glBeginTransformFeedback(GL_POINTS);
     glDrawArrays(GL_POINTS, 0, Self.FEffect.MaxParticles);
     glEndTransformFeedback();
@@ -699,7 +699,7 @@ begin
   RenderProgram.Enable;
   RenderProgram.Uniform('mvMatrix').SetValue(M);
   RenderProgram.Uniform('pMatrix').SetValue(RenderContext.ProjectionMatrix);
-  glBindVertexArray(Self.VAOs[(CurrentBuffer + 1) mod 2]);
+  glBindVertexArray(Self.VAOs[CurrentBuffer]);
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, Self.Texture);
   glDrawArrays(GL_POINTS, 0, Self.FEffect.MaxParticles);
@@ -859,8 +859,6 @@ begin
 end;
 
 function TCastle3DParticleEmitterGPU.LocalBoundingBox: TBox3D;
-var
-  I: Integer;
 begin
   if GetExists then
     Result := Self.FEffect.BBox
