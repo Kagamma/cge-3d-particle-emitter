@@ -633,7 +633,7 @@ begin
     Exit;
   if not Self.FIsGLContextInitialized then
     Exit;
-  if Params.InShadow or (not Params.Transparent) or (Params.StencilTest > 0) then
+  if (not Self.Visible) or Params.InShadow or (not Params.Transparent) or (Params.StencilTest > 0) then
     Exit;
   if (not Self.FStartEmitting) and (Self.FCountdownTillRemove <= 0) then
     Exit;
