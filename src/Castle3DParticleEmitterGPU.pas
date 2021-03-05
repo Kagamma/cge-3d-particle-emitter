@@ -579,6 +579,8 @@ begin
 end;
 
 procedure TCastle3DParticleEmitterGPU.Update(const SecondsPassed: Single; var RemoveMe: TRemoveType);
+var
+  S: Single;
 begin
   inherited;
   if not Assigned(Self.FEffect) then
@@ -668,7 +670,6 @@ end;
 procedure TCastle3DParticleEmitterGPU.LocalRender(const Params: TRenderParams);
 var
   M: TMatrix4;
-  S: Single;
 begin
   inherited;
   Self.FIsUpdated := False;
