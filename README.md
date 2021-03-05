@@ -6,7 +6,6 @@ GPU-based 3D Particle System for Castle Game Engine
 Due to emitter uses direct OpenGL calls instead of CGE's own renderer, only a few of TCastleScene's features are supported at the moment:
 
 - BoundingBox and frustum culling works. The emitter doesn't calculate bounding box so you need to set up bounding box manually via Effect.BBox property, either by code or by using particle editor.
-- ProcessEvents works. It will prevent emitter from updating particles.
 - Visible works.
 - The component registers to TRenderStatistics as 1 Shape / 1 Scene.
 - Instancing, by putting the same emitter to multiple TCastleTransform nodes works. It doesn't use GPU instancing at the moment.
