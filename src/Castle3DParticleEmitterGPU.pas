@@ -588,8 +588,8 @@ begin
   Self.GLContextOpen;
   if Self.FIsNeedRefresh then
     Self.InternalRefreshEffect;
-  if not Self.ProcessEvents then
-    Exit;
+  //if not Self.ProcessEvents then
+  //  Exit;
 
   Self.FSecondsPassed := SecondsPassed;
 
@@ -683,13 +683,13 @@ begin
     Exit;
   if (not Self.FStartEmitting) and (Self.FCountdownTillRemove <= 0) then
     Exit;
+  Inc(Params.Statistics.ShapesVisible);
+  Inc(Params.Statistics.ScenesVisible);
   if not Self.FEffect.BBox.IsEmpty then
     if not Params.Frustum^.Box3DCollisionPossibleSimple(Self.FEffect.BBox) then
       Exit;
   Inc(Params.Statistics.ShapesRendered);
-  Inc(Params.Statistics.ShapesVisible);
   Inc(Params.Statistics.ScenesRendered);
-  Inc(Params.Statistics.ScenesVisible);
 
   M := Params.RenderingCamera.Matrix * Params.Transform^;
 
