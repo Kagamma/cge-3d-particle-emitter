@@ -99,7 +99,8 @@ type
     FEffect: TCastle3DParticleEffect;
     FParticleCount: Integer;
     FSecondsPassed: Single;
-    FIsUpdated: Boolean;
+    FIsUpdated,
+    FIsUpdatedDuringRender: Boolean;
     { Countdown before remove the emitter }
     FCountdownTillRemove,
     { The value is in miliseconds. Set it to -1 for infinite emitting, 0 to
@@ -559,6 +560,7 @@ constructor TCastle3DParticleEmitterGPU.Create(AOwner: TComponent);
 begin
   inherited;
   Self.FIsUpdated := False;
+  Self.FIsUpdatedDuringRender := False;
   Self.Texture := 0;
   Self.FSecondsPassed := 0;
   Self.FPosition := Vector3(0, 0, 0);
@@ -587,17 +589,20 @@ begin
     Self.InternalRefreshEffect;
 
   Self.FSecondsPassed := SecondsPassed;
-  Self.FIsUpdated := False;
+  Self.FIsUpdatedDuringRender := False;
 
-  if (FEmissionTime > 0) or (FEmissionTime = -1) then
+  if not Self.FIsUpdated then
   begin
-    if FEmissionTime > 0 then
-      FEmissionTime := Max(0, FEmissionTime - SecondsPassed);
-  end;
+    if (FEmissionTime > 0) or (FEmissionTime = -1) then
+    begin
+      if FEmissionTime > 0 then
+        FEmissionTime := Max(0, FEmissionTime - SecondsPassed);
+    end;
 
-  if not Self.FStartEmitting then
-  begin
-    Self.FCountdownTillRemove := Self.FCountdownTillRemove - SecondsPassed;
+    if not Self.FStartEmitting then
+    begin
+      Self.FCountdownTillRemove := Self.FCountdownTillRemove - SecondsPassed;
+    end;
   end;
 
   RemoveMe := rtNone;
@@ -605,13 +610,15 @@ begin
   begin
     if (Self.FEmissionTime = 0) then
     begin
-      Self.FCountdownTillRemove := Self.FCountdownTillRemove - SecondsPassed;
+      if not Self.FIsUpdated then
+        Self.FCountdownTillRemove := Self.FCountdownTillRemove - SecondsPassed;
       if (Self.FCountdownTillRemove <= 0) then
       begin
         RemoveMe := rtRemoveAndFree;
       end;
     end;
   end;
+  Self.FIsUpdated := True;
 end;
 
 procedure TCastle3DParticleEmitterGPU.LocalRender(const Params: TRenderParams);
@@ -620,6 +627,7 @@ var
   S: Single;
 begin
   inherited;
+  Self.FIsUpdated := False;
   if not Assigned(Self.FEffect) then
     Exit;
   if not Self.FIsGLContextInitialized then
@@ -640,8 +648,8 @@ begin
 
   M := Params.RenderingCamera.Matrix * Params.Transform^;
 
-  // Update particles (only run 1 time, by checking FIsUpdated)
-  if not Self.FIsUpdated then
+  // Update particles (only run 1 time, by checking FIsUpdatedDuringRender)
+  if not Self.FIsUpdatedDuringRender then
   begin
     glEnable(GL_RASTERIZER_DISCARD);
     TransformFeedbackProgram.Enable;
@@ -707,10 +715,10 @@ begin
   glDisable(GL_DEPTH_TEST);
   glDepthMask(GL_TRUE);
 
-  if not Self.FIsUpdated then
+  if not Self.FIsUpdatedDuringRender then
   begin
     CurrentBuffer := (CurrentBuffer + 1) mod 2;
-    Self.FIsUpdated := True;
+    Self.FIsUpdatedDuringRender := True;
   end;
 end;
 
