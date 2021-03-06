@@ -113,6 +113,7 @@ type
     { Bypass GLContext problem }
     FIsGLContextInitialized: Boolean;
     FIsNeedRefresh: Boolean;
+    FDistanceCulling: Single;
     procedure InternalRefreshEffect;
     procedure SetStartEmitting(V: Boolean);
   public
@@ -138,6 +139,7 @@ type
     property URL: String read FURL write LoadEffect;
     { If true, the emitter will start emitting }
     property StartEmitting: Boolean read FStartEmitting write SetStartEmitting default False;
+    property DistanceCulling: Single read FDistanceCulling write FDistanceCulling default 0;
   end;
 
 implementation
@@ -672,6 +674,7 @@ end;
 procedure TCastle3DParticleEmitterGPU.LocalRender(const Params: TRenderParams);
 var
   M: TMatrix4;
+  RenderCameraPosition: TVector3;
 begin
   inherited;
   Self.FIsUpdated := False;
@@ -683,11 +686,17 @@ begin
     Exit;
   if (not Self.FStartEmitting) and (Self.FCountdownTillRemove <= 0) then
     Exit;
-  Inc(Params.Statistics.ShapesVisible);
   Inc(Params.Statistics.ScenesVisible);
+  if DistanceCulling > 0 then
+  begin
+    RenderCameraPosition := Params.InverseTransform^.MultPoint(Params.RenderingCamera.Position);
+    if PointsDistanceSqr(Position, RenderCameraPosition) > DistanceCulling then
+      Exit;
+  end;
   if not Self.FEffect.BBox.IsEmpty then
     if not Params.Frustum^.Box3DCollisionPossibleSimple(Self.FEffect.BBox) then
       Exit;
+  Inc(Params.Statistics.ShapesVisible);
   Inc(Params.Statistics.ShapesRendered);
   Inc(Params.Statistics.ScenesRendered);
 
