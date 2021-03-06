@@ -5,6 +5,7 @@ GPU-based 3D Particle System for Castle Game Engine
 
 Due to emitter uses direct OpenGL calls instead of CGE's own renderer, only a few of TCastleScene's features are supported at the moment:
 
+- DistanceCulling works based on Position.
 - BoundingBox and frustum culling works. The emitter doesn't calculate bounding box so you need to set up bounding box manually via Effect.BBox property, either by code or by using particle editor.
 - Visible works.
 - The component registers to TRenderStatistics as 1 Shape / 1 Scene.
