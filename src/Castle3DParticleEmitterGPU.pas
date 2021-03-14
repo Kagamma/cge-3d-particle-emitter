@@ -261,15 +261,15 @@ const
 '  vec3 cd = normalize(cross(effect.direction, effect.direction.zxy));'nl
 '  float angle = effect.directionVariance * (rnd() * 2.0 - 1.0);'nl
 '  vec3 vrdir = rotate(effect.direction, angle, cd);'nl
-'  vrdir = rotate(vrdir, rnd() * 2.0 * 3.1415, effect.direction);'nl
+'  vrdir = rotate(vrdir, rnd() * 2.0 * 3.14159265359, effect.direction);'nl
 '  vec3 vspeed = vec3('nl
 '    effect.speed + effect.speedVariance * (rnd() * 2.0 - 1.0),'nl
 '    effect.speed + effect.speedVariance * (rnd() * 2.0 - 1.0),'nl
 '    effect.speed + effect.speedVariance * (rnd() * 2.0 - 1.0));'nl
 '  outVelocity = vrdir * vspeed;'nl
 
-'  float startSize = max(0.1, effect.startParticleSize + effect.startParticleSizeVariance * (rnd() * 2.0 - 1.0));'nl
-'  float finishSize = max(0.1, effect.finishParticleSize + effect.finishParticleSizeVariance * (rnd() * 2.0 - 1.0));'nl
+'  float startSize = max(0.0001, effect.startParticleSize + effect.startParticleSizeVariance * (rnd() * 2.0 - 1.0));'nl
+'  float finishSize = max(0.0001, effect.finishParticleSize + effect.finishParticleSizeVariance * (rnd() * 2.0 - 1.0));'nl
 '  outSize = vec2(startSize, (finishSize - startSize) * invLifeSpan);'nl
 
 '  outRotation.x = effect.rotationStart + effect.rotationStartVariance * (rnd() * 2.0 - 1.0);'nl
