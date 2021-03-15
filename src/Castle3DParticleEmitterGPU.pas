@@ -27,8 +27,8 @@ type
   { 2D particle struct to hold current particle settings. }
   PCastle3DParticle = ^TCastle3DParticle;
   TCastle3DParticle = packed record
-    Position: TVector3;
-    TimeToLive: TVector2;
+    Position: TVector4;
+    TimeToLive: TVector3;
     Size,
     SizeDelta,
     Rotation,
@@ -36,10 +36,8 @@ type
     Color,
     ColorDelta: TVector4;
     { Gravity parameters }
-    StartPos,
-    Velocity: TVector3;
-    RadialAcceleration,
-    TangentialAcceleration: Single;
+    StartPos: TVector3;
+    Velocity: TVector4;
     { Radial parameters }
     EmitRadius,
     EmitRadiusDelta,
@@ -78,6 +76,8 @@ type
     MiddleColorVariance,
     FinishColor,
     FinishColorVariance: TVector4;
+    Radial,
+    RadialVariance: Single;
     IsColliable: Boolean;
     BBox: TBox3D;
     constructor Create;
@@ -150,27 +150,25 @@ uses
 const
   TransformVertexShaderSource: String =
 '#version 330'nl
-'layout(location = 0) in vec3 inPosition;'nl
-'layout(location = 1) in vec2 inTimeToLive;'nl
+'layout(location = 0) in vec4 inPosition;'nl
+'layout(location = 1) in vec3 inTimeToLive;'nl
 'layout(location = 2) in vec2 inSize;'nl
 'layout(location = 3) in vec2 inRotation;'nl
 'layout(location = 4) in vec4 inColor;'nl
 'layout(location = 5) in vec4 inColorDelta;'nl
 'layout(location = 6) in vec3 inStartPos;'nl
-'layout(location = 7) in vec3 inVelocity;'nl
-'layout(location = 8) in vec2 inAcceleration;'nl
-'layout(location = 9) in vec2 inEmitRadius;'nl
-'layout(location = 10) in vec2 inEmitRotation;'nl
+'layout(location = 7) in vec4 inVelocity;'nl
+'layout(location = 8) in vec2 inEmitRadius;'nl
+'layout(location = 9) in vec2 inEmitRotation;'nl
 
-'out vec3 outPosition;'nl
-'out vec2 outTimeToLive;'nl
+'out vec4 outPosition;'nl
+'out vec3 outTimeToLive;'nl
 'out vec2 outSize;'nl
 'out vec2 outRotation;'nl
 'out vec4 outColor;'nl
 'out vec4 outColorDelta;'nl
 'out vec3 outStartPos;'nl
-'out vec3 outVelocity;'nl
-'out vec2 outAcceleration;'nl
+'out vec4 outVelocity;'nl
 'out vec2 outEmitRadius;'nl
 'out vec2 outEmitRotation;'nl
 
@@ -193,6 +191,8 @@ const
 '  float rotationEndVariance;'nl
 '  float speed;'nl
 '  float speedVariance;'nl
+'  float radial;'nl
+'  float radialVariance;'nl
 '  float middleAnchor;'nl
 '  vec3 sourcePosition;'nl
 '  vec3 sourcePositionVariance;'nl
@@ -213,8 +213,8 @@ const
 'uniform float deltaTime;'nl
 
 'float rnd() {'nl
-'  outAcceleration.x = fract(sin(outAcceleration.x + outPosition.x + outVelocity.x + outVelocity.y + outColor.x + deltaTime) * 43758.5453123);'nl
-'  return outAcceleration.x;'nl
+'  outTimeToLive.z = fract(sin(outTimeToLive.z + outPosition.x + outVelocity.x + outVelocity.y + outColor.x + deltaTime) * 43758.5453123);'nl
+'  return outTimeToLive.z;'nl
 '}'nl
 
 'vec3 rotate(vec3 v, float angle, vec3 axis) {'nl
@@ -244,7 +244,6 @@ const
 '  outColorDelta = inColorDelta;'nl
 '  outStartPos = inStartPos;'nl
 '  outVelocity = inVelocity;'nl
-'  outAcceleration = inAcceleration;'nl
 '  outEmitRadius = inEmitRadius;'nl
 '  outEmitRotation = inEmitRotation;'nl
 '}'nl
@@ -253,7 +252,7 @@ const
 '  outTimeToLive.x = effect.particleLifeSpan + effect.particleLifeSpanVariance * (rnd() * 2.0 - 1.0);'nl
 '  outTimeToLive.y = outTimeToLive.x - outTimeToLive.x * effect.middleAnchor;'nl
 '  float invLifeSpan = 1.0 / outTimeToLive.x;'nl
-'  outPosition = effect.sourcePosition + effect.sourcePositionVariance * vec3(rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0);'nl
+'  outPosition.xyz = effect.sourcePosition + effect.sourcePositionVariance * vec3(rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0);'nl
 '  outStartPos = effect.sourcePosition;'nl
 '  outColor = effect.startColor + effect.startColorVariance * vec4(rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0);'nl
 '  vec4 middleColor = effect.middleColor + effect.middleColorVariance * vec4(rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0);'nl
@@ -266,7 +265,7 @@ const
 '    effect.speed + effect.speedVariance * (rnd() * 2.0 - 1.0),'nl
 '    effect.speed + effect.speedVariance * (rnd() * 2.0 - 1.0),'nl
 '    effect.speed + effect.speedVariance * (rnd() * 2.0 - 1.0));'nl
-'  outVelocity = vrdir * vspeed;'nl
+'  outVelocity = vec4(vrdir * vspeed, effect.radial + effect.radialVariance * (rnd() * 2.0 - 1.0));'nl
 
 '  float startSize = max(0.0001, effect.startParticleSize + effect.startParticleSizeVariance * (rnd() * 2.0 - 1.0));'nl
 '  float finishSize = max(0.0001, effect.finishParticleSize + effect.finishParticleSizeVariance * (rnd() * 2.0 - 1.0));'nl
@@ -275,6 +274,7 @@ const
 '  outRotation.x = effect.rotationStart + effect.rotationStartVariance * (rnd() * 2.0 - 1.0);'nl
 '  float endRotation = effect.rotationEnd + effect.rotationEndVariance * (rnd() * 2.0 - 1.0);'nl
 '  outRotation.y = (endRotation - outRotation.x) * invLifeSpan;'nl
+'  outRotation.x = effect.rotationStart + effect.rotationStartVariance * (rnd() * 2.0 - 1.0);'nl
 '}'nl
 
 'void updateParticle() {'nl
@@ -294,8 +294,8 @@ const
 '    outColorDelta = (finishColor - outColor) * (1.0 / outTimeToLive.y);'nl
 '  }'nl
 '  outTimeToLive.x = max(0.0, outTimeToLive.x - deltaTime);'nl
-'  outVelocity += effect.gravity * deltaTime;'nl
-'  outPosition += outVelocity * deltaTime;'nl
+'  outVelocity.xyz = rotate(outVelocity.xyz, outVelocity.w * deltaTime, effect.direction) + effect.gravity * deltaTime;'nl
+'  outPosition.xyz = rotate(outPosition.xyz, outVelocity.w * deltaTime, effect.direction) + outVelocity.xyz * deltaTime;'nl
 '  outSize.x += outSize.y * deltaTime;'nl
 '  outRotation.x += outRotation.y * deltaTime;'nl
 '}'nl
@@ -307,8 +307,8 @@ const
 
   VertexShaderSource: String =
 '#version 330'nl
-'layout(location = 0) in vec3 inPosition;'nl
-'layout(location = 1) in vec2 inTimeToLive;'nl
+'layout(location = 0) in vec4 inPosition;'nl
+'layout(location = 1) in vec3 inTimeToLive;'nl
 'layout(location = 2) in vec2 inSize;'nl
 'layout(location = 3) in vec2 inRotation;'nl
 'layout(location = 4) in vec4 inColor;'nl
@@ -321,7 +321,7 @@ const
 'uniform mat4 mvMatrix;'nl
 
 'void main() {'nl
-'  gl_Position = mvMatrix * vec4(inPosition, 1.0);'nl
+'  gl_Position = mvMatrix * vec4(inPosition.xyz, 1.0);'nl
 '  geomTimeToLive = inTimeToLive.x;'nl
 '  geomSize = inSize;'nl
 '  geomRotation = inRotation;'nl
@@ -385,7 +385,7 @@ const
 '  outColor.rgb *= outColor.a;'nl
 '}';
 
-  Varyings: array[0..10] of PChar = (
+  Varyings: array[0..9] of PChar = (
     'outPosition',
     'outTimeToLive',
     'outSize',
@@ -394,7 +394,6 @@ const
     'outColorDelta',
     'outStartPos',
     'outVelocity',
-    'outAcceleration',
     'outEmitRadius',
     'outEmitRotation'
   );
@@ -465,6 +464,9 @@ begin
         Vector3(JsonObject.Floats['minx'], JsonObject.Floats['miny'], JsonObject.Floats['minz']),
         Vector3(JsonObject.Floats['maxx'], JsonObject.Floats['maxy'], JsonObject.Floats['maxz'])
       );
+      // External
+      try Self.Radial := Json.Integers['radial']; except Self.Radial := 0; end;
+      try Self.RadialVariance := Json.Integers['radialVariance']; except Self.RadialVariance := 0; end;
     finally
       FreeAndNil(Json);
     end;
@@ -527,6 +529,8 @@ begin
     Json.Add('rotationStartVariance', Self.RotationStartVariance);
     Json.Add('rotationFinish', Self.RotationEnd);
     Json.Add('rotationFinishVariance', Self.RotationEndVariance);
+    Json.Add('radial', Self.Radial);
+    Json.Add('radialVariance', Self.RadialVariance);
 
     Json.Add('startColor', Vec4Add(Self.StartColor, 'red', 'green', 'blue', 'alpha'));
     Json.Add('startColorVariance', Vec4Add(Self.StartColorVariance, 'red', 'green', 'blue', 'alpha'));
@@ -645,6 +649,8 @@ begin
     TransformFeedbackProgram.Uniform('effect.speed').SetValue(Self.FEffect.Speed);
     TransformFeedbackProgram.Uniform('effect.speedVariance').SetValue(Self.FEffect.SpeedVariance);
     TransformFeedbackProgram.Uniform('effect.gravity').SetValue(Self.FEffect.Gravity);
+    TransformFeedbackProgram.Uniform('effect.radial').SetValue(Self.FEffect.Radial);
+    TransformFeedbackProgram.Uniform('effect.radialVariance').SetValue(Self.FEffect.RadialVariance);
     glBindVertexArray(Self.VAOs[CurrentBuffer]);
     glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, Self.VBOs[(CurrentBuffer + 1) mod 2]);
     glBeginTransformFeedback(GL_POINTS);
@@ -768,8 +774,8 @@ begin
     // Check maximum number of vertex attributes
     glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, @V);
     WritelnLog('GL_MAX_VERTEX_ATTRIBS: ' + IntToStr(V));
-    if V < 12 then
-      raise Exception.Create('TCastle3DParticleEmitterGPU requires GL_MAX_VERTEX_ATTRIBS at least 12');
+    if V < Length(Varyings) then
+      raise Exception.Create(Format('TCastle3DParticleEmitterGPU requires GL_MAX_VERTEX_ATTRIBS at least %d', [Length(Varyings)]));
     IsCheckedForUsable := True;
   end;
 
@@ -827,9 +833,9 @@ begin
     with Self.Particles[I] do
     begin
       TimeToLive.X := Random * (Self.FEffect.ParticleLifeSpan + Self.FEffect.ParticleLifeSpanVariance);
-      Position := Vector3(Random, Random, Random);
-      // Take advantage of unused RadialAcceleration for initial seed
-      RadialAcceleration := Random;
+      Position := Vector4(Random, Random, Random, 0);
+      // Random seed
+      TimeToLive.Z := random;
     end;
   end;
 
@@ -843,27 +849,25 @@ begin
     glBufferData(GL_ARRAY_BUFFER, Self.FEffect.MaxParticles * SizeOf(TCastle3DParticle), @Self.Particles[0], GL_STATIC_DRAW);
 
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, SizeOf(TCastle3DParticle), Pointer(0));
+    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, SizeOf(TCastle3DParticle), Pointer(0));
     glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, SizeOf(TCastle3DParticle), Pointer(12));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, SizeOf(TCastle3DParticle), Pointer(16));
     glEnableVertexAttribArray(2);
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, SizeOf(TCastle3DParticle), Pointer(20));
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, SizeOf(TCastle3DParticle), Pointer(28));
     glEnableVertexAttribArray(3);
-    glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, SizeOf(TCastle3DParticle), Pointer(28));
+    glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, SizeOf(TCastle3DParticle), Pointer(36));
     glEnableVertexAttribArray(4);
-    glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, SizeOf(TCastle3DParticle), Pointer(36));
+    glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, SizeOf(TCastle3DParticle), Pointer(44));
     glEnableVertexAttribArray(5);
-    glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, SizeOf(TCastle3DParticle), Pointer(52));
+    glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, SizeOf(TCastle3DParticle), Pointer(60));
     glEnableVertexAttribArray(6);
-    glVertexAttribPointer(6, 3, GL_FLOAT, GL_FALSE, SizeOf(TCastle3DParticle), Pointer(68));
+    glVertexAttribPointer(6, 3, GL_FLOAT, GL_FALSE, SizeOf(TCastle3DParticle), Pointer(76));
     glEnableVertexAttribArray(7);
-    glVertexAttribPointer(7, 3, GL_FLOAT, GL_FALSE, SizeOf(TCastle3DParticle), Pointer(80));
+    glVertexAttribPointer(7, 4, GL_FLOAT, GL_FALSE, SizeOf(TCastle3DParticle), Pointer(88));
     glEnableVertexAttribArray(8);
-    glVertexAttribPointer(8, 2, GL_FLOAT, GL_FALSE, SizeOf(TCastle3DParticle), Pointer(84));
+    glVertexAttribPointer(8, 2, GL_FLOAT, GL_FALSE, SizeOf(TCastle3DParticle), Pointer(104));
     glEnableVertexAttribArray(9);
-    glVertexAttribPointer(9, 2, GL_FLOAT, GL_FALSE, SizeOf(TCastle3DParticle), Pointer(100));
-    glEnableVertexAttribArray(10);
-    glVertexAttribPointer(10, 2, GL_FLOAT, GL_FALSE, SizeOf(TCastle3DParticle), Pointer(108));
+    glVertexAttribPointer(9, 2, GL_FLOAT, GL_FALSE, SizeOf(TCastle3DParticle), Pointer(112));
 
     glBindVertexArray(0);
   end;
