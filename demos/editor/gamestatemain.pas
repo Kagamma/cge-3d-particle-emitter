@@ -55,6 +55,8 @@ type
     EditDirectionVariance,
     EditSpeed,
     EditSpeedVariance,
+    EditRadial,
+    EditRadialVariance,
     EditPositionVarianceX,
     EditPositionVarianceY,
     EditPositionVarianceZ,
@@ -199,6 +201,8 @@ begin
   EditDirectionVariance := UiOwner.FindRequiredComponent('EditDirectionVariance') as TCastleFloatEdit;
   EditSpeed := UiOwner.FindRequiredComponent('EditSpeed') as TCastleFloatEdit;
   EditSpeedVariance := UiOwner.FindRequiredComponent('EditSpeedVariance') as TCastleFloatEdit;
+  EditRadial := UiOwner.FindRequiredComponent('EditRadial') as TCastleFloatEdit;
+  EditRadialVariance := UiOwner.FindRequiredComponent('EditRadialVariance') as TCastleFloatEdit;
   EditPositionVarianceX := UiOwner.FindRequiredComponent('EditPositionVarianceX') as TCastleFloatEdit;
   EditPositionVarianceY := UiOwner.FindRequiredComponent('EditPositionVarianceY') as TCastleFloatEdit;
   EditPositionVarianceZ := UiOwner.FindRequiredComponent('EditPositionVarianceZ') as TCastleFloatEdit;
@@ -301,6 +305,8 @@ begin
   EditDirectionVariance.Value := Effect.DirectionVariance;
   EditSpeed.Value := Effect.Speed;
   EditSpeedVariance.Value := Effect.SpeedVariance;
+  EditRadial.Value := Effect.Radial;
+  EditRadialVariance.Value := Effect.RadialVariance;
   EditPositionVarianceX.Value := Effect.SourcePositionVariance.X;
   EditPositionVarianceY.Value := Effect.SourcePositionVariance.Y;
   EditPositionVarianceZ.Value := Effect.SourcePositionVariance.Z;
@@ -377,6 +383,8 @@ begin
   Effect.DirectionVariance := EditDirectionVariance.Value;
   Effect.Speed := EditSpeed.Value;
   Effect.SpeedVariance := EditSpeedVariance.Value;
+  Effect.Radial := EditRadial.Value;
+  Effect.RadialVariance := EditRadialVariance.Value;
   Effect.SourcePositionVariance := Vector3(
     EditPositionVarianceX.Value,
     EditPositionVarianceY.Value,

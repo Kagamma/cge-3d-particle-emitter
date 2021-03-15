@@ -39,7 +39,14 @@
         "$ClassName" : "TCastleRootTransform"
       },
       "Name" : "Viewport",
+      "Navigation" : "ExamineNavigation1",
       "$Children" : [
+        {
+          "Name" : "ExamineNavigation1",
+          "$Children" : [
+          ],
+          "$ClassName" : "TCastleExamineNavigation"
+        }
       ],
       "$ClassName" : "TCastleViewport"
     },
@@ -84,6 +91,30 @@
       },
       "Name" : "ButtonFire",
       "VerticalAnchorDelta" : 1.3000000000000000E+002,
+      "$Children" : [
+      ],
+      "$ClassName" : "TCastleButton"
+    },
+    {
+      "Caption" : "Dust devil",
+      "CustomBackgroundDisabled" : {
+        "$ClassName" : "TCastleImagePersistent"
+      },
+      "CustomBackgroundFocused" : {
+        "$ClassName" : "TCastleImagePersistent"
+      },
+      "CustomBackgroundNormal" : {
+        "$ClassName" : "TCastleImagePersistent"
+      },
+      "CustomBackgroundPressed" : {
+        "$ClassName" : "TCastleImagePersistent"
+      },
+      "HorizontalAnchorDelta" : 2.0000000000000000E+001,
+      "Image" : {
+        "$ClassName" : "TCastleImagePersistent"
+      },
+      "Name" : "ButtonDustDevil",
+      "VerticalAnchorDelta" : 1.8000000000000000E+002,
       "$Children" : [
       ],
       "$ClassName" : "TCastleButton"

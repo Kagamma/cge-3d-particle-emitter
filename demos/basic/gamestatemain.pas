@@ -20,12 +20,14 @@ type
     LabelFps: TCastleLabel;
     Viewport: TCastleViewport;
     ButtonFire,
-    ButtonFireflies: TCastleButton;
+    ButtonFireflies,
+    ButtonDustDevil,
     ButtonFountain: TCastleButton;
     Emitter: TCastle3DParticleEmitterGPU;
     procedure ButtonFireClick(Sender: TObject);
     procedure ButtonFirefliesClick(Sender: TObject);
     procedure ButtonFountainClick(Sender: TObject);
+    procedure ButtonDustDevilClick(Sender: TObject);
   public
     procedure Start; override;
     procedure Update(const SecondsPassed: Single; var HandleInput: Boolean); override;
@@ -55,6 +57,11 @@ begin
   Emitter.LoadEffect('castle-data://fountain.json');
 end;
 
+procedure TStateMain.ButtonDustDevilClick(Sender: TObject);
+begin
+  Emitter.LoadEffect('castle-data://dustdevil.json');
+end;
+
 procedure TStateMain.Start;
 var
   UiOwner: TComponent;
@@ -71,10 +78,12 @@ begin
   ButtonFire := UiOwner.FindRequiredComponent('ButtonFire') as TCastleButton;
   ButtonFireflies := UiOwner.FindRequiredComponent('ButtonFireflies') as TCastleButton;
   ButtonFountain := UiOwner.FindRequiredComponent('ButtonFountain') as TCastleButton;
+  ButtonDustDevil := UiOwner.FindRequiredComponent('ButtonDustDevil') as TCastleButton;
 
   ButtonFire.OnClick := @ButtonFireClick;
   ButtonFireflies.OnClick := @ButtonFirefliesClick;
   ButtonFountain.OnClick := @ButtonFountainClick;
+  ButtonDustDevil.OnClick := @ButtonDustDevilClick;
 
   Emitter := TCastle3DParticleEmitterGPU.Create(Self);
   Emitter.LoadEffect('castle-data://fire.json');
