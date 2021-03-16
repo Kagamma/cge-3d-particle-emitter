@@ -35,14 +35,13 @@ type
     RotationDelta: Single;
     Color,
     ColorDelta: TVector4;
-    { Gravity parameters }
     StartPos: TVector3;
     Velocity: TVector4;
-    { Radial parameters }
     EmitRadius,
     EmitRadiusDelta,
     EmitRotation,
     EmitRotationDelta: Single;
+    Direction: TVector3;
   end;
 
   TCastle3DParticleEffect = class
@@ -160,6 +159,7 @@ const
 'layout(location = 7) in vec4 inVelocity;'nl
 'layout(location = 8) in vec2 inEmitRadius;'nl
 'layout(location = 9) in vec2 inEmitRotation;'nl
+'layout(location = 10) in vec3 inDirection;'nl
 
 'out vec4 outPosition;'nl
 'out vec3 outTimeToLive;'nl
@@ -171,6 +171,7 @@ const
 'out vec4 outVelocity;'nl
 'out vec2 outEmitRadius;'nl
 'out vec2 outEmitRotation;'nl
+'out vec3 outDirection;'nl
 
 'struct Effect {'nl
 '  float particleLifeSpan;'nl
@@ -246,6 +247,7 @@ const
 '  outVelocity = inVelocity;'nl
 '  outEmitRadius = inEmitRadius;'nl
 '  outEmitRotation = inEmitRotation;'nl
+'  outDirection = inDirection;'nl
 '}'nl
 
 'void emitParticle() {'nl
@@ -275,6 +277,7 @@ const
 '  float endRotation = effect.rotationEnd + effect.rotationEndVariance * (rnd() * 2.0 - 1.0);'nl
 '  outRotation.y = (endRotation - outRotation.x) * invLifeSpan;'nl
 '  outRotation.x = effect.rotationStart + effect.rotationStartVariance * (rnd() * 2.0 - 1.0);'nl
+'  outDirection = effect.direction;'nl
 '}'nl
 
 'void updateParticle() {'nl
@@ -294,8 +297,8 @@ const
 '    outColorDelta = (finishColor - outColor) * (1.0 / outTimeToLive.y);'nl
 '  }'nl
 '  outTimeToLive.x = max(0.0, outTimeToLive.x - deltaTime);'nl
-'  outVelocity.xyz = rotate(outVelocity.xyz, outVelocity.w * deltaTime, effect.direction) + effect.gravity * deltaTime;'nl
-'  outPosition.xyz = rotate(outPosition.xyz, outVelocity.w * deltaTime, effect.direction) + outVelocity.xyz * deltaTime;'nl
+'  outVelocity.xyz = rotate(outVelocity.xyz, outVelocity.w * deltaTime, outDirection) + effect.gravity * deltaTime;'nl
+'  outPosition.xyz = rotate(outPosition.xyz, outVelocity.w * deltaTime, outDirection) + outVelocity.xyz * deltaTime;'nl
 '  outSize.x += outSize.y * deltaTime;'nl
 '  outRotation.x += outRotation.y * deltaTime;'nl
 '}'nl
@@ -868,6 +871,8 @@ begin
     glVertexAttribPointer(8, 2, GL_FLOAT, GL_FALSE, SizeOf(TCastle3DParticle), Pointer(104));
     glEnableVertexAttribArray(9);
     glVertexAttribPointer(9, 2, GL_FLOAT, GL_FALSE, SizeOf(TCastle3DParticle), Pointer(112));
+    glEnableVertexAttribArray(10);
+    glVertexAttribPointer(10, 3, GL_FLOAT, GL_FALSE, SizeOf(TCastle3DParticle), Pointer(120));
 
     glBindVertexArray(0);
   end;
