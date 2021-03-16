@@ -28,7 +28,7 @@ type
   PCastle3DParticle = ^TCastle3DParticle;
   TCastle3DParticle = packed record
     Position: TVector4;
-    TimeToLive: TVector3;
+    TimeToLive: TVector2;
     Size,
     SizeDelta,
     Rotation,
@@ -41,6 +41,7 @@ type
     EmitRadiusDelta,
     EmitRotation,
     EmitRotationDelta: Single;
+    Direction: TVector3;
   end;
 
   TCastle3DParticleEffect = class
@@ -149,7 +150,7 @@ const
   TransformVertexShaderSource: String =
 '#version 330'nl
 'layout(location = 0) in vec4 inPosition;'nl
-'layout(location = 1) in vec3 inTimeToLive;'nl
+'layout(location = 1) in vec2 inTimeToLive;'nl
 'layout(location = 2) in vec2 inSize;'nl
 'layout(location = 3) in vec2 inRotation;'nl
 'layout(location = 4) in vec4 inColor;'nl
@@ -158,9 +159,10 @@ const
 'layout(location = 7) in vec4 inVelocity;'nl
 'layout(location = 8) in vec2 inEmitRadius;'nl
 'layout(location = 9) in vec2 inEmitRotation;'nl
+'layout(location = 10) in vec3 inDirection;'nl
 
 'out vec4 outPosition;'nl
-'out vec3 outTimeToLive;'nl
+'out vec2 outTimeToLive;'nl
 'out vec2 outSize;'nl
 'out vec2 outRotation;'nl
 'out vec4 outColor;'nl
@@ -169,6 +171,7 @@ const
 'out vec4 outVelocity;'nl
 'out vec2 outEmitRadius;'nl
 'out vec2 outEmitRotation;'nl
+'out vec3 outDirection;'nl
 
 'struct Effect {'nl
 '  float particleLifeSpan;'nl
@@ -211,8 +214,8 @@ const
 'uniform float deltaTime;'nl
 
 'float rnd() {'nl
-'  outTimeToLive.z = fract(sin(outTimeToLive.z + outPosition.x + outVelocity.x + outVelocity.y + outColor.x + deltaTime) * 43758.5453123);'nl
-'  return outTimeToLive.z;'nl
+'  outPosition.w = fract(sin(outPosition.w + outPosition.x + outVelocity.x + outVelocity.y + outColor.x + deltaTime) * 43758.5453123);'nl
+'  return outPosition.w;'nl
 '}'nl
 
 'vec3 rotate(vec3 v, float angle, vec3 axis) {'nl
@@ -244,6 +247,7 @@ const
 '  outVelocity = inVelocity;'nl
 '  outEmitRadius = inEmitRadius;'nl
 '  outEmitRotation = inEmitRotation;'nl
+'  outDirection = inDirection;'nl
 '}'nl
 
 'void emitParticle() {'nl
@@ -273,6 +277,7 @@ const
 '  float endRotation = effect.rotationEnd + effect.rotationEndVariance * (rnd() * 2.0 - 1.0);'nl
 '  outRotation.y = (endRotation - outRotation.x) * invLifeSpan;'nl
 '  outRotation.x = effect.rotationStart + effect.rotationStartVariance * (rnd() * 2.0 - 1.0);'nl
+'  outDirection = effect.direction;'nl
 '}'nl
 
 'void updateParticle() {'nl
@@ -292,8 +297,8 @@ const
 '    outColorDelta = (finishColor - outColor) * (1.0 / outTimeToLive.y);'nl
 '  }'nl
 '  outTimeToLive.x = max(0.0, outTimeToLive.x - deltaTime);'nl
-'  outVelocity.xyz = rotate(outVelocity.xyz, outVelocity.w * deltaTime, effect.direction) + effect.gravity * deltaTime;'nl
-'  outPosition.xyz = rotate(outPosition.xyz, outVelocity.w * deltaTime, effect.direction) + outVelocity.xyz * deltaTime;'nl
+'  outVelocity.xyz = rotate(outVelocity.xyz, outVelocity.w * deltaTime, outDirection) + effect.gravity * deltaTime;'nl
+'  outPosition.xyz = rotate(outPosition.xyz, outVelocity.w * deltaTime, outDirection) + outVelocity.xyz * deltaTime;'nl
 '  outSize.x += outSize.y * deltaTime;'nl
 '  outRotation.x += outRotation.y * deltaTime;'nl
 '}'nl
@@ -306,7 +311,7 @@ const
   VertexShaderSource: String =
 '#version 330'nl
 'layout(location = 0) in vec4 inPosition;'nl
-'layout(location = 1) in vec3 inTimeToLive;'nl
+'layout(location = 1) in vec2 inTimeToLive;'nl
 'layout(location = 2) in vec2 inSize;'nl
 'layout(location = 3) in vec2 inRotation;'nl
 'layout(location = 4) in vec4 inColor;'nl
@@ -383,7 +388,7 @@ const
 '  outColor.rgb *= outColor.a;'nl
 '}';
 
-  Varyings: array[0..9] of PChar = (
+  Varyings: array[0..10] of PChar = (
     'outPosition',
     'outTimeToLive',
     'outSize',
@@ -393,7 +398,8 @@ const
     'outStartPos',
     'outVelocity',
     'outEmitRadius',
-    'outEmitRotation'
+    'outEmitRotation',
+    'outDirection'
   );
 
 var
@@ -831,9 +837,9 @@ begin
     with Self.Particles[I] do
     begin
       TimeToLive.X := Random * (Self.FEffect.ParticleLifeSpan + Self.FEffect.ParticleLifeSpanVariance);
-      Position := Vector4(Random, Random, Random, 0);
-      // Random seed
-      TimeToLive.Z := random;
+      // Position.W is being used as random seed
+      Position := Vector4(Random, Random, Random, Random);
+      Direction := Vector3(1, 0, 0);
     end;
   end;
 
@@ -849,23 +855,25 @@ begin
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, SizeOf(TCastle3DParticle), Pointer(0));
     glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, SizeOf(TCastle3DParticle), Pointer(16));
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, SizeOf(TCastle3DParticle), Pointer(16));
     glEnableVertexAttribArray(2);
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, SizeOf(TCastle3DParticle), Pointer(28));
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, SizeOf(TCastle3DParticle), Pointer(24));
     glEnableVertexAttribArray(3);
-    glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, SizeOf(TCastle3DParticle), Pointer(36));
+    glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, SizeOf(TCastle3DParticle), Pointer(32));
     glEnableVertexAttribArray(4);
-    glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, SizeOf(TCastle3DParticle), Pointer(44));
+    glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, SizeOf(TCastle3DParticle), Pointer(40));
     glEnableVertexAttribArray(5);
-    glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, SizeOf(TCastle3DParticle), Pointer(60));
+    glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, SizeOf(TCastle3DParticle), Pointer(56));
     glEnableVertexAttribArray(6);
-    glVertexAttribPointer(6, 3, GL_FLOAT, GL_FALSE, SizeOf(TCastle3DParticle), Pointer(76));
+    glVertexAttribPointer(6, 3, GL_FLOAT, GL_FALSE, SizeOf(TCastle3DParticle), Pointer(72));
     glEnableVertexAttribArray(7);
-    glVertexAttribPointer(7, 4, GL_FLOAT, GL_FALSE, SizeOf(TCastle3DParticle), Pointer(88));
+    glVertexAttribPointer(7, 4, GL_FLOAT, GL_FALSE, SizeOf(TCastle3DParticle), Pointer(84));
     glEnableVertexAttribArray(8);
-    glVertexAttribPointer(8, 2, GL_FLOAT, GL_FALSE, SizeOf(TCastle3DParticle), Pointer(104));
+    glVertexAttribPointer(8, 2, GL_FLOAT, GL_FALSE, SizeOf(TCastle3DParticle), Pointer(100));
     glEnableVertexAttribArray(9);
-    glVertexAttribPointer(9, 2, GL_FLOAT, GL_FALSE, SizeOf(TCastle3DParticle), Pointer(112));
+    glVertexAttribPointer(9, 2, GL_FLOAT, GL_FALSE, SizeOf(TCastle3DParticle), Pointer(108));
+    glEnableVertexAttribArray(10);
+    glVertexAttribPointer(10, 3, GL_FLOAT, GL_FALSE, SizeOf(TCastle3DParticle), Pointer(116));
 
     glBindVertexArray(0);
   end;
