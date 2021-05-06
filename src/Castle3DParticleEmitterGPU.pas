@@ -40,7 +40,7 @@ type
     Direction: TVector3;
   end;
 
-  TCastle3DParticleEffect = class
+  TCastle3DParticleEffect = class(TComponent)
   public
     Texture: String;
     MaxParticles,
@@ -75,7 +75,7 @@ type
     RadialVariance: Single;
     IsColliable: Boolean;
     BBox: TBox3D;
-    constructor Create;
+    constructor Create(AOwner: TComponent); override;
     procedure Load(const AURL: String);
     procedure Save(const AURL: String);
   end;
@@ -103,7 +103,6 @@ type
     { When this is set to true, the emitter will automatically freed after
       all particles destroyed. }
     FReleaseWhenDone: Boolean;
-    FOwnEffect: Boolean;
     FPosition: TVector3;
     { Bypass GLContext problem }
     FIsGLContextInitialized: Boolean;
@@ -121,10 +120,9 @@ type
     { This method will free the current Effect if any, init a new FEffect and
       load settings from .json file. }
     procedure LoadEffect(const AURL: String); overload;
-    { If AOwnEffect = true the effect will be freed once emitter is freed. }
-    procedure LoadEffect(const AEffect: TCastle3DParticleEffect; const AOwnEffect: Boolean = True); overload;
+    procedure LoadEffect(const AEffect: TCastle3DParticleEffect);
     procedure GLContextOpen; virtual;
-    procedure GLContextClose; virtual;
+    procedure GLContextClose; override;
     procedure RefreshEffect;
     function LocalBoundingBox: TBox3D; override;
     { Move the position of emitter only }
@@ -389,7 +387,7 @@ var
   TransformFeedbackProgram: TGLSLProgram = nil;
   RenderProgram: TGLSLProgram = nil;
 
-constructor TCastle3DParticleEffect.Create;
+constructor TCastle3DParticleEffect.Create(AOwner: TComponent);
 begin
   inherited;
   Self.BBox := TBox3D.Empty;
@@ -555,7 +553,6 @@ begin
   Self.Texture := 0;
   Self.FSecondsPassed := 0;
   Self.FPosition := Vector3(0, 0, 0);
-  Self.FOwnEffect := False;
   Self.Scale := Vector3(1, 1, 1);
   Self.FIsGLContextInitialized := False;
   Self.FIsNeedRefresh := False;
@@ -564,9 +561,6 @@ end;
 
 destructor TCastle3DParticleEmitterGPU.Destroy;
 begin
-  if Self.FOwnEffect and Assigned(FEffect) then
-    FEffect.Free;
-  Self.GLContextClose;
   inherited;
 end;
 
@@ -728,22 +722,15 @@ end;
 
 procedure TCastle3DParticleEmitterGPU.LoadEffect(const AURL: String);
 begin
-  if Self.FOwnEffect and Assigned(FEffect) then
-    FreeAndNil(FEffect);
-  FEffect := TCastle3DParticleEffect.Create;
+  FEffect := TCastle3DParticleEffect.Create(Self);
   FEffect.Load(AURL);
   FURL := AURL;
-  Self.FOwnEffect := True;
   RefreshEffect;
 end;
 
-procedure TCastle3DParticleEmitterGPU.LoadEffect(const AEffect: TCastle3DParticleEffect;
-    const AOwnEffect: Boolean = True);
+procedure TCastle3DParticleEmitterGPU.LoadEffect(const AEffect: TCastle3DParticleEffect);
 begin
-  if Self.FOwnEffect and Assigned(FEffect) then
-    FreeAndNil(FEffect);
   FEffect := AEffect;
-  Self.FOwnEffect := AOwnEffect;
   RefreshEffect;
 end;
 
@@ -779,7 +766,6 @@ begin
     RenderProgram.Link;
   end;
 
-  // Map uniform
   glGenBuffers(2, @Self.VBOs);
   glGenVertexArrays(2, @Self.VAOs);
   Self.FIsGLContextInitialized := True;
@@ -787,11 +773,14 @@ end;
 
 procedure TCastle3DParticleEmitterGPU.GLContextClose;
 begin
-  if not Self.FIsGLContextInitialized then Exit;
-  glDeleteBuffers(2, @Self.VBOs);
-  glDeleteVertexArrays(2, @Self.VAOs);
-  glFreeTexture(Self.Texture);
-  Self.FIsGLContextInitialized := False;
+  if Self.FIsGLContextInitialized then
+  begin
+    glDeleteBuffers(2, @Self.VBOs);
+    glDeleteVertexArrays(2, @Self.VAOs);
+    glFreeTexture(Self.Texture);
+    Self.FIsGLContextInitialized := False;
+  end;
+  inherited;
 end;
 
 procedure TCastle3DParticleEmitterGPU.InternalRefreshEffect;
