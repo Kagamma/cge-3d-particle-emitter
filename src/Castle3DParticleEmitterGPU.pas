@@ -117,8 +117,7 @@ type
     procedure LocalRender(const Params: TRenderParams); override;
     { Save effect to a file }
     procedure SaveEffect(const AURL: String); overload;
-    { This method will free the current Effect if any, init a new FEffect and
-      load settings from .json file. }
+    { Init a new FEffect and load settings from .json file. }
     procedure LoadEffect(const AURL: String); overload;
     procedure LoadEffect(const AEffect: TCastle3DParticleEffect);
     procedure GLContextOpen; virtual;
