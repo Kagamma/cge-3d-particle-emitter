@@ -110,7 +110,7 @@ var
 implementation
 
 uses SysUtils,
-  CastleWindow, X3DLoad, GameInitialize;
+  CastleWindow, X3DLoad, GameInitialize, CastleImages;
 
 constructor TBoundingBoxScene.Create(AOwner: TComponent);
 var
@@ -466,7 +466,8 @@ procedure TStateMain.ButtonTextureOpenClick(Sender: TObject);
 var
   URL: String;
 begin
-  if Window.FileDialog('Open Image', URL, True, '*.*') then
+  URL := '';
+  if Window.FileDialog('Open Image', URL, True, LoadImage_FileFilters) then
   begin
     EditTexture.Text := URL;
   end;
