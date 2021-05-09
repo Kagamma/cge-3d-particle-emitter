@@ -44,22 +44,22 @@ uses SysUtils;
 
 procedure TStateMain.ButtonFireClick(Sender: TObject);
 begin
-  Emitter.LoadEffect('castle-data://fire.json');
+  Emitter.LoadEffect('castle-data:/fire.json');
 end;
 
 procedure TStateMain.ButtonFirefliesClick(Sender: TObject);
 begin
-  Emitter.LoadEffect('castle-data://fireflies.json');
+  Emitter.LoadEffect('castle-data:/fireflies.json');
 end;
 
 procedure TStateMain.ButtonFountainClick(Sender: TObject);
 begin
-  Emitter.LoadEffect('castle-data://fountain.json');
+  Emitter.LoadEffect('castle-data:/fountain.json');
 end;
 
 procedure TStateMain.ButtonDustDevilClick(Sender: TObject);
 begin
-  Emitter.LoadEffect('castle-data://dustdevil.json');
+  Emitter.LoadEffect('castle-data:/dustdevil.json');
 end;
 
 procedure TStateMain.Start;
@@ -86,7 +86,7 @@ begin
   ButtonDustDevil.OnClick := @ButtonDustDevilClick;
 
   Emitter := TCastle3DParticleEmitterGPU.Create(Self);
-  Emitter.LoadEffect('castle-data://fire.json');
+  Emitter.LoadEffect('castle-data:/fire.json');
   Emitter.StartEmitting := True;
   Viewport.Items.Add(Emitter);
 end;

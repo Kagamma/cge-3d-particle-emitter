@@ -240,7 +240,7 @@ begin
   ButtonTextureOpen.OnClick := @ButtonTextureOpenClick;
 
   Effect := TCastle3DParticleEffect.Create(Self);
-  Effect.Load('castle-data://default.json');
+  Effect.Load('castle-data:/default.json');
   Emitter := TCastle3DParticleEmitterGPU.Create(Self);
   Emitter.LoadEffect(Effect);
   Effect.Texture := 'data/default.png';
