@@ -1,0 +1,6 @@
+# CGE build tool output
+castle-engine-output
+
+# Unix binaries
+demos/editor/editor
+demos/basic/basic
