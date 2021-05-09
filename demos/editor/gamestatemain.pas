@@ -163,7 +163,7 @@ end;
 constructor TStateMain.Create(AOwner: TComponent);
 begin
   inherited;
-  DesignUrl := 'castle-data:/state_main.castle-user-interface';
+  DesignUrl := 'castle-data:/gamestatemain.castle-user-interface';
 end;
 
 procedure TStateMain.Start;

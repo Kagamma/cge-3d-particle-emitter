@@ -16,7 +16,7 @@ type
   { Main state, where most of the application logic takes place. }
   TStateMain = class(TUIState)
   private
-    { Components designed using CGE editor, loaded from state_main.castle-user-interface. }
+    { Components designed using CGE editor, loaded from gamestatemain.castle-user-interface. }
     LabelFps: TCastleLabel;
     Viewport: TCastleViewport;
     ButtonFire,
@@ -66,7 +66,7 @@ end;
 constructor TStateMain.Create(AOwner: TComponent);
 begin
   inherited;
-  DesignUrl := 'castle-data:/state_main.castle-user-interface';
+  DesignUrl := 'castle-data:/gamestatemain.castle-user-interface';
 end;
 
 procedure TStateMain.Start;
