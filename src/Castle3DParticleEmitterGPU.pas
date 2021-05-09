@@ -491,7 +491,7 @@ var
   end;
 begin
   Json := TJSONObject.Create;
-  FS := URLSaveStream(RawURIDecode(URIToFilenameSafe(AURL))) as TFileStream;
+  FS := URLSaveStream(AURL) as TFileStream;
   try
     Json.Add('texture', ExtractFileName(Self.Texture));
     Json.Add('maxParticles', Self.MaxParticles);
