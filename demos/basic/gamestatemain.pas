@@ -10,6 +10,7 @@ interface
 uses Classes,
   CastleUIState, CastleComponentSerialize, CastleUIControls, CastleControls,
   CastleKeysMouse, CastleViewport, CastleScene, CastleVectors, CastleBoxes,
+  CastleCameras,
   Castle3DParticleEmitterGPU;
 
 type
@@ -19,6 +20,7 @@ type
     { Components designed using CGE editor, loaded from gamestatemain.castle-user-interface. }
     LabelFps: TCastleLabel;
     Viewport: TCastleViewport;
+    ExamineNavigation1: TCastleExamineNavigation;
     ButtonFire,
     ButtonFireflies,
     ButtonDustDevil,
@@ -77,6 +79,7 @@ begin
   LabelFps := DesignedComponent('LabelFps') as TCastleLabel;
 
   Viewport := DesignedComponent('Viewport') as TCastleViewport;
+  ExamineNavigation1 := DesignedComponent('ExamineNavigation1') as TCastleExamineNavigation;
   ButtonFire := DesignedComponent('ButtonFire') as TCastleButton;
   ButtonFireflies := DesignedComponent('ButtonFireflies') as TCastleButton;
   ButtonFountain := DesignedComponent('ButtonFountain') as TCastleButton;
@@ -91,6 +94,13 @@ begin
   Emitter.LoadEffect('castle-data:/fire.json');
   Emitter.StartEmitting := True;
   Viewport.Items.Add(Emitter);
+
+  { It is necessary to assign ModelBox to have sensible movement/scaling
+    possible by TCastleExamineNavigation.
+    It is easiest to hardcode it to some "approximate" size of world.
+    It only determines how fast you move/scale world by dragging
+    with various mouse buttons, it doesn't have to reflect actual world. }
+  ExamineNavigation1.ModelBox := BoundingBox3DFromSphere(TVector3.Zero, 1);
 end;
 
 procedure TStateMain.Update(const SecondsPassed: Single; var HandleInput: Boolean);
