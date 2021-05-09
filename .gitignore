@@ -1,6 +1,9 @@
-# CGE build tool output
+# Compilation output
 castle-engine-output
+*.res
+*.exe
+*.dll
 
-# Unix binaries
+# Compilation output - Unix binaries
 demos/editor/editor
 demos/basic/basic
