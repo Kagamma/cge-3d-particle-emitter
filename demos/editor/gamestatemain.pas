@@ -97,6 +97,7 @@ type
     procedure ButtonApplyClick(Sender: TObject);
     procedure ButtonTextureOpenClick(Sender: TObject);
   public
+    constructor Create(AOwner: TComponent); override;
     procedure Start; override;
     procedure Update(const SecondsPassed: Single; var HandleInput: Boolean); override;
     function Press(const Event: TInputPressRelease): Boolean; override;
@@ -109,7 +110,7 @@ var
 implementation
 
 uses SysUtils,
-  CastleWindow, X3DLoad, GameInitialize;
+  CastleWindow, X3DLoad, GameInitialize, CastleImages;
 
 constructor TBoundingBoxScene.Create(AOwner: TComponent);
 var
@@ -159,80 +160,83 @@ end;
 
 { TStateMain ----------------------------------------------------------------- }
 
-procedure TStateMain.Start;
-var
-  UiOwner: TComponent;
+constructor TStateMain.Create(AOwner: TComponent);
 begin
   inherited;
-  InsertUserInterface('castle-data:/state_main.castle-user-interface', FreeAtStop, UiOwner);
+  DesignUrl := 'castle-data:/gamestatemain.castle-user-interface';
+end;
 
-  Viewport := UiOwner.FindRequiredComponent('Viewport') as TCastleViewport;
-  LabelFps := UiOwner.FindRequiredComponent('LabelFps') as TCastleLabel;
+procedure TStateMain.Start;
+begin
+  inherited;
 
-  EditTexture := UiOwner.FindRequiredComponent('EditTexture') as TCastleEdit;
-  EditMiddleAnchor := UiOwner.FindRequiredComponent('EditMiddleAnchor') as TCastleFloatEdit;
-  EditStartColorRed := UiOwner.FindRequiredComponent('EditStartColorRed') as TCastleFloatEdit;
-  EditStartColorGreen := UiOwner.FindRequiredComponent('EditStartColorGreen') as TCastleFloatEdit;
-  EditStartColorBlue := UiOwner.FindRequiredComponent('EditStartColorBlue') as TCastleFloatEdit;
-  EditStartColorAlpha := UiOwner.FindRequiredComponent('EditStartColorAlpha') as TCastleFloatEdit;
-  EditStartColorVarianceRed := UiOwner.FindRequiredComponent('EditStartColorVarianceRed') as TCastleFloatEdit;
-  EditStartColorVarianceGreen := UiOwner.FindRequiredComponent('EditStartColorVarianceGreen') as TCastleFloatEdit;
-  EditStartColorVarianceBlue := UiOwner.FindRequiredComponent('EditStartColorVarianceBlue') as TCastleFloatEdit;
-  EditStartColorVarianceAlpha := UiOwner.FindRequiredComponent('EditStartColorVarianceAlpha') as TCastleFloatEdit;
-  EditMiddleColorRed := UiOwner.FindRequiredComponent('EditMiddleColorRed') as TCastleFloatEdit;
-  EditMiddleColorGreen := UiOwner.FindRequiredComponent('EditMiddleColorGreen') as TCastleFloatEdit;
-  EditMiddleColorBlue := UiOwner.FindRequiredComponent('EditMiddleColorBlue') as TCastleFloatEdit;
-  EditMiddleColorAlpha := UiOwner.FindRequiredComponent('EditMiddleColorAlpha') as TCastleFloatEdit;
-  EditMiddleColorVarianceRed := UiOwner.FindRequiredComponent('EditMiddleColorVarianceRed') as TCastleFloatEdit;
-  EditMiddleColorVarianceGreen := UiOwner.FindRequiredComponent('EditMiddleColorVarianceGreen') as TCastleFloatEdit;
-  EditMiddleColorVarianceBlue := UiOwner.FindRequiredComponent('EditMiddleColorVarianceBlue') as TCastleFloatEdit;
-  EditMiddleColorVarianceAlpha := UiOwner.FindRequiredComponent('EditMiddleColorVarianceAlpha') as TCastleFloatEdit;
-  EditFinishColorRed := UiOwner.FindRequiredComponent('EditFinishColorRed') as TCastleFloatEdit;
-  EditFinishColorGreen := UiOwner.FindRequiredComponent('EditFinishColorGreen') as TCastleFloatEdit;
-  EditFinishColorBlue := UiOwner.FindRequiredComponent('EditFinishColorBlue') as TCastleFloatEdit;
-  EditFinishColorAlpha := UiOwner.FindRequiredComponent('EditFinishColorAlpha') as TCastleFloatEdit;
-  EditFinishColorVarianceRed := UiOwner.FindRequiredComponent('EditFinishColorVarianceRed') as TCastleFloatEdit;
-  EditFinishColorVarianceGreen := UiOwner.FindRequiredComponent('EditFinishColorVarianceGreen') as TCastleFloatEdit;
-  EditFinishColorVarianceBlue := UiOwner.FindRequiredComponent('EditFinishColorVarianceBlue') as TCastleFloatEdit;
-  EditFinishColorVarianceAlpha := UiOwner.FindRequiredComponent('EditFinishColorVarianceAlpha') as TCastleFloatEdit;
-  EditDirectionX := UiOwner.FindRequiredComponent('EditDirectionX') as TCastleFloatEdit;
-  EditDirectionY := UiOwner.FindRequiredComponent('EditDirectionY') as TCastleFloatEdit;
-  EditDirectionZ := UiOwner.FindRequiredComponent('EditDirectionZ') as TCastleFloatEdit;
-  EditDirectionVariance := UiOwner.FindRequiredComponent('EditDirectionVariance') as TCastleFloatEdit;
-  EditSpeed := UiOwner.FindRequiredComponent('EditSpeed') as TCastleFloatEdit;
-  EditSpeedVariance := UiOwner.FindRequiredComponent('EditSpeedVariance') as TCastleFloatEdit;
-  EditRadial := UiOwner.FindRequiredComponent('EditRadial') as TCastleFloatEdit;
-  EditRadialVariance := UiOwner.FindRequiredComponent('EditRadialVariance') as TCastleFloatEdit;
-  EditPositionVarianceX := UiOwner.FindRequiredComponent('EditPositionVarianceX') as TCastleFloatEdit;
-  EditPositionVarianceY := UiOwner.FindRequiredComponent('EditPositionVarianceY') as TCastleFloatEdit;
-  EditPositionVarianceZ := UiOwner.FindRequiredComponent('EditPositionVarianceZ') as TCastleFloatEdit;
-  EditGravityX := UiOwner.FindRequiredComponent('EditGravityX') as TCastleFloatEdit;
-  EditGravityY := UiOwner.FindRequiredComponent('EditGravityY') as TCastleFloatEdit;
-  EditGravityZ := UiOwner.FindRequiredComponent('EditGravityZ') as TCastleFloatEdit;
-  EditDuration := UiOwner.FindRequiredComponent('EditDuration') as TCastleFloatEdit;
-  EditLifeSpan := UiOwner.FindRequiredComponent('EditLifeSpan') as TCastleFloatEdit;
-  EditLifeSpanVariance := UiOwner.FindRequiredComponent('EditLifeSpanVariance') as TCastleFloatEdit;
-  EditStartParticleSize := UiOwner.FindRequiredComponent('EditStartParticleSize') as TCastleFloatEdit;
-  EditStartParticleSizeVariance := UiOwner.FindRequiredComponent('EditStartParticleSizeVariance') as TCastleFloatEdit;
-  EditFinishParticleSize := UiOwner.FindRequiredComponent('EditFinishParticleSize') as TCastleFloatEdit;
-  EditFinishParticleSizeVariance := UiOwner.FindRequiredComponent('EditFinishParticleSizeVariance') as TCastleFloatEdit;
-  EditStartRotation := UiOwner.FindRequiredComponent('EditStartRotation') as TCastleFloatEdit;
-  EditStartRotationVariance := UiOwner.FindRequiredComponent('EditStartRotationVariance') as TCastleFloatEdit;
-  EditFinishRotation := UiOwner.FindRequiredComponent('EditFinishRotation') as TCastleFloatEdit;
-  EditFinishRotationVariance := UiOwner.FindRequiredComponent('EditFinishRotationVariance') as TCastleFloatEdit;
-  EditBBoxX1 := UiOwner.FindRequiredComponent('EditBBoxX1') as TCastleFloatEdit;
-  EditBBoxY1 := UiOwner.FindRequiredComponent('EditBBoxY1') as TCastleFloatEdit;
-  EditBBoxZ1 := UiOwner.FindRequiredComponent('EditBBoxZ1') as TCastleFloatEdit;
-  EditBBoxX2 := UiOwner.FindRequiredComponent('EditBBoxX2') as TCastleFloatEdit;
-  EditBBoxY2 := UiOwner.FindRequiredComponent('EditBBoxY2') as TCastleFloatEdit;
-  EditBBoxZ2 := UiOwner.FindRequiredComponent('EditBBoxZ2') as TCastleFloatEdit;
-  EditMaxParticles := UiOwner.FindRequiredComponent('EditMaxParticles') as TCastleIntegerEdit;
-  EditBlendSource := UiOwner.FindRequiredComponent('EditBlendSrc') as TCastleIntegerEdit;
-  EditBlendDestination := UiOwner.FindRequiredComponent('EditBlendDst') as TCastleIntegerEdit;
-  ButtonSave := UiOwner.FindRequiredComponent('ButtonSave') as TCastleButton;
-  ButtonLoad := UiOwner.FindRequiredComponent('ButtonLoad') as TCastleButton;
-  ButtonApply := UiOwner.FindRequiredComponent('ButtonApply') as TCastleButton;
-  ButtonTextureOpen := UiOwner.FindRequiredComponent('ButtonTextureOpen') as TCastleButton;
+  Viewport := DesignedComponent('Viewport') as TCastleViewport;
+  LabelFps := DesignedComponent('LabelFps') as TCastleLabel;
+
+  EditTexture := DesignedComponent('EditTexture') as TCastleEdit;
+  EditMiddleAnchor := DesignedComponent('EditMiddleAnchor') as TCastleFloatEdit;
+  EditStartColorRed := DesignedComponent('EditStartColorRed') as TCastleFloatEdit;
+  EditStartColorGreen := DesignedComponent('EditStartColorGreen') as TCastleFloatEdit;
+  EditStartColorBlue := DesignedComponent('EditStartColorBlue') as TCastleFloatEdit;
+  EditStartColorAlpha := DesignedComponent('EditStartColorAlpha') as TCastleFloatEdit;
+  EditStartColorVarianceRed := DesignedComponent('EditStartColorVarianceRed') as TCastleFloatEdit;
+  EditStartColorVarianceGreen := DesignedComponent('EditStartColorVarianceGreen') as TCastleFloatEdit;
+  EditStartColorVarianceBlue := DesignedComponent('EditStartColorVarianceBlue') as TCastleFloatEdit;
+  EditStartColorVarianceAlpha := DesignedComponent('EditStartColorVarianceAlpha') as TCastleFloatEdit;
+  EditMiddleColorRed := DesignedComponent('EditMiddleColorRed') as TCastleFloatEdit;
+  EditMiddleColorGreen := DesignedComponent('EditMiddleColorGreen') as TCastleFloatEdit;
+  EditMiddleColorBlue := DesignedComponent('EditMiddleColorBlue') as TCastleFloatEdit;
+  EditMiddleColorAlpha := DesignedComponent('EditMiddleColorAlpha') as TCastleFloatEdit;
+  EditMiddleColorVarianceRed := DesignedComponent('EditMiddleColorVarianceRed') as TCastleFloatEdit;
+  EditMiddleColorVarianceGreen := DesignedComponent('EditMiddleColorVarianceGreen') as TCastleFloatEdit;
+  EditMiddleColorVarianceBlue := DesignedComponent('EditMiddleColorVarianceBlue') as TCastleFloatEdit;
+  EditMiddleColorVarianceAlpha := DesignedComponent('EditMiddleColorVarianceAlpha') as TCastleFloatEdit;
+  EditFinishColorRed := DesignedComponent('EditFinishColorRed') as TCastleFloatEdit;
+  EditFinishColorGreen := DesignedComponent('EditFinishColorGreen') as TCastleFloatEdit;
+  EditFinishColorBlue := DesignedComponent('EditFinishColorBlue') as TCastleFloatEdit;
+  EditFinishColorAlpha := DesignedComponent('EditFinishColorAlpha') as TCastleFloatEdit;
+  EditFinishColorVarianceRed := DesignedComponent('EditFinishColorVarianceRed') as TCastleFloatEdit;
+  EditFinishColorVarianceGreen := DesignedComponent('EditFinishColorVarianceGreen') as TCastleFloatEdit;
+  EditFinishColorVarianceBlue := DesignedComponent('EditFinishColorVarianceBlue') as TCastleFloatEdit;
+  EditFinishColorVarianceAlpha := DesignedComponent('EditFinishColorVarianceAlpha') as TCastleFloatEdit;
+  EditDirectionX := DesignedComponent('EditDirectionX') as TCastleFloatEdit;
+  EditDirectionY := DesignedComponent('EditDirectionY') as TCastleFloatEdit;
+  EditDirectionZ := DesignedComponent('EditDirectionZ') as TCastleFloatEdit;
+  EditDirectionVariance := DesignedComponent('EditDirectionVariance') as TCastleFloatEdit;
+  EditSpeed := DesignedComponent('EditSpeed') as TCastleFloatEdit;
+  EditSpeedVariance := DesignedComponent('EditSpeedVariance') as TCastleFloatEdit;
+  EditRadial := DesignedComponent('EditRadial') as TCastleFloatEdit;
+  EditRadialVariance := DesignedComponent('EditRadialVariance') as TCastleFloatEdit;
+  EditPositionVarianceX := DesignedComponent('EditPositionVarianceX') as TCastleFloatEdit;
+  EditPositionVarianceY := DesignedComponent('EditPositionVarianceY') as TCastleFloatEdit;
+  EditPositionVarianceZ := DesignedComponent('EditPositionVarianceZ') as TCastleFloatEdit;
+  EditGravityX := DesignedComponent('EditGravityX') as TCastleFloatEdit;
+  EditGravityY := DesignedComponent('EditGravityY') as TCastleFloatEdit;
+  EditGravityZ := DesignedComponent('EditGravityZ') as TCastleFloatEdit;
+  EditDuration := DesignedComponent('EditDuration') as TCastleFloatEdit;
+  EditLifeSpan := DesignedComponent('EditLifeSpan') as TCastleFloatEdit;
+  EditLifeSpanVariance := DesignedComponent('EditLifeSpanVariance') as TCastleFloatEdit;
+  EditStartParticleSize := DesignedComponent('EditStartParticleSize') as TCastleFloatEdit;
+  EditStartParticleSizeVariance := DesignedComponent('EditStartParticleSizeVariance') as TCastleFloatEdit;
+  EditFinishParticleSize := DesignedComponent('EditFinishParticleSize') as TCastleFloatEdit;
+  EditFinishParticleSizeVariance := DesignedComponent('EditFinishParticleSizeVariance') as TCastleFloatEdit;
+  EditStartRotation := DesignedComponent('EditStartRotation') as TCastleFloatEdit;
+  EditStartRotationVariance := DesignedComponent('EditStartRotationVariance') as TCastleFloatEdit;
+  EditFinishRotation := DesignedComponent('EditFinishRotation') as TCastleFloatEdit;
+  EditFinishRotationVariance := DesignedComponent('EditFinishRotationVariance') as TCastleFloatEdit;
+  EditBBoxX1 := DesignedComponent('EditBBoxX1') as TCastleFloatEdit;
+  EditBBoxY1 := DesignedComponent('EditBBoxY1') as TCastleFloatEdit;
+  EditBBoxZ1 := DesignedComponent('EditBBoxZ1') as TCastleFloatEdit;
+  EditBBoxX2 := DesignedComponent('EditBBoxX2') as TCastleFloatEdit;
+  EditBBoxY2 := DesignedComponent('EditBBoxY2') as TCastleFloatEdit;
+  EditBBoxZ2 := DesignedComponent('EditBBoxZ2') as TCastleFloatEdit;
+  EditMaxParticles := DesignedComponent('EditMaxParticles') as TCastleIntegerEdit;
+  EditBlendSource := DesignedComponent('EditBlendSrc') as TCastleIntegerEdit;
+  EditBlendDestination := DesignedComponent('EditBlendDst') as TCastleIntegerEdit;
+  ButtonSave := DesignedComponent('ButtonSave') as TCastleButton;
+  ButtonLoad := DesignedComponent('ButtonLoad') as TCastleButton;
+  ButtonApply := DesignedComponent('ButtonApply') as TCastleButton;
+  ButtonTextureOpen := DesignedComponent('ButtonTextureOpen') as TCastleButton;
 
   ButtonApply.OnClick := @ButtonApplyClick;
   ButtonSave.OnClick := @ButtonSaveClick;
@@ -240,7 +244,7 @@ begin
   ButtonTextureOpen.OnClick := @ButtonTextureOpenClick;
 
   Effect := TCastle3DParticleEffect.Create(Self);
-  Effect.Load('castle-data://default.json');
+  Effect.Load('castle-data:/default.json');
   Emitter := TCastle3DParticleEmitterGPU.Create(Self);
   Emitter.LoadEffect(Effect);
   Effect.Texture := 'data/default.png';
@@ -455,14 +459,15 @@ end;
 
 procedure TStateMain.Render;
 begin
-  
+
 end;
 
 procedure TStateMain.ButtonTextureOpenClick(Sender: TObject);
 var
   URL: String;
 begin
-  if Window.FileDialog('Open Image', URL, True, '*.*') then
+  URL := '';
+  if Window.FileDialog('Open Image', URL, True, LoadImage_FileFilters) then
   begin
     EditTexture.Text := URL;
   end;
