@@ -10,15 +10,17 @@ interface
 uses Classes,
   CastleUIState, CastleComponentSerialize, CastleUIControls, CastleControls,
   CastleKeysMouse, CastleViewport, CastleScene, CastleVectors, CastleBoxes,
+  CastleCameras,
   Castle3DParticleEmitterGPU;
 
 type
   { Main state, where most of the application logic takes place. }
   TStateMain = class(TUIState)
   private
-    { Components designed using CGE editor, loaded from state_main.castle-user-interface. }
+    { Components designed using CGE editor, loaded from gamestatemain.castle-user-interface. }
     LabelFps: TCastleLabel;
     Viewport: TCastleViewport;
+    ExamineNavigation1: TCastleExamineNavigation;
     ButtonFire,
     ButtonFireflies,
     ButtonDustDevil,
@@ -29,6 +31,7 @@ type
     procedure ButtonFountainClick(Sender: TObject);
     procedure ButtonDustDevilClick(Sender: TObject);
   public
+    constructor Create(AOwner: TComponent); override;
     procedure Start; override;
     procedure Update(const SecondsPassed: Single; var HandleInput: Boolean); override;
   end;
@@ -44,41 +47,43 @@ uses SysUtils;
 
 procedure TStateMain.ButtonFireClick(Sender: TObject);
 begin
-  Emitter.LoadEffect('castle-data://fire.json');
+  Emitter.LoadEffect('castle-data:/fire.json');
 end;
 
 procedure TStateMain.ButtonFirefliesClick(Sender: TObject);
 begin
-  Emitter.LoadEffect('castle-data://fireflies.json');
+  Emitter.LoadEffect('castle-data:/fireflies.json');
 end;
 
 procedure TStateMain.ButtonFountainClick(Sender: TObject);
 begin
-  Emitter.LoadEffect('castle-data://fountain.json');
+  Emitter.LoadEffect('castle-data:/fountain.json');
 end;
 
 procedure TStateMain.ButtonDustDevilClick(Sender: TObject);
 begin
-  Emitter.LoadEffect('castle-data://dustdevil.json');
+  Emitter.LoadEffect('castle-data:/dustdevil.json');
+end;
+
+constructor TStateMain.Create(AOwner: TComponent);
+begin
+  inherited;
+  DesignUrl := 'castle-data:/gamestatemain.castle-user-interface';
 end;
 
 procedure TStateMain.Start;
-var
-  UiOwner: TComponent;
 begin
   inherited;
 
-  { Load designed user interface }
-  InsertUserInterface('castle-data:/state_main.castle-user-interface', FreeAtStop, UiOwner);
-
   { Find components, by name, that we need to access from code }
-  LabelFps := UiOwner.FindRequiredComponent('LabelFps') as TCastleLabel;
+  LabelFps := DesignedComponent('LabelFps') as TCastleLabel;
 
-  Viewport := UiOwner.FindRequiredComponent('Viewport') as TCastleViewport;
-  ButtonFire := UiOwner.FindRequiredComponent('ButtonFire') as TCastleButton;
-  ButtonFireflies := UiOwner.FindRequiredComponent('ButtonFireflies') as TCastleButton;
-  ButtonFountain := UiOwner.FindRequiredComponent('ButtonFountain') as TCastleButton;
-  ButtonDustDevil := UiOwner.FindRequiredComponent('ButtonDustDevil') as TCastleButton;
+  Viewport := DesignedComponent('Viewport') as TCastleViewport;
+  ExamineNavigation1 := DesignedComponent('ExamineNavigation1') as TCastleExamineNavigation;
+  ButtonFire := DesignedComponent('ButtonFire') as TCastleButton;
+  ButtonFireflies := DesignedComponent('ButtonFireflies') as TCastleButton;
+  ButtonFountain := DesignedComponent('ButtonFountain') as TCastleButton;
+  ButtonDustDevil := DesignedComponent('ButtonDustDevil') as TCastleButton;
 
   ButtonFire.OnClick := @ButtonFireClick;
   ButtonFireflies.OnClick := @ButtonFirefliesClick;
@@ -86,9 +91,16 @@ begin
   ButtonDustDevil.OnClick := @ButtonDustDevilClick;
 
   Emitter := TCastle3DParticleEmitterGPU.Create(Self);
-  Emitter.LoadEffect('castle-data://fire.json');
+  Emitter.LoadEffect('castle-data:/fire.json');
   Emitter.StartEmitting := True;
   Viewport.Items.Add(Emitter);
+
+  { It is necessary to assign ModelBox to have sensible movement/scaling
+    possible by TCastleExamineNavigation.
+    It is easiest to hardcode it to some "approximate" size of world.
+    It only determines how fast you move/scale world by dragging
+    with various mouse buttons, it doesn't have to reflect actual world. }
+  ExamineNavigation1.ModelBox := BoundingBox3DFromSphere(TVector3.Zero, 1);
 end;
 
 procedure TStateMain.Update(const SecondsPassed: Single; var HandleInput: Boolean);

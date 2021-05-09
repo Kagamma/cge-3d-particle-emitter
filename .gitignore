@@ -1,0 +1,9 @@
+# Compilation output
+castle-engine-output
+*.res
+*.exe
+*.dll
+
+# Compilation output - Unix binaries
+demos/editor/editor
+demos/basic/basic
