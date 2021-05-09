@@ -416,13 +416,6 @@ begin
   BoundingBoxScene.UpdateBox(Effect.BBox);
 end;
 
-function ExtractRelativeDataPath(URL: String): String;
-begin
-  URL := StringReplace(URL, 'file:///', '', [rfReplaceAll]);
-  URL := StringReplace(URL, '\', '/', [rfReplaceAll]);
-  Result := URL;
-end;
-
 procedure TStateMain.ButtonSaveClick(Sender: TObject);
 var
   URL: String;
@@ -430,7 +423,7 @@ begin
   if Window.FileDialog('Save Particle', URL, False, '*.json') then
   begin
     UIToEffect;
-    Effect.Save(ExtractRelativeDataPath(URL));
+    Effect.Save(URL);
   end;
 end;
 
