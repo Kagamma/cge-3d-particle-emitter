@@ -29,6 +29,7 @@ type
     procedure ButtonFountainClick(Sender: TObject);
     procedure ButtonDustDevilClick(Sender: TObject);
   public
+    constructor Create(AOwner: TComponent); override;
     procedure Start; override;
     procedure Update(const SecondsPassed: Single; var HandleInput: Boolean); override;
   end;
@@ -62,23 +63,24 @@ begin
   Emitter.LoadEffect('castle-data:/dustdevil.json');
 end;
 
+constructor TStateMain.Create(AOwner: TComponent);
+begin
+  inherited;
+  DesignUrl := 'castle-data:/state_main.castle-user-interface';
+end;
+
 procedure TStateMain.Start;
-var
-  UiOwner: TComponent;
 begin
   inherited;
 
-  { Load designed user interface }
-  InsertUserInterface('castle-data:/state_main.castle-user-interface', FreeAtStop, UiOwner);
-
   { Find components, by name, that we need to access from code }
-  LabelFps := UiOwner.FindRequiredComponent('LabelFps') as TCastleLabel;
+  LabelFps := DesignedComponent('LabelFps') as TCastleLabel;
 
-  Viewport := UiOwner.FindRequiredComponent('Viewport') as TCastleViewport;
-  ButtonFire := UiOwner.FindRequiredComponent('ButtonFire') as TCastleButton;
-  ButtonFireflies := UiOwner.FindRequiredComponent('ButtonFireflies') as TCastleButton;
-  ButtonFountain := UiOwner.FindRequiredComponent('ButtonFountain') as TCastleButton;
-  ButtonDustDevil := UiOwner.FindRequiredComponent('ButtonDustDevil') as TCastleButton;
+  Viewport := DesignedComponent('Viewport') as TCastleViewport;
+  ButtonFire := DesignedComponent('ButtonFire') as TCastleButton;
+  ButtonFireflies := DesignedComponent('ButtonFireflies') as TCastleButton;
+  ButtonFountain := DesignedComponent('ButtonFountain') as TCastleButton;
+  ButtonDustDevil := DesignedComponent('ButtonDustDevil') as TCastleButton;
 
   ButtonFire.OnClick := @ButtonFireClick;
   ButtonFireflies.OnClick := @ButtonFirefliesClick;
