@@ -676,7 +676,7 @@ begin
   if DistanceCulling > 0 then
   begin
     RenderCameraPosition := Params.InverseTransform^.MultPoint(Params.RenderingCamera.Position);
-    if (Position - RenderCameraPosition).Length > DistanceCulling then
+    if (Position - RenderCameraPosition).Length > DistanceCulling + LocalBoundingBox.Radius then
       Exit;
   end;
   if not Self.FEffect.BBox.IsEmpty then
