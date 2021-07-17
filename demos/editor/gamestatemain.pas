@@ -86,12 +86,18 @@ type
     ButtonSave,
     ButtonLoad,
     ButtonTextureOpen,
+    ButtonStartColor,
+    ButtonMiddleColor,
+    ButtonFinishColor,
     ButtonApply: TCastleButton;
     Effect: TCastle3DParticleEffect;
     Emitter: TCastle3DParticleEmitterGPU;
     BoundingBoxScene: TBoundingBoxScene;
     procedure EffectToUI;
     procedure UIToEffect;
+    procedure ButtonStartColorClick(Sender: TObject);
+    procedure ButtonMiddleColorClick(Sender: TObject);
+    procedure ButtonFinishColorClick(Sender: TObject);
     procedure ButtonSaveClick(Sender: TObject);
     procedure ButtonLoadClick(Sender: TObject);
     procedure ButtonApplyClick(Sender: TObject);
@@ -236,12 +242,18 @@ begin
   ButtonSave := DesignedComponent('ButtonSave') as TCastleButton;
   ButtonLoad := DesignedComponent('ButtonLoad') as TCastleButton;
   ButtonApply := DesignedComponent('ButtonApply') as TCastleButton;
+  ButtonStartColor := DesignedComponent('ButtonStartColor') as TCastleButton;
+  ButtonMiddleColor := DesignedComponent('ButtonMiddleColor') as TCastleButton;
+  ButtonFinishColor := DesignedComponent('ButtonFinishColor') as TCastleButton;
   ButtonTextureOpen := DesignedComponent('ButtonTextureOpen') as TCastleButton;
 
   ButtonApply.OnClick := @ButtonApplyClick;
   ButtonSave.OnClick := @ButtonSaveClick;
   ButtonLoad.OnClick := @ButtonLoadClick;
   ButtonTextureOpen.OnClick := @ButtonTextureOpenClick;
+  ButtonStartColor.OnClick := @ButtonStartColorClick;
+  ButtonMiddleColor.OnClick := @ButtonMiddleColorClick;
+  ButtonFinishColor.OnClick := @ButtonFinishColorClick;
 
   Effect := TCastle3DParticleEffect.Create(Self);
   Effect.Load('castle-data:/default.json');
@@ -463,6 +475,48 @@ begin
   if Window.FileDialog('Open Image', URL, True, LoadImage_FileFilters) then
   begin
     EditTexture.Text := URL;
+  end;
+end;
+
+procedure TStateMain.ButtonStartColorClick(Sender: TObject);
+var
+  V: TVector3;
+begin
+  V := Vector3(EditStartColorRed.Value, EditStartColorGreen.Value, EditStartColorBlue.Value);
+  if Window.ColorDialog(V) then
+  begin
+    EditStartColorRed.Value := V.X;
+    EditStartColorGreen.Value := V.Y;
+    EditStartColorBlue.Value := V.Z;
+    UIToEffect;
+  end;
+end;
+
+procedure TStateMain.ButtonMiddleColorClick(Sender: TObject);
+var
+  V: TVector3;
+begin
+  V := Vector3(EditMiddleColorRed.Value, EditMiddleColorGreen.Value, EditMiddleColorBlue.Value);
+  if Window.ColorDialog(V) then
+  begin
+    EditMiddleColorRed.Value := V.X;
+    EditMiddleColorGreen.Value := V.Y;
+    EditMiddleColorBlue.Value := V.Z;
+    UIToEffect;
+  end;
+end;
+
+procedure TStateMain.ButtonFinishColorClick(Sender: TObject);
+var
+  V: TVector3;
+begin
+  V := Vector3(EditFinishColorRed.Value, EditFinishColorGreen.Value, EditFinishColorBlue.Value);
+  if Window.ColorDialog(V) then
+  begin
+    EditFinishColorRed.Value := V.X;
+    EditFinishColorGreen.Value := V.Y;
+    EditFinishColorBlue.Value := V.Z;
+    UIToEffect;
   end;
 end;
 
