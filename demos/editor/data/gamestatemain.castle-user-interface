@@ -163,6 +163,7 @@
               "Text" : [
                 "Start Color"
               ],
+              "Tooltip" : "Particle color at the start of it's lifecycle",
               "VerticalAnchorDelta" : -7.8000000000000000E+001,
               "VerticalAnchorParent" : "vpTop",
               "VerticalAnchorSelf" : "vpTop"
@@ -268,6 +269,7 @@
               "Text" : [
                 "Middle Color"
               ],
+              "Tooltip" : "Particle color at certain point of it's lifecycle, defined by Middle Color Anchor",
               "VerticalAnchorDelta" : -1.4600000000000000E+002,
               "VerticalAnchorParent" : "vpTop",
               "VerticalAnchorSelf" : "vpTop"
@@ -373,6 +375,7 @@
               "Text" : [
                 "Finish Color"
               ],
+              "Tooltip" : "Particle color at the end of it's lifecycle",
               "VerticalAnchorDelta" : -2.1400000000000000E+002,
               "VerticalAnchorParent" : "vpTop",
               "VerticalAnchorSelf" : "vpTop"
@@ -478,6 +481,7 @@
               "Text" : [
                 "Direction"
               ],
+              "Tooltip" : "Emitter's emit direction",
               "VerticalAnchorDelta" : -2.8200000000000000E+002,
               "VerticalAnchorParent" : "vpTop",
               "VerticalAnchorSelf" : "vpTop"
@@ -536,6 +540,7 @@
               "Text" : [
                 "Gravity"
               ],
+              "Tooltip" : "Gravity. Affect particles overtime",
               "VerticalAnchorDelta" : -3.4929998779296875E+002,
               "VerticalAnchorParent" : "vpTop",
               "VerticalAnchorSelf" : "vpTop"
@@ -594,6 +599,7 @@
               "Text" : [
                 "Blend Source"
               ],
+              "Tooltip" : "OpenGL's source blending factor",
               "VerticalAnchorDelta" : -4.1659997558593750E+002,
               "VerticalAnchorParent" : "vpTop",
               "VerticalAnchorSelf" : "vpTop"
@@ -622,6 +628,7 @@
               "Text" : [
                 "Blend Destination"
               ],
+              "Tooltip" : "OpenGL's destination blending factor",
               "VerticalAnchorDelta" : -4.8389996337890625E+002,
               "VerticalAnchorParent" : "vpTop",
               "VerticalAnchorSelf" : "vpTop"
@@ -678,6 +685,7 @@
               "Text" : [
                 "Bounding Box"
               ],
+              "Tooltip" : "For culling. Leave it empty to disable this optimization",
               "VerticalAnchorDelta" : -6.1849993896484375E+002,
               "VerticalAnchorParent" : "vpTop",
               "VerticalAnchorSelf" : "vpTop"
@@ -906,6 +914,7 @@
               "Text" : [
                 "Middle Color Anchor"
               ],
+              "Tooltip" : "Used by Middle Color",
               "VerticalAnchorDelta" : -1.0000000000000000E+001,
               "VerticalAnchorParent" : "vpTop",
               "VerticalAnchorSelf" : "vpTop"
@@ -1237,6 +1246,7 @@
               "Text" : [
                 "Radial / Variance"
               ],
+              "Tooltip" : "Rotate around Direction vector",
               "VerticalAnchorDelta" : -4.1379998779296875E+002,
               "VerticalAnchorParent" : "vpTop",
               "VerticalAnchorSelf" : "vpTop"
@@ -1342,6 +1352,7 @@
               "Text" : [
                 "Duration"
               ],
+              "Tooltip" : "Emitter's lifetime in second. Useful when use it with ReleaseWhenDone property",
               "VerticalAnchorDelta" : -5.4839996337890625E+002,
               "VerticalAnchorParent" : "vpTop",
               "VerticalAnchorSelf" : "vpTop"
@@ -1369,6 +1380,7 @@
               "Text" : [
                 "Lifespan / Variance"
               ],
+              "Tooltip" : "Lifespan of a particle in second",
               "VerticalAnchorDelta" : -6.1569995117187500E+002,
               "VerticalAnchorParent" : "vpTop",
               "VerticalAnchorSelf" : "vpTop"
@@ -1510,6 +1522,7 @@
               "Text" : [
                 "Start Rotation / Variance"
               ],
+              "Tooltip" : "Screen-space rotation",
               "VerticalAnchorDelta" : -8.1759991455078125E+002,
               "VerticalAnchorParent" : "vpTop",
               "VerticalAnchorSelf" : "vpTop"
@@ -1557,6 +1570,7 @@
               "Text" : [
                 "Finish Rotation / Variance"
               ],
+              "Tooltip" : "Screen-space rotation",
               "VerticalAnchorDelta" : -8.8489990234375000E+002,
               "VerticalAnchorParent" : "vpTop",
               "VerticalAnchorSelf" : "vpTop"
