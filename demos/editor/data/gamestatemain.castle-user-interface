@@ -116,6 +116,7 @@
                   "FontScale" : 6.9999998807907104E-001,
                   "Name" : "EditTexture",
                   "Text" : "EditTexture",
+                  "Tooltip" : "Alpha",
                   "VerticalAnchorParent" : "vpMiddle",
                   "VerticalAnchorSelf" : "vpMiddle",
                   "Width" : 2.7000000000000000E+002
@@ -185,6 +186,7 @@
                   "Max" : 1.0000000000000000E+000,
                   "Min" : 0.0000000000000000E+000,
                   "Name" : "EditStartColorRed",
+                  "Tooltip" : "Red",
                   "VerticalAnchorParent" : "vpTop",
                   "VerticalAnchorSelf" : "vpTop",
                   "Width" : 6.0000000000000000E+001
@@ -197,6 +199,7 @@
                   "Max" : 1.0000000000000000E+000,
                   "Min" : 0.0000000000000000E+000,
                   "Name" : "EditStartColorGreen",
+                  "Tooltip" : "Green",
                   "VerticalAnchorParent" : "vpTop",
                   "VerticalAnchorSelf" : "vpTop",
                   "Width" : 6.0000000000000000E+001
@@ -209,6 +212,7 @@
                   "Max" : 1.0000000000000000E+000,
                   "Min" : 0.0000000000000000E+000,
                   "Name" : "EditStartColorBlue",
+                  "Tooltip" : "Blue",
                   "VerticalAnchorParent" : "vpTop",
                   "VerticalAnchorSelf" : "vpTop",
                   "Width" : 6.0000000000000000E+001
@@ -291,6 +295,7 @@
                   "Max" : 1.0000000000000000E+000,
                   "Min" : 0.0000000000000000E+000,
                   "Name" : "EditMiddleColorRed",
+                  "Tooltip" : "Red",
                   "VerticalAnchorParent" : "vpTop",
                   "VerticalAnchorSelf" : "vpTop",
                   "Width" : 6.0000000000000000E+001
@@ -303,6 +308,7 @@
                   "Max" : 1.0000000000000000E+000,
                   "Min" : 0.0000000000000000E+000,
                   "Name" : "EditMiddleColorGreen",
+                  "Tooltip" : "Green",
                   "VerticalAnchorParent" : "vpTop",
                   "VerticalAnchorSelf" : "vpTop",
                   "Width" : 6.0000000000000000E+001
@@ -315,6 +321,7 @@
                   "Max" : 1.0000000000000000E+000,
                   "Min" : 0.0000000000000000E+000,
                   "Name" : "EditMiddleColorBlue",
+                  "Tooltip" : "Blue",
                   "VerticalAnchorParent" : "vpTop",
                   "VerticalAnchorSelf" : "vpTop",
                   "Width" : 6.0000000000000000E+001
@@ -327,6 +334,7 @@
                   "Max" : 1.0000000000000000E+000,
                   "Min" : 0.0000000000000000E+000,
                   "Name" : "EditMiddleColorAlpha",
+                  "Tooltip" : "Alpha",
                   "VerticalAnchorParent" : "vpTop",
                   "VerticalAnchorSelf" : "vpTop",
                   "Width" : 6.0000000000000000E+001
@@ -397,6 +405,7 @@
                   "Max" : 1.0000000000000000E+000,
                   "Min" : 0.0000000000000000E+000,
                   "Name" : "EditFinishColorRed",
+                  "Tooltip" : "Red",
                   "VerticalAnchorParent" : "vpTop",
                   "VerticalAnchorSelf" : "vpTop",
                   "Width" : 6.0000000000000000E+001
@@ -409,6 +418,7 @@
                   "Max" : 1.0000000000000000E+000,
                   "Min" : 0.0000000000000000E+000,
                   "Name" : "EditFinishColorGreen",
+                  "Tooltip" : "Green",
                   "VerticalAnchorParent" : "vpTop",
                   "VerticalAnchorSelf" : "vpTop",
                   "Width" : 6.0000000000000000E+001
@@ -421,6 +431,7 @@
                   "Max" : 1.0000000000000000E+000,
                   "Min" : 0.0000000000000000E+000,
                   "Name" : "EditFinishColorBlue",
+                  "Tooltip" : "Blue",
                   "VerticalAnchorParent" : "vpTop",
                   "VerticalAnchorSelf" : "vpTop",
                   "Width" : 6.0000000000000000E+001
@@ -433,6 +444,7 @@
                   "Max" : 1.0000000000000000E+000,
                   "Min" : 0.0000000000000000E+000,
                   "Name" : "EditFinishColorAlpha",
+                  "Tooltip" : "Alpha",
                   "VerticalAnchorParent" : "vpTop",
                   "VerticalAnchorSelf" : "vpTop",
                   "Width" : 6.0000000000000000E+001
@@ -501,6 +513,7 @@
                   "CaptureAllInput" : false,
                   "FontScale" : 6.9999998807907104E-001,
                   "Name" : "EditDirectionX",
+                  "Tooltip" : "X",
                   "VerticalAnchorParent" : "vpTop",
                   "VerticalAnchorSelf" : "vpTop",
                   "Width" : 7.0000000000000000E+001
@@ -511,6 +524,7 @@
                   "FontScale" : 6.9999998807907104E-001,
                   "HorizontalAnchorDelta" : 8.0000000000000000E+001,
                   "Name" : "EditDirectionY",
+                  "Tooltip" : "Y",
                   "VerticalAnchorParent" : "vpTop",
                   "VerticalAnchorSelf" : "vpTop",
                   "Width" : 7.0000000000000000E+001
@@ -521,6 +535,7 @@
                   "FontScale" : 6.9999998807907104E-001,
                   "HorizontalAnchorDelta" : 1.6000000000000000E+002,
                   "Name" : "EditDirectionZ",
+                  "Tooltip" : "ZZ",
                   "VerticalAnchorParent" : "vpTop",
                   "VerticalAnchorSelf" : "vpTop",
                   "Width" : 7.0000000000000000E+001
@@ -560,6 +575,7 @@
                   "CaptureAllInput" : false,
                   "FontScale" : 6.9999998807907104E-001,
                   "Name" : "EditGravityX",
+                  "Tooltip" : "X",
                   "VerticalAnchorParent" : "vpTop",
                   "VerticalAnchorSelf" : "vpTop",
                   "Width" : 7.0000000000000000E+001
@@ -570,6 +586,7 @@
                   "FontScale" : 6.9999998807907104E-001,
                   "HorizontalAnchorDelta" : 8.0000000000000000E+001,
                   "Name" : "EditGravityY",
+                  "Tooltip" : "Y",
                   "VerticalAnchorParent" : "vpTop",
                   "VerticalAnchorSelf" : "vpTop",
                   "Width" : 7.0000000000000000E+001
@@ -580,6 +597,7 @@
                   "FontScale" : 6.9999998807907104E-001,
                   "HorizontalAnchorDelta" : 1.6000000000000000E+002,
                   "Name" : "EditGravityZ",
+                  "Tooltip" : "Z",
                   "VerticalAnchorParent" : "vpTop",
                   "VerticalAnchorSelf" : "vpTop",
                   "Width" : 7.0000000000000000E+001
@@ -685,7 +703,7 @@
               "Text" : [
                 "Bounding Box"
               ],
-              "Tooltip" : "For culling. Leave it empty to disable this optimization",
+              "Tooltip" : "For culling. Leave it as-is to disable this optimization",
               "VerticalAnchorDelta" : -6.1849993896484375E+002,
               "VerticalAnchorParent" : "vpTop",
               "VerticalAnchorSelf" : "vpTop"
@@ -705,6 +723,7 @@
                   "CaptureAllInput" : false,
                   "FontScale" : 6.9999998807907104E-001,
                   "Name" : "EditBBoxX1",
+                  "Tooltip" : "Bottom X",
                   "VerticalAnchorParent" : "vpTop",
                   "VerticalAnchorSelf" : "vpTop",
                   "Width" : 7.0000000000000000E+001
@@ -715,6 +734,7 @@
                   "FontScale" : 6.9999998807907104E-001,
                   "HorizontalAnchorDelta" : 8.0000000000000000E+001,
                   "Name" : "EditBBoxY1",
+                  "Tooltip" : "Bottom Y",
                   "VerticalAnchorParent" : "vpTop",
                   "VerticalAnchorSelf" : "vpTop",
                   "Width" : 7.0000000000000000E+001
@@ -725,6 +745,7 @@
                   "FontScale" : 6.9999998807907104E-001,
                   "HorizontalAnchorDelta" : 1.6000000000000000E+002,
                   "Name" : "EditBBoxZ1",
+                  "Tooltip" : "Bottom Z",
                   "VerticalAnchorParent" : "vpTop",
                   "VerticalAnchorSelf" : "vpTop",
                   "Width" : 7.0000000000000000E+001
@@ -746,6 +767,7 @@
                   "CaptureAllInput" : false,
                   "FontScale" : 6.9999998807907104E-001,
                   "Name" : "EditBBoxX2",
+                  "Tooltip" : "Top X",
                   "VerticalAnchorParent" : "vpTop",
                   "VerticalAnchorSelf" : "vpTop",
                   "Width" : 7.0000000000000000E+001
@@ -756,6 +778,7 @@
                   "FontScale" : 6.9999998807907104E-001,
                   "HorizontalAnchorDelta" : 8.0000000000000000E+001,
                   "Name" : "EditBBoxY2",
+                  "Tooltip" : "Top Y",
                   "VerticalAnchorParent" : "vpTop",
                   "VerticalAnchorSelf" : "vpTop",
                   "Width" : 7.0000000000000000E+001
@@ -766,6 +789,7 @@
                   "FontScale" : 6.9999998807907104E-001,
                   "HorizontalAnchorDelta" : 1.6000000000000000E+002,
                   "Name" : "EditBBoxZ2",
+                  "Tooltip" : "Top Z",
                   "VerticalAnchorParent" : "vpTop",
                   "VerticalAnchorSelf" : "vpTop",
                   "Width" : 7.0000000000000000E+001
@@ -914,7 +938,7 @@
               "Text" : [
                 "Middle Color Anchor"
               ],
-              "Tooltip" : "Used by Middle Color",
+              "Tooltip" : "Used by Middle Color. [0..1] range",
               "VerticalAnchorDelta" : -1.0000000000000000E+001,
               "VerticalAnchorParent" : "vpTop",
               "VerticalAnchorSelf" : "vpTop"
@@ -965,6 +989,7 @@
                   "Max" : 1.0000000000000000E+000,
                   "Min" : 0.0000000000000000E+000,
                   "Name" : "EditStartColorVarianceRed",
+                  "Tooltip" : "Red",
                   "VerticalAnchorParent" : "vpTop",
                   "VerticalAnchorSelf" : "vpTop",
                   "Width" : 7.0000000000000000E+001
@@ -977,6 +1002,7 @@
                   "Max" : 1.0000000000000000E+000,
                   "Min" : 0.0000000000000000E+000,
                   "Name" : "EditStartColorVarianceGreen",
+                  "Tooltip" : "Green",
                   "VerticalAnchorParent" : "vpTop",
                   "VerticalAnchorSelf" : "vpTop",
                   "Width" : 7.0000000000000000E+001
@@ -989,6 +1015,7 @@
                   "Max" : 1.0000000000000000E+000,
                   "Min" : 0.0000000000000000E+000,
                   "Name" : "EditStartColorVarianceBlue",
+                  "Tooltip" : "Blue",
                   "VerticalAnchorParent" : "vpTop",
                   "VerticalAnchorSelf" : "vpTop",
                   "Width" : 7.0000000000000000E+001
@@ -1001,6 +1028,7 @@
                   "Max" : 1.0000000000000000E+000,
                   "Min" : 0.0000000000000000E+000,
                   "Name" : "EditStartColorVarianceAlpha",
+                  "Tooltip" : "Alpha",
                   "VerticalAnchorParent" : "vpTop",
                   "VerticalAnchorSelf" : "vpTop",
                   "Width" : 7.0000000000000000E+001
@@ -1041,6 +1069,7 @@
                   "Max" : 1.0000000000000000E+000,
                   "Min" : 0.0000000000000000E+000,
                   "Name" : "EditMiddleColorVarianceRed",
+                  "Tooltip" : "Red",
                   "VerticalAnchorParent" : "vpTop",
                   "VerticalAnchorSelf" : "vpTop",
                   "Width" : 7.0000000000000000E+001
@@ -1053,6 +1082,7 @@
                   "Max" : 1.0000000000000000E+000,
                   "Min" : 0.0000000000000000E+000,
                   "Name" : "EditMiddleColorVarianceGreen",
+                  "Tooltip" : "Green",
                   "VerticalAnchorParent" : "vpTop",
                   "VerticalAnchorSelf" : "vpTop",
                   "Width" : 7.0000000000000000E+001
@@ -1065,6 +1095,7 @@
                   "Max" : 1.0000000000000000E+000,
                   "Min" : 0.0000000000000000E+000,
                   "Name" : "EditMiddleColorVarianceBlue",
+                  "Tooltip" : "Blue",
                   "VerticalAnchorParent" : "vpTop",
                   "VerticalAnchorSelf" : "vpTop",
                   "Width" : 7.0000000000000000E+001
@@ -1077,6 +1108,7 @@
                   "Max" : 1.0000000000000000E+000,
                   "Min" : 0.0000000000000000E+000,
                   "Name" : "EditMiddleColorVarianceAlpha",
+                  "Tooltip" : "Alpha",
                   "VerticalAnchorParent" : "vpTop",
                   "VerticalAnchorSelf" : "vpTop",
                   "Width" : 7.0000000000000000E+001
@@ -1117,6 +1149,7 @@
                   "Max" : 1.0000000000000000E+000,
                   "Min" : 0.0000000000000000E+000,
                   "Name" : "EditFinishColorVarianceRed",
+                  "Tooltip" : "Red",
                   "VerticalAnchorParent" : "vpTop",
                   "VerticalAnchorSelf" : "vpTop",
                   "Width" : 7.0000000000000000E+001
@@ -1129,6 +1162,7 @@
                   "Max" : 1.0000000000000000E+000,
                   "Min" : 0.0000000000000000E+000,
                   "Name" : "EditFinishColorVarianceGreen",
+                  "Tooltip" : "Green",
                   "VerticalAnchorParent" : "vpTop",
                   "VerticalAnchorSelf" : "vpTop",
                   "Width" : 7.0000000000000000E+001
@@ -1141,6 +1175,7 @@
                   "Max" : 1.0000000000000000E+000,
                   "Min" : 0.0000000000000000E+000,
                   "Name" : "EditFinishColorVarianceBlue",
+                  "Tooltip" : "Blue",
                   "VerticalAnchorParent" : "vpTop",
                   "VerticalAnchorSelf" : "vpTop",
                   "Width" : 7.0000000000000000E+001
@@ -1153,6 +1188,7 @@
                   "Max" : 1.0000000000000000E+000,
                   "Min" : 0.0000000000000000E+000,
                   "Name" : "EditFinishColorVarianceAlpha",
+                  "Tooltip" : "Alpha",
                   "VerticalAnchorParent" : "vpTop",
                   "VerticalAnchorSelf" : "vpTop",
                   "Width" : 7.0000000000000000E+001
@@ -1219,6 +1255,7 @@
                   "FontScale" : 6.9999998807907104E-001,
                   "HorizontalAnchorDelta" : -1.6321271687047556E-005,
                   "Name" : "EditSpeed",
+                  "Tooltip" : "Speed",
                   "VerticalAnchorParent" : "vpTop",
                   "VerticalAnchorSelf" : "vpTop"
                 },
@@ -1267,6 +1304,7 @@
                   "FontScale" : 6.9999998807907104E-001,
                   "HorizontalAnchorDelta" : -1.6321271687047556E-005,
                   "Name" : "EditRadial",
+                  "Tooltip" : "Speed",
                   "VerticalAnchorParent" : "vpTop",
                   "VerticalAnchorSelf" : "vpTop"
                 },
@@ -1313,6 +1351,7 @@
                   "CaptureAllInput" : false,
                   "FontScale" : 6.9999998807907104E-001,
                   "Name" : "EditPositionVarianceX",
+                  "Tooltip" : "X variance",
                   "VerticalAnchorParent" : "vpTop",
                   "VerticalAnchorSelf" : "vpTop",
                   "Width" : 7.0000000000000000E+001
@@ -1323,6 +1362,7 @@
                   "FontScale" : 6.9999998807907104E-001,
                   "HorizontalAnchorDelta" : 8.0000000000000000E+001,
                   "Name" : "EditPositionVarianceY",
+                  "Tooltip" : "Y variance",
                   "VerticalAnchorParent" : "vpTop",
                   "VerticalAnchorSelf" : "vpTop",
                   "Width" : 7.0000000000000000E+001
@@ -1333,6 +1373,7 @@
                   "FontScale" : 6.9999998807907104E-001,
                   "HorizontalAnchorDelta" : 1.6000000000000000E+002,
                   "Name" : "EditPositionVarianceZ",
+                  "Tooltip" : "Z variance",
                   "VerticalAnchorParent" : "vpTop",
                   "VerticalAnchorSelf" : "vpTop",
                   "Width" : 7.0000000000000000E+001
@@ -1401,6 +1442,7 @@
                   "FontScale" : 6.9999998807907104E-001,
                   "HorizontalAnchorDelta" : -1.6321271687047556E-005,
                   "Name" : "EditLifeSpan",
+                  "Tooltip" : "Lifespan (seconds)",
                   "VerticalAnchorParent" : "vpTop",
                   "VerticalAnchorSelf" : "vpTop"
                 },
@@ -1448,6 +1490,7 @@
                   "FontScale" : 6.9999998807907104E-001,
                   "HorizontalAnchorDelta" : -1.6321271687047556E-005,
                   "Name" : "EditStartParticleSize",
+                  "Tooltip" : "Size",
                   "VerticalAnchorParent" : "vpTop",
                   "VerticalAnchorSelf" : "vpTop"
                 },
@@ -1495,6 +1538,7 @@
                   "FontScale" : 6.9999998807907104E-001,
                   "HorizontalAnchorDelta" : -1.6321271687047556E-005,
                   "Name" : "EditFinishParticleSize",
+                  "Tooltip" : "Size",
                   "VerticalAnchorParent" : "vpTop",
                   "VerticalAnchorSelf" : "vpTop"
                 },
@@ -1543,6 +1587,7 @@
                   "FontScale" : 6.9999998807907104E-001,
                   "HorizontalAnchorDelta" : -1.6321271687047556E-005,
                   "Name" : "EditStartRotation",
+                  "Tooltip" : "Radian",
                   "VerticalAnchorParent" : "vpTop",
                   "VerticalAnchorSelf" : "vpTop"
                 },
@@ -1591,6 +1636,7 @@
                   "FontScale" : 6.9999998807907104E-001,
                   "HorizontalAnchorDelta" : -1.6321271687047556E-005,
                   "Name" : "EditFinishRotation",
+                  "Tooltip" : "Radian",
                   "VerticalAnchorParent" : "vpTop",
                   "VerticalAnchorSelf" : "vpTop"
                 },
