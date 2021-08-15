@@ -347,8 +347,8 @@ begin
   EditBBoxY2.Value := Effect.BBox.Data[1].Y;
   EditBBoxZ2.Value := Effect.BBox.Data[1].Z;
   EditMaxParticles.Value := Effect.MaxParticles;
-  EditBlendSource.Value := Effect.BlendFuncSource;
-  EditBlendDestination.Value := Effect.BlendFuncDestination;
+  EditBlendSource.Value := Castle3DParticleBlendValues[Effect.BlendFuncSource];
+  EditBlendDestination.Value := Castle3DParticleBlendValues[Effect.BlendFuncDestination];
 end;
 
 procedure TStateMain.UIToEffect;
@@ -427,8 +427,8 @@ begin
   Effect.RotationEnd := EditFinishRotation.Value;
   Effect.RotationEndVariance := EditFinishRotationVariance.Value;
   Effect.MaxParticles := EditMaxParticles.Value;
-  Effect.BlendFuncSource := EditBlendSource.Value;
-  Effect.BlendFuncDestination := EditBlendDestination.Value;
+  Effect.BlendFuncSource := Castle3DParticleBlendValueToBlendMode(EditBlendSource.Value);
+  Effect.BlendFuncDestination := Castle3DParticleBlendValueToBlendMode(EditBlendDestination.Value);
   BoundingBoxScene.UpdateBox(Effect.BBox);
 end;
 
