@@ -214,6 +214,9 @@ type
     FIsGLContextInitialized: Boolean;
     FIsNeedRefresh: Boolean;
     FDistanceCulling: Single;
+    FIsCulled: Boolean;
+    { If true, the particle still perform update even when being culled }
+    FAllowsUpdateWhenCulled: Boolean;
     procedure InternalRefreshEffect;
     procedure SetStartEmitting(V: Boolean);
   protected
@@ -241,6 +244,7 @@ type
     { If true, the emitter will start emitting }
     property StartEmitting: Boolean read FStartEmitting write SetStartEmitting default False;
     property DistanceCulling: Single read FDistanceCulling write FDistanceCulling default 0;
+    property AllowsUpdateWhenCulled: Boolean read FAllowsUpdateWhenCulled write FAllowsUpdateWhenCulled default True;
   end;
 
 function Castle3DParticleBlendValueToBlendMode(const AValue: Integer): TCastle3DParticleBlendMode;
@@ -916,6 +920,7 @@ begin
   Self.FIsGLContextInitialized := False;
   Self.FIsNeedRefresh := False;
   Self.ShadowMaps := False;
+  Self.FAllowsUpdateWhenCulled := True;
 end;
 
 destructor TCastle3DParticleEmitterGPU.Destroy;
@@ -957,56 +962,59 @@ begin
         Self.FCountdownTillRemove := Self.FCountdownTillRemove - SecondsPassed;
     end;
 
-    glEnable(GL_RASTERIZER_DISCARD);
-    TransformFeedbackProgram.Enable;
-    if Self.TimePlaying then
-      TransformFeedbackProgram.Uniform('deltaTime').SetValue(Self.FSecondsPassed * Self.TimePlayingSpeed)
-    else
-      TransformFeedbackProgram.Uniform('deltaTime').SetValue(Self.FSecondsPassed);
-    if Self.FStartEmitting then
-      TransformFeedbackProgram.Uniform('emissionTime').SetValue(Self.FEmissionTime)
-    else
-      TransformFeedbackProgram.Uniform('emissionTime').SetValue(0);
-    TransformFeedbackProgram.Uniform('effect.sourcePosition').SetValue(Self.FPosition);
-    TransformFeedbackProgram.Uniform('effect.sourcePosition').SetValue(Self.FEffect.SourcePosition);
-    TransformFeedbackProgram.Uniform('effect.sourcePositionVariance').SetValue(Self.FEffect.SourcePositionVariance);
-    TransformFeedbackProgram.Uniform('effect.maxParticles').SetValue(Self.FEffect.MaxParticles);
-    if Self.FEffect.MiddleAnchor = 0 then
-      S := 0.01
-    else
-      S := Self.FEffect.MiddleAnchor;
-    TransformFeedbackProgram.Uniform('effect.middleAnchor').SetValue(S);
-    TransformFeedbackProgram.Uniform('effect.startColor').SetValue(Self.FEffect.StartColor);
-    TransformFeedbackProgram.Uniform('effect.startColorVariance').SetValue(Self.FEffect.StartColorVariance);
-    TransformFeedbackProgram.Uniform('effect.middleColor').SetValue(Self.FEffect.MiddleColor);
-    TransformFeedbackProgram.Uniform('effect.middleColorVariance').SetValue(Self.FEffect.MiddleColorVariance);
-    TransformFeedbackProgram.Uniform('effect.finishColor').SetValue(Self.FEffect.FinishColor);
-    TransformFeedbackProgram.Uniform('effect.finishColorVariance').SetValue(Self.FEffect.FinishColorVariance);
-    TransformFeedbackProgram.Uniform('effect.particleLifeSpan').SetValue(Self.FEffect.ParticleLifeSpan);
-    TransformFeedbackProgram.Uniform('effect.particleLifeSpanVariance').SetValue(Self.FEffect.ParticleLifeSpanVariance);
-    TransformFeedbackProgram.Uniform('effect.startParticleSize').SetValue(Self.FEffect.StartParticleSize);
-    TransformFeedbackProgram.Uniform('effect.startParticleSizeVariance').SetValue(Self.FEffect.StartParticleSizeVariance);
-    TransformFeedbackProgram.Uniform('effect.finishParticleSize').SetValue(Self.FEffect.FinishParticleSize);
-    TransformFeedbackProgram.Uniform('effect.finishParticleSizeVariance').SetValue(Self.FEffect.FinishParticleSizeVariance);
-    TransformFeedbackProgram.Uniform('effect.rotationStart').SetValue(Self.FEffect.RotationStart);
-    TransformFeedbackProgram.Uniform('effect.rotationStartVariance').SetValue(Self.FEffect.RotationStartVariance);
-    TransformFeedbackProgram.Uniform('effect.rotationEnd').SetValue(Self.FEffect.RotationEnd);
-    TransformFeedbackProgram.Uniform('effect.rotationEndVariance').SetValue(Self.FEffect.RotationEndVariance);
-    TransformFeedbackProgram.Uniform('effect.direction').SetValue(Self.FEffect.Direction);
-    TransformFeedbackProgram.Uniform('effect.directionVariance').SetValue(Self.FEffect.DirectionVariance);
-    TransformFeedbackProgram.Uniform('effect.speed').SetValue(Self.FEffect.Speed);
-    TransformFeedbackProgram.Uniform('effect.speedVariance').SetValue(Self.FEffect.SpeedVariance);
-    TransformFeedbackProgram.Uniform('effect.gravity').SetValue(Self.FEffect.Gravity);
-    TransformFeedbackProgram.Uniform('effect.radial').SetValue(Self.FEffect.Radial);
-    TransformFeedbackProgram.Uniform('effect.radialVariance').SetValue(Self.FEffect.RadialVariance);
-    glBindVertexArray(Self.VAOs[CurrentBuffer]);
-    glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, Self.VBOs[(CurrentBuffer + 1) mod 2]);
-    glBeginTransformFeedback(GL_POINTS);
-    glDrawArrays(GL_POINTS, 0, Self.FEffect.MaxParticles);
-    glEndTransformFeedback();
-    glDisable(GL_RASTERIZER_DISCARD);
-    glBindVertexArray(0); // Just in case :)
-    CurrentBuffer := (CurrentBuffer + 1) mod 2;
+    if ((not Self.FAllowsUpdateWhenCulled) and (not Self.FIsCulled)) or (Self.FAllowsUpdateWhenCulled) then
+    begin
+      glEnable(GL_RASTERIZER_DISCARD);
+      TransformFeedbackProgram.Enable;
+      if Self.TimePlaying then
+        TransformFeedbackProgram.Uniform('deltaTime').SetValue(Self.FSecondsPassed * Self.TimePlayingSpeed)
+      else
+        TransformFeedbackProgram.Uniform('deltaTime').SetValue(Self.FSecondsPassed);
+      if Self.FStartEmitting then
+        TransformFeedbackProgram.Uniform('emissionTime').SetValue(Self.FEmissionTime)
+      else
+        TransformFeedbackProgram.Uniform('emissionTime').SetValue(0);
+      TransformFeedbackProgram.Uniform('effect.sourcePosition').SetValue(Self.FPosition);
+      TransformFeedbackProgram.Uniform('effect.sourcePosition').SetValue(Self.FEffect.SourcePosition);
+      TransformFeedbackProgram.Uniform('effect.sourcePositionVariance').SetValue(Self.FEffect.SourcePositionVariance);
+      TransformFeedbackProgram.Uniform('effect.maxParticles').SetValue(Self.FEffect.MaxParticles);
+      if Self.FEffect.MiddleAnchor = 0 then
+        S := 0.01
+      else
+        S := Self.FEffect.MiddleAnchor;
+      TransformFeedbackProgram.Uniform('effect.middleAnchor').SetValue(S);
+      TransformFeedbackProgram.Uniform('effect.startColor').SetValue(Self.FEffect.StartColor);
+      TransformFeedbackProgram.Uniform('effect.startColorVariance').SetValue(Self.FEffect.StartColorVariance);
+      TransformFeedbackProgram.Uniform('effect.middleColor').SetValue(Self.FEffect.MiddleColor);
+      TransformFeedbackProgram.Uniform('effect.middleColorVariance').SetValue(Self.FEffect.MiddleColorVariance);
+      TransformFeedbackProgram.Uniform('effect.finishColor').SetValue(Self.FEffect.FinishColor);
+      TransformFeedbackProgram.Uniform('effect.finishColorVariance').SetValue(Self.FEffect.FinishColorVariance);
+      TransformFeedbackProgram.Uniform('effect.particleLifeSpan').SetValue(Self.FEffect.ParticleLifeSpan);
+      TransformFeedbackProgram.Uniform('effect.particleLifeSpanVariance').SetValue(Self.FEffect.ParticleLifeSpanVariance);
+      TransformFeedbackProgram.Uniform('effect.startParticleSize').SetValue(Self.FEffect.StartParticleSize);
+      TransformFeedbackProgram.Uniform('effect.startParticleSizeVariance').SetValue(Self.FEffect.StartParticleSizeVariance);
+      TransformFeedbackProgram.Uniform('effect.finishParticleSize').SetValue(Self.FEffect.FinishParticleSize);
+      TransformFeedbackProgram.Uniform('effect.finishParticleSizeVariance').SetValue(Self.FEffect.FinishParticleSizeVariance);
+      TransformFeedbackProgram.Uniform('effect.rotationStart').SetValue(Self.FEffect.RotationStart);
+      TransformFeedbackProgram.Uniform('effect.rotationStartVariance').SetValue(Self.FEffect.RotationStartVariance);
+      TransformFeedbackProgram.Uniform('effect.rotationEnd').SetValue(Self.FEffect.RotationEnd);
+      TransformFeedbackProgram.Uniform('effect.rotationEndVariance').SetValue(Self.FEffect.RotationEndVariance);
+      TransformFeedbackProgram.Uniform('effect.direction').SetValue(Self.FEffect.Direction);
+      TransformFeedbackProgram.Uniform('effect.directionVariance').SetValue(Self.FEffect.DirectionVariance);
+      TransformFeedbackProgram.Uniform('effect.speed').SetValue(Self.FEffect.Speed);
+      TransformFeedbackProgram.Uniform('effect.speedVariance').SetValue(Self.FEffect.SpeedVariance);
+      TransformFeedbackProgram.Uniform('effect.gravity').SetValue(Self.FEffect.Gravity);
+      TransformFeedbackProgram.Uniform('effect.radial').SetValue(Self.FEffect.Radial);
+      TransformFeedbackProgram.Uniform('effect.radialVariance').SetValue(Self.FEffect.RadialVariance);
+      glBindVertexArray(Self.VAOs[CurrentBuffer]);
+      glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, Self.VBOs[(CurrentBuffer + 1) mod 2]);
+      glBeginTransformFeedback(GL_POINTS);
+      glDrawArrays(GL_POINTS, 0, Self.FEffect.MaxParticles);
+      glEndTransformFeedback();
+      glDisable(GL_RASTERIZER_DISCARD);
+      glBindVertexArray(0); // Just in case :)
+      CurrentBuffer := (CurrentBuffer + 1) mod 2;
+    end;
   end;
 
   RemoveMe := rtNone;
@@ -1053,7 +1061,10 @@ begin
   begin
     RenderCameraPosition := Params.InverseTransform^.MultPoint(Params.RenderingCamera.Position);
     if (Position - RenderCameraPosition).Length > DistanceCulling + LocalBoundingBox.Radius then
+    begin
+      Self.FIsCulled := True;
       Exit;
+    end;
   end;
   if not Self.FEffect.BBox.IsEmpty then
   begin
@@ -1062,8 +1073,12 @@ begin
       Self.FEffect.BBox.Data[1] + Self.Position
     );
     if not Params.Frustum^.Box3DCollisionPossibleSimple(RelativeBBox) then
+    begin
+      Self.FIsCulled := True;
       Exit;
+    end;
   end;
+  Self.FIsCulled := False;
   Inc(Params.Statistics.ShapesVisible);
   Inc(Params.Statistics.ShapesRendered);
   Inc(Params.Statistics.ScenesRendered);
