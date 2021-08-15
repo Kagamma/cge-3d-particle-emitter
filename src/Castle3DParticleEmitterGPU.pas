@@ -921,7 +921,7 @@ var
   S: Single;
 begin
   inherited;
-  if not Assigned(Self.FEffect) then
+  if (not Self.Exists) or (not Assigned(Self.FEffect)) then
     Exit;
   Self.GLContextOpen;
   if Self.FIsNeedRefresh or Self.FEffect.IsNeedRefresh then
@@ -1033,7 +1033,7 @@ var
 begin
   inherited;
   Self.FIsUpdated := False;
-  if not Assigned(Self.FEffect) then
+  if (not Self.Exists) or (not Assigned(Self.FEffect)) then
     Exit;
   if not Self.FIsGLContextInitialized then
     Exit;
