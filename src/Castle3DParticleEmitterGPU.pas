@@ -130,6 +130,7 @@ type
     function GetFinishColorVarianceForPersistent: TVector4;
     procedure SetTexture(const AValue: String);
     procedure SetMaxParticle(const AValue: Integer);
+    procedure SetDuration(const AValue: Single);
   public
     IsColliable: Boolean;
     IsNeedRefresh: Boolean;
@@ -167,7 +168,7 @@ type
     property RotationStartVariance: Single read FRotationStartVariance write FRotationStartVariance;
     property RotationEnd: Single read FRotationEnd write FRotationEnd;
     property RotationEndVariance: Single read FRotationEndVariance write FRotationEndVariance;
-    property Duration: Single read FDuration write FDuration default -1;
+    property Duration: Single read FDuration write SetDuration default -1;
     property DirectionVariance: Single read FDirectionVariance write FDirectionVariance default 0.4;
     property Radial: Single read FRadial write FRadial;
     property RadialVariance: Single read FRadialVariance write FRadialVariance;
@@ -626,6 +627,12 @@ end;
 procedure TCastle3DParticleEffect.SetMaxParticle(const AValue: Integer);
 begin
   Self.FMaxParticles := AValue;
+  Self.IsNeedRefresh := True;
+end;
+
+procedure TCastle3DParticleEffect.SetDuration(const AValue: Single);
+begin
+  Self.FDuration := AValue;
   Self.IsNeedRefresh := True;
 end;
 
