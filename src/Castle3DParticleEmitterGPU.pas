@@ -730,6 +730,8 @@ end;
 
 destructor TCastle3DParticleEffect.Destroy;
 begin
+  FreeAndNil(Self.FBoundingBoxMinPersistent);
+  FreeAndNil(Self.FBoundingBoxMaxPersistent);
   FreeAndNil(Self.FSourcePositionPersistent);
   FreeAndNil(Self.FSourcePositionVariancePersistent);
   FreeAndNil(Self.FDirectionPersistent);
