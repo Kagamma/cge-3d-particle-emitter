@@ -17,7 +17,7 @@ uses
   GL, GLExt,
   {$endif}
   fpjson, jsonparser,
-  CastleTransform, CastleSceneCore, CastleComponentSerialize, CastleColors,
+  CastleTransform, CastleSceneCore, CastleComponentSerialize, CastleColors, CastleBoxes,
   CastleVectors, CastleRenderContext, Generics.Collections, CastleGLImages, CastleLog,
   CastleUtils, CastleApplicationProperties, CastleGLShaders, CastleClassUtils,
   X3DNodes;
@@ -1027,6 +1027,7 @@ var
   BoundingBoxMin, BoundingBoxMax,
   RenderCameraPosition: TVector3;
   RelativeBBox: TBox3D;
+  SX, SY, SZ: Single;
 begin
   inherited;
   Self.FIsUpdated := False;
@@ -1066,7 +1067,10 @@ begin
   glEnable(GL_BLEND);
   glBlendFunc(Castle3DParticleBlendValues[Self.FEffect.BlendFuncSource], Castle3DParticleBlendValues[Self.FEffect.BlendFuncDestination]);
   RenderProgram.Enable;
-  RenderProgram.Uniform('scaleFactor').SetValue((Params.Transform^[0,0] + Params.Transform^[1,1] + Params.Transform^[2,2]) / 3);
+  SX := Vector3(Params.Transform^[0,0], Params.Transform^[0,1], Params.Transform^[0,2]).Length;
+  SY := Vector3(Params.Transform^[1,0], Params.Transform^[1,1], Params.Transform^[1,2]).Length;
+  SZ := Vector3(Params.Transform^[2,0], Params.Transform^[2,1], Params.Transform^[2,2]).Length;
+  RenderProgram.Uniform('scaleFactor').SetValue((SX + SY + SZ) / 3);
   RenderProgram.Uniform('mvMatrix').SetValue(M);
   RenderProgram.Uniform('pMatrix').SetValue(RenderContext.ProjectionMatrix);
   glBindVertexArray(Self.VAOs[CurrentBuffer]);
