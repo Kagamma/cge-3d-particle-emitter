@@ -866,7 +866,7 @@ end;
 
 function TCastle3DParticleEmitterGPU.LocalBoundingBox: TBox3D;
 begin
-  if GetExists then
+  if GetExists and (Self.FEffect <> nil) then
   begin
     if not Self.FEffect.BBox.IsEmpty then
       Result := Box3D(
