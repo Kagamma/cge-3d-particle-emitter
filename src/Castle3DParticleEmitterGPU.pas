@@ -24,21 +24,21 @@ uses
 
 type
   TCastle3DParticleBlendMode = (
-    p3dbZero,
-    p3dbOne,
-    p3dbSrcColor,
-    p3dbOneMinusSrcColor,
-    p3dbSrcAlpha,
-    p3dbOneMinusSrcAlpha,
-    p3dbDstAlpha,
-    p3dbOneMinusDstAlpha,
-    p3dbDstColor,
-    p3dbOneMinusDstColor
+    p3bmZero,
+    p3bmOne,
+    p3bmSrcColor,
+    p3bmOneMinusSrcColor,
+    p3bmSrcAlpha,
+    p3bmOneMinusSrcAlpha,
+    p3bmDstAlpha,
+    p3bmOneMinusDstAlpha,
+    p3bmDstColor,
+    p3bmOneMinusDstColor
   );
 
   TCastle3DParticleSpawnType = (
-    p3dsBox,
-    p3dsSpheroid
+    p3stBox,
+    p3stSpheroid
   );
 
 const
@@ -161,9 +161,9 @@ type
     property BBox: TBox3D read FBBox write FBBox;
   published
     property Texture: String read FTexture write SetTexture;
-    property SpawnType: TCastle3DParticleSpawnType read FSpawnType write FSpawnType default p3dsBox;
-    property BlendFuncSource: TCastle3DParticleBlendMode read FBlendFuncSource write FBlendFuncSource default p3dbOne;
-    property BlendFuncDestination: TCastle3DParticleBlendMode read FBlendFuncDestination write FBlendFuncDestination default p3dbOne;
+    property SpawnType: TCastle3DParticleSpawnType read FSpawnType write FSpawnType default p3stBox;
+    property BlendFuncSource: TCastle3DParticleBlendMode read FBlendFuncSource write FBlendFuncSource default p3bmOne;
+    property BlendFuncDestination: TCastle3DParticleBlendMode read FBlendFuncDestination write FBlendFuncDestination default p3bmOne;
     property MaxParticles: Integer read FMaxParticles write SetMaxParticle default 100;
     property ParticleLifeSpan: Single read FParticleLifeSpan write FParticleLifeSpan default 1;
     property ParticleLifeSpanVariance: Single read FParticleLifeSpanVariance write FParticleLifeSpanVariance default 0.5;
@@ -690,8 +690,8 @@ begin
   Self.FDirectionVariance := 0.4;
   Self.FSpeed := 3;
   Self.FSpeedVariance := 1;
-  Self.FBlendFuncSource := p3dbOne;
-  Self.FBlendFuncDestination := p3dbOne;
+  Self.FBlendFuncSource := p3bmOne;
+  Self.FBlendFuncDestination := p3bmOne;
   //
   Self.FBoundingBoxMinPersistent := CreateVec3Persistent(
     @Self.GetBoundingBoxMinForPersistent,
@@ -1238,16 +1238,16 @@ end;
 function Castle3DParticleBlendValueToBlendMode(const AValue: Integer): TCastle3DParticleBlendMode;
 begin
   case AValue of
-    0: Result := p3dbZero;
-    1: Result := p3dbOne;
-    768: Result := p3dbSrcColor;
-    769: Result := p3dbOneMinusSrcColor;
-    770: Result := p3dbSrcAlpha;
-    771: Result := p3dbOneMinusSrcAlpha;
-    772: Result := p3dbDstAlpha;
-    773: Result := p3dbOneMinusDstAlpha;
-    774: Result := p3dbDstColor;
-    775: Result := p3dbOneMinusDstColor;
+    0: Result := p3bmZero;
+    1: Result := p3bmOne;
+    768: Result := p3bmSrcColor;
+    769: Result := p3bmOneMinusSrcColor;
+    770: Result := p3bmSrcAlpha;
+    771: Result := p3bmOneMinusSrcAlpha;
+    772: Result := p3bmDstAlpha;
+    773: Result := p3bmOneMinusDstAlpha;
+    774: Result := p3bmDstColor;
+    775: Result := p3bmOneMinusDstColor;
   end;
 end;
 
