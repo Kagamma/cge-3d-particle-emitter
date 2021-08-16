@@ -442,7 +442,8 @@ const
 'out vec4 fragColor;'nl
 
 'uniform mat4 pMatrix;'nl
-'uniform float scaleFactor;'nl
+'uniform float scaleX;'nl
+'uniform float scaleY;'nl
 
 'void main() {'nl
 '  if (geomTimeToLive[0] > 0.0) {'nl
@@ -450,20 +451,20 @@ const
 
 '    float s = sin(geomRotation[0].x);'nl
 '    float c = cos(geomRotation[0].x);'nl
-'    float sadd = (c + s) * geomSize[0].x * scaleFactor * 0.5;'nl
-'    float ssub = (c - s) * geomSize[0].x * scaleFactor * 0.5;'nl
+'    float sadd = (c + s) * geomSize[0].x * 0.5;'nl
+'    float ssub = (c - s) * geomSize[0].x * 0.5;'nl
 '    vec4 p = gl_in[0].gl_Position;'nl
 
-'    gl_Position = pMatrix * vec4(p.x - ssub, p.y - sadd, p.zw);'nl
+'    gl_Position = pMatrix * vec4(p.x - ssub * scaleX, p.y - sadd * scaleY, p.zw);'nl
 '    fragTexCoord = vec2(0.0, 1.0);'nl
 '    EmitVertex();'nl
-'    gl_Position = pMatrix * vec4(p.x - sadd, p.y + ssub, p.zw);'nl
+'    gl_Position = pMatrix * vec4(p.x - sadd * scaleX, p.y + ssub * scaleY, p.zw);'nl
 '    fragTexCoord = vec2(0.0, 0.0);'nl
 '    EmitVertex();'nl
-'    gl_Position = pMatrix * vec4(p.x + sadd, p.y - ssub, p.zw);'nl
+'    gl_Position = pMatrix * vec4(p.x + sadd * scaleX, p.y - ssub * scaleY, p.zw);'nl
 '    fragTexCoord = vec2(1.0, 1.0);'nl
 '    EmitVertex();'nl
-'    gl_Position = pMatrix * vec4(p.x + ssub, p.y + sadd, p.zw);'nl
+'    gl_Position = pMatrix * vec4(p.x + ssub * scaleX, p.y + sadd * scaleY, p.zw);'nl
 '    fragTexCoord = vec2(1.0, 0.0);'nl
 '    EmitVertex();'nl
 
@@ -947,7 +948,6 @@ var
   BoundingBoxMin, BoundingBoxMax,
   RenderCameraPosition: TVector3;
   RelativeBBox: TBox3D;
-  SX, SY, SZ: Single;
 begin
   inherited;
   Self.FIsUpdated := False;
@@ -988,10 +988,8 @@ begin
   glEnable(GL_BLEND);
   glBlendFunc(Castle3DParticleBlendValues[Self.FEffect.BlendFuncSource], Castle3DParticleBlendValues[Self.FEffect.BlendFuncDestination]);
   RenderProgram.Enable;
-  SX := Vector3(Params.Transform^[0,0], Params.Transform^[0,1], Params.Transform^[0,2]).Length;
-  SY := Vector3(Params.Transform^[1,0], Params.Transform^[1,1], Params.Transform^[1,2]).Length;
-  SZ := Vector3(Params.Transform^[2,0], Params.Transform^[2,1], Params.Transform^[2,2]).Length;
-  RenderProgram.Uniform('scaleFactor').SetValue((SX + SY + SZ) / 3);
+  RenderProgram.Uniform('scaleX').SetValue(Vector3(Params.Transform^[0,0], Params.Transform^[0,1], Params.Transform^[0,2]).Length);
+  RenderProgram.Uniform('scaleY').SetValue(Vector3(Params.Transform^[1,0], Params.Transform^[1,1], Params.Transform^[1,2]).Length);
   RenderProgram.Uniform('mvMatrix').SetValue(M);
   RenderProgram.Uniform('pMatrix').SetValue(RenderContext.ProjectionMatrix);
   glBindVertexArray(Self.VAOs[CurrentBuffer]);
