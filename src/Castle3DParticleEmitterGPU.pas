@@ -545,10 +545,7 @@ end;
 
 procedure TCastle3DParticleEffect.SetDirectionForPersistent(const AValue: TVector3);
 begin
-  if AValue.Length = 0 then
-    Self.FDirection := Vector3(0, 1, 0)
-  else
-    Self.FDirection := AValue.Normalize;
+  Self.FDirection := AValue.Normalize;
 end;
 
 function TCastle3DParticleEffect.GetDirectionForPersistent: TVector3;
