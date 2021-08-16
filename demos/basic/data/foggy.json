@@ -1,1 +1,91 @@
-{ "texture" : "default.png", "maxParticles" : 3000, "duration" : -1.0000000000000000E+000, "particleLifeSpan" : 1.0000000000000000E+001, "particleLifeSpanVariance" : 5.0000000000000000E+000, "startParticleSize" : 3.0000000000000000E+000, "startParticleSizeVariance" : 1.0000000000000000E+000, "finishParticleSize" : 3.0000000000000000E+000, "finishParticleSizeVariance" : 1.0000000000000000E+000, "blendFuncSource" : 770, "blendFuncDestination" : 1, "middleAnchor" : 9.9999997764825821E-003, "directionVariance" : 1.2000000476837158E+000, "speed" : 1.9999999552965164E-002, "speedVariance" : 1.9999999552965164E-002, "rotationStart" : 0.0000000000000000E+000, "rotationStartVariance" : 0.0000000000000000E+000, "rotationFinish" : 0.0000000000000000E+000, "rotationFinishVariance" : 0.0000000000000000E+000, "startColor" : { "red" : 0.0000000000000000E+000, "green" : 0.0000000000000000E+000, "blue" : 0.0000000000000000E+000, "alpha" : 0.0000000000000000E+000 }, "startColorVariance" : { "red" : 0.0000000000000000E+000, "green" : 0.0000000000000000E+000, "blue" : 0.0000000000000000E+000, "alpha" : 0.0000000000000000E+000 }, "middleColor" : { "red" : 1.0000000000000000E+000, "green" : 1.0000000000000000E+000, "blue" : 1.0000000000000000E+000, "alpha" : 1.0000000149011612E-001 }, "middleColorVariance" : { "red" : 0.0000000000000000E+000, "green" : 0.0000000000000000E+000, "blue" : 0.0000000000000000E+000, "alpha" : 0.0000000000000000E+000 }, "finishColor" : { "red" : 0.0000000000000000E+000, "green" : 0.0000000000000000E+000, "blue" : 0.0000000000000000E+000, "alpha" : 0.0000000000000000E+000 }, "finishColorVariance" : { "red" : 0.0000000000000000E+000, "green" : 0.0000000000000000E+000, "blue" : 0.0000000000000000E+000, "alpha" : 0.0000000000000000E+000 }, "sourcePositionVariance" : { "x" : 5.0000000000000000E+000, "y" : 2.0000000000000000E+000, "z" : 5.0000000000000000E+000 }, "direction" : { "x" : 0.0000000000000000E+000, "y" : 1.0000000000000000E+000, "z" : 0.0000000000000000E+000 }, "gravity" : { "x" : 0.0000000000000000E+000, "y" : 0.0000000000000000E+000, "z" : 0.0000000000000000E+000 }, "bbox" : { "minx" : 0.0000000000000000E+000, "miny" : 0.0000000000000000E+000, "minz" : 0.0000000000000000E+000, "maxx" : -1.0000000000000000E+000, "maxy" : -1.0000000000000000E+000, "maxz" : -1.0000000000000000E+000 } }
+{
+  "BlendFuncDestination" : "p3dbOne",
+  "BlendFuncSource" : "p3dbSrcAlpha",
+  "BoundingBoxMaxPersistent" : {
+    "X" : -1.0000000000000000E+000,
+    "Y" : -1.0000000000000000E+000,
+    "Z" : -1.0000000000000000E+000
+  },
+  "BoundingBoxMinPersistent" : {
+    "X" : 0.0000000000000000E+000,
+    "Y" : 0.0000000000000000E+000,
+    "Z" : 0.0000000000000000E+000
+  },
+  "DirectionPersistent" : {
+    "X" : 0.0000000000000000E+000,
+    "Y" : 1.0000000000000000E+000,
+    "Z" : 0.0000000000000000E+000
+  },
+  "DirectionVariance" : 1.2000000476837158E+000,
+  "Duration" : -1.0000000000000000E+000,
+  "FinishColorPersistent" : {
+    "Alpha" : 0.0000000000000000E+000,
+    "Blue" : 0.0000000000000000E+000,
+    "Green" : 0.0000000000000000E+000,
+    "Red" : 0.0000000000000000E+000
+  },
+  "FinishColorVariancePersistent" : {
+    "Alpha" : 0.0000000000000000E+000,
+    "Blue" : 0.0000000000000000E+000,
+    "Green" : 0.0000000000000000E+000,
+    "Red" : 0.0000000000000000E+000
+  },
+  "FinishParticleSize" : 3.0000000000000000E+000,
+  "FinishParticleSizeVariance" : 1.0000000000000000E+000,
+  "GravityPersistent" : {
+    "X" : 0.0000000000000000E+000,
+    "Y" : 0.0000000000000000E+000,
+    "Z" : 0.0000000000000000E+000
+  },
+  "MaxParticles" : 3000,
+  "MiddleAnchor" : 9.9999997764825821E-003,
+  "MiddleColorPersistent" : {
+    "Alpha" : 1.0000000149011612E-001,
+    "Blue" : 1.0000000000000000E+000,
+    "Green" : 1.0000000000000000E+000,
+    "Red" : 1.0000000000000000E+000
+  },
+  "MiddleColorVariancePersistent" : {
+    "Alpha" : 0.0000000000000000E+000,
+    "Blue" : 0.0000000000000000E+000,
+    "Green" : 0.0000000000000000E+000,
+    "Red" : 0.0000000000000000E+000
+  },
+  "Name" : "",
+  "ParticleLifeSpan" : 1.0000000000000000E+001,
+  "ParticleLifeSpanVariance" : 5.0000000000000000E+000,
+  "Radial" : 0.0000000000000000E+000,
+  "RadialVariance" : 0.0000000000000000E+000,
+  "RotationEnd" : 0.0000000000000000E+000,
+  "RotationEndVariance" : 0.0000000000000000E+000,
+  "RotationStart" : 0.0000000000000000E+000,
+  "RotationStartVariance" : 0.0000000000000000E+000,
+  "SourcePositionPersistent" : {
+    "X" : 0.0000000000000000E+000,
+    "Y" : 0.0000000000000000E+000,
+    "Z" : 0.0000000000000000E+000
+  },
+  "SourcePositionVariancePersistent" : {
+    "X" : 5.0000000000000000E+000,
+    "Y" : 2.0000000000000000E+000,
+    "Z" : 5.0000000000000000E+000
+  },
+  "Speed" : 1.9999999552965164E-002,
+  "SpeedVariance" : 1.9999999552965164E-002,
+  "StartColorPersistent" : {
+    "Alpha" : 0.0000000000000000E+000,
+    "Blue" : 0.0000000000000000E+000,
+    "Green" : 0.0000000000000000E+000,
+    "Red" : 0.0000000000000000E+000
+  },
+  "StartColorVariancePersistent" : {
+    "Alpha" : 0.0000000000000000E+000,
+    "Blue" : 0.0000000000000000E+000,
+    "Green" : 0.0000000000000000E+000,
+    "Red" : 0.0000000000000000E+000
+  },
+  "StartParticleSize" : 3.0000000000000000E+000,
+  "StartParticleSizeVariance" : 1.0000000000000000E+000,
+  "Tag" : 0,
+  "Texture" : "default.png"
+}

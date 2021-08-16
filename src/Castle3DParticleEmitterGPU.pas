@@ -10,7 +10,7 @@ unit Castle3DParticleEmitterGPU;
 interface
 
 uses
-  Classes, SysUtils,
+  Classes, SysUtils, fpjsonrtti,
   {$ifdef GLES}
   CastleGLES20, // This wont work. We need GLES3 header
   {$else}
@@ -758,138 +758,40 @@ end;
 
 procedure TCastle3DParticleEffect.Load(const AURL: String);
 var
-  Json, JsonObject: TJSONObject;
   MS: TStream;
+  DeStreamer: TJSONDeStreamer;
   SS: TStringStream;
 begin
   MS := Download(AURL);
   SS := TStringStream.Create('');
+  DeStreamer := TJSONDeStreamer.Create(nil);
   try
     MS.Position := 0;
     SS.CopyFrom(MS, MS.Size);
-    Json := GetJSON(SS.DataString) as TJSONObject;
-    try
-      Self.Texture := ExtractURIPath(AURL) + Json.Strings['texture'];
-      Self.MaxParticles := Json.Integers['maxParticles'];
-      Self.Duration := Json.Floats['duration'];
-      Self.ParticleLifeSpan := Json.Floats['particleLifeSpan'];
-      Self.ParticleLifeSpanVariance := Json.Floats['particleLifeSpanVariance'];
-      Self.StartParticleSize := Json.Floats['startParticleSize'];
-      Self.StartParticleSizeVariance := Json.Floats['startParticleSizeVariance'];
-      Self.FinishParticleSize := Json.Floats['finishParticleSize'];
-      Self.FinishParticleSizeVariance := Json.Floats['finishParticleSizeVariance'];
-      Self.BlendFuncSource := Castle3DParticleBlendValueToBlendMode(Json.Integers['blendFuncSource']);
-      Self.BlendFuncDestination := Castle3DParticleBlendValueToBlendMode(Json.Integers['blendFuncDestination']);
-      Self.MiddleAnchor := Json.Floats['middleAnchor'];
-      Self.DirectionVariance := Json.Floats['directionVariance'];
-      Self.RotationStart := Json.Integers['rotationStart'];
-      Self.RotationStartVariance := Json.Integers['rotationStartVariance'];
-      Self.RotationEnd := Json.Integers['rotationFinish'];
-      Self.RotationEndVariance := Json.Integers['rotationFinishVariance'];
-      Self.Speed := Json.Floats['speed'];
-      Self.SpeedVariance := Json.Floats['speedVariance'];
-      JsonObject := Json.Objects['startColor'];
-      Self.StartColor := Vector4(JsonObject.Floats['red'], JsonObject.Floats['green'], JsonObject.Floats['blue'], JsonObject.Floats['alpha']);
-      JsonObject := Json.Objects['startColorVariance'];
-      Self.StartColorVariance := Vector4(JsonObject.Floats['red'], JsonObject.Floats['green'], JsonObject.Floats['blue'], JsonObject.Floats['alpha']);
-      JsonObject := Json.Objects['middleColor'];
-      Self.MiddleColor := Vector4(JsonObject.Floats['red'], JsonObject.Floats['green'], JsonObject.Floats['blue'], JsonObject.Floats['alpha']);
-      JsonObject := Json.Objects['middleColorVariance'];
-      Self.MiddleColorVariance := Vector4(JsonObject.Floats['red'], JsonObject.Floats['green'], JsonObject.Floats['blue'], JsonObject.Floats['alpha']);
-      JsonObject := Json.Objects['finishColor'];
-      Self.FinishColor := Vector4(JsonObject.Floats['red'], JsonObject.Floats['green'], JsonObject.Floats['blue'], JsonObject.Floats['alpha']);
-      JsonObject := Json.Objects['finishColorVariance'];
-      Self.FinishColorVariance := Vector4(JsonObject.Floats['red'], JsonObject.Floats['green'], JsonObject.Floats['blue'], JsonObject.Floats['alpha']);
-      JsonObject := Json.Objects['sourcePositionVariance'];
-      Self.SourcePositionVariance := Vector3(JsonObject.Floats['x'], JsonObject.Floats['y'], JsonObject.Floats['z']);
-      JsonObject := Json.Objects['direction'];
-      Self.Direction := Vector3(JsonObject.Floats['x'], JsonObject.Floats['y'], JsonObject.Floats['z']);
-      JsonObject := Json.Objects['gravity'];
-      Self.Gravity := Vector3(JsonObject.Floats['x'], JsonObject.Floats['y'], JsonObject.Floats['z']);
-      JsonObject := Json.Objects['bbox'];
-      Self.BBox := Box3D(
-        Vector3(JsonObject.Floats['minx'], JsonObject.Floats['miny'], JsonObject.Floats['minz']),
-        Vector3(JsonObject.Floats['maxx'], JsonObject.Floats['maxy'], JsonObject.Floats['maxz'])
-      );
-      // External
-      try Self.Radial := Json.Integers['radial']; except Self.Radial := 0; end;
-      try Self.RadialVariance := Json.Integers['radialVariance']; except Self.RadialVariance := 0; end;
-    finally
-      FreeAndNil(Json);
-    end;
+    DeStreamer.JSONToObject(SS.DataString, Self);
+    Self.Texture := ExtractURIPath(AURL) + Self.Texture;
   finally
-    FreeAndNil(MS);
+    FreeAndNil(DeStreamer);
     FreeAndNil(SS);
+    FreeAndNil(MS);
   end;
 end;
 
 procedure TCastle3DParticleEffect.Save(const AURL: String);
 var
-  Json: TJSONObject;
   FS: TFileStream;
+  Streamer: TJSONStreamer;
   SS: TStringStream;
-  function Vec3Add(V: TVector3; XN, YN, ZN: String): TJSONObject;
-  begin
-    Result := TJSONObject.Create;
-    Result.Add(XN, V.X);
-    Result.Add(YN, V.Y);
-    Result.Add(ZN, V.Z);
-  end;
-  function Vec4Add(V: TVector4; XN, YN, ZN, WN: String): TJSONObject;
-  begin
-    Result := TJSONObject.Create;
-    Result.Add(XN, V.X);
-    Result.Add(YN, V.Y);
-    Result.Add(ZN, V.Z);
-    Result.Add(WN, V.W);
-  end;
-  function BBoxAdd: TJSONObject;
-  begin
-    Result := TJSONObject.Create;
-    Result.Add('minx', Self.BBox.Data[0].X);
-    Result.Add('miny', Self.BBox.Data[0].Y);
-    Result.Add('minz', Self.BBox.Data[0].Z);
-    Result.Add('maxx', Self.BBox.Data[1].X);
-    Result.Add('maxy', Self.BBox.Data[1].Y);
-    Result.Add('maxz', Self.BBox.Data[1].Z);
-  end;
+  S: String;
 begin
-  Json := TJSONObject.Create;
   FS := URLSaveStream(AURL) as TFileStream;
+  Streamer := TJSONStreamer.Create(nil);
   try
-    Json.Add('texture', ExtractFileName(Self.Texture));
-    Json.Add('maxParticles', Self.MaxParticles);
-    Json.Add('duration', Self.Duration);
-    Json.Add('particleLifeSpan', Self.ParticleLifeSpan);
-    Json.Add('particleLifeSpanVariance', Self.ParticleLifeSpanVariance);
-    Json.Add('startParticleSize', Self.StartParticleSize);
-    Json.Add('startParticleSizeVariance', Self.StartParticleSizeVariance);
-    Json.Add('finishParticleSize', Self.FinishParticleSize);
-    Json.Add('finishParticleSizeVariance', Self.FinishParticleSizeVariance);
-    Json.Add('blendFuncSource', Castle3DParticleBlendValues[Self.BlendFuncSource]);
-    Json.Add('blendFuncDestination', Castle3DParticleBlendValues[Self.BlendFuncDestination]);
-    Json.Add('middleAnchor', Self.MiddleAnchor);
-    Json.Add('directionVariance', Self.DirectionVariance);
-    Json.Add('speed', Self.Speed);
-    Json.Add('speedVariance', Self.SpeedVariance);
-    Json.Add('rotationStart', Self.RotationStart);
-    Json.Add('rotationStartVariance', Self.RotationStartVariance);
-    Json.Add('rotationFinish', Self.RotationEnd);
-    Json.Add('rotationFinishVariance', Self.RotationEndVariance);
-    Json.Add('radial', Self.Radial);
-    Json.Add('radialVariance', Self.RadialVariance);
-
-    Json.Add('startColor', Vec4Add(Self.StartColor, 'red', 'green', 'blue', 'alpha'));
-    Json.Add('startColorVariance', Vec4Add(Self.StartColorVariance, 'red', 'green', 'blue', 'alpha'));
-    Json.Add('middleColor', Vec4Add(Self.MiddleColor, 'red', 'green', 'blue', 'alpha'));
-    Json.Add('middleColorVariance', Vec4Add(Self.MiddleColorVariance, 'red', 'green', 'blue', 'alpha'));
-    Json.Add('finishColor', Vec4Add(Self.FinishColor, 'red', 'green', 'blue', 'alpha'));
-    Json.Add('finishColorVariance', Vec4Add(Self.FinishColorVariance, 'red', 'green', 'blue', 'alpha'));
-    Json.Add('sourcePositionVariance', Vec3Add(Self.SourcePositionVariance, 'x', 'y', 'z'));
-    Json.Add('direction', Vec3Add(Self.Direction, 'x', 'y', 'z'));
-    Json.Add('gravity', Vec3Add(Self.Gravity, 'x', 'y', 'z'));
-    Json.Add('bbox', BBoxAdd);
-    SS := TStringStream.Create(Json.AsJSON);
+    Streamer.Options := Streamer.Options + [jsoUseFormatString];
+    S := Self.Texture;
+    Self.Texture := ExtractFileName(Self.Texture);
+    SS := TStringStream.Create(Streamer.ObjectToJSONString(Self));
+    Self.Texture := S;
     try
       SS.Position := 0;
       FS.CopyFrom(SS, SS.Size);
@@ -897,8 +799,8 @@ begin
       FreeAndNil(SS);
     end;
   finally
+    FreeAndNil(Streamer);
     FreeAndNil(FS);
-    FreeAndNil(Json);
   end;
 end;
 
