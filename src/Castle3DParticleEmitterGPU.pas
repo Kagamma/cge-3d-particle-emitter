@@ -736,6 +736,18 @@ var
   RenderProgramSingleInstance: TGLSLProgram = nil;
   RenderProgramMultipleInstances: TGLSLProgram = nil;
 
+{ Call when OpenGL context is closed }
+procedure FreeGLContext;
+begin
+  if TransformFeedbackProgramSingleInstance <> nil then
+  begin
+    FreeAndNil(TransformFeedbackProgramSingleInstance);
+    FreeAndNil(TransformFeedbackProgramMultipleInstances);
+    FreeAndNil(RenderProgramSingleInstance);
+    FreeAndNil(RenderProgramMultipleInstances);
+  end;
+end;
+
 procedure TCastle3DParticleEffect.SetBoundingBoxMinForPersistent(const AValue: TVector3);
 begin
   Self.FBBox := Box3D(AValue, Self.FBBox.Data[1]);
@@ -1384,6 +1396,7 @@ begin
     RenderProgramMultipleInstances.AttachGeometryShader(GeometryShaderSource);
     RenderProgramMultipleInstances.AttachFragmentShader(FragmentShaderSource);
     RenderProgramMultipleInstances.Link;
+    ApplicationProperties.OnGLContextClose.Add(@FreeGLContext);
   end;
 
   glGenBuffers(2, @Self.VBOs);
