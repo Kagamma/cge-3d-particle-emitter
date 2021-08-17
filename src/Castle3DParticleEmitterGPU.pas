@@ -986,14 +986,14 @@ begin
   if DistanceCulling > 0 then
   begin
     RenderCameraPosition := Params.InverseTransform^.MultPoint(Params.RenderingCamera.Position);
-    if (Position - RenderCameraPosition).Length > DistanceCulling + LocalBoundingBox.Radius then
+    if RenderCameraPosition.Length > DistanceCulling + LocalBoundingBox.Radius then
       Exit;
   end;
   if not Self.FEffect.BBox.IsEmpty then
   begin
     RelativeBBox := Box3D(
-      Self.FEffect.BBox.Data[0] + Self.Position,
-      Self.FEffect.BBox.Data[1] + Self.Position
+      Self.FEffect.BBox.Data[0],
+      Self.FEffect.BBox.Data[1]
     );
     if not Params.Frustum^.Box3DCollisionPossibleSimple(RelativeBBox) then
       Exit;
@@ -1233,8 +1233,8 @@ begin
   begin
     if not Self.FEffect.BBox.IsEmpty then
       Result := Box3D(
-        Self.FEffect.BBox.Data[0] + Self.Position,
-        Self.FEffect.BBox.Data[1] + Self.Position
+        Self.FEffect.BBox.Data[0],
+        Self.FEffect.BBox.Data[1]
       )
     else
       Result := Self.FEffect.BBox;
