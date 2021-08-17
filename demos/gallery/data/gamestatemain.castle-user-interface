@@ -94,8 +94,8 @@
                 "$$ClassName" : "TCastle3DParticleEffect",
                 "DirectionPersistent" : {
                   "$$ClassName" : "TCastleVector3Persistent",
-                  "X" : 9.7150854766368866E-002,
-                  "Y" : -9.9526971578598022E-001
+                  "X" : 9.6699871122837067E-002,
+                  "Y" : -9.9531358480453491E-001
                 },
                 "DirectionVariance" : 0.0000000000000000E+000,
                 "FinishColorPersistent" : {
@@ -170,8 +170,8 @@
                 "$$ClassName" : "TCastle3DParticleEffect",
                 "DirectionPersistent" : {
                   "$$ClassName" : "TCastleVector3Persistent",
-                  "Y" : 8.9442718029022217E-001,
-                  "Z" : 4.4721359014511108E-001
+                  "Y" : 9.1287088394165039E-001,
+                  "Z" : 4.0824827551841736E-001
                 },
                 "DirectionVariance" : 0.0000000000000000E+000,
                 "FinishColorPersistent" : {
@@ -731,8 +731,8 @@
                 },
                 "Text" : [
                   "AllowsInstancing = True",
-                  "Move it around",
-                  "to see the different",
+                  "Move it around in editor",
+                  "to see the difference",
                   "compare to others"
                 ],
                 "TranslationPersistent" : {
