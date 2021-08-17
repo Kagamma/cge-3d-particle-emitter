@@ -368,10 +368,15 @@ const
 '  outTimeToLive.y = outTimeToLive.x - outTimeToLive.x * effect.middleAnchor;'nl
 '  float invLifeSpan = 1.0 / outTimeToLive.x;'nl
 '  vec3 vrpos = vec3(rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0);'nl
+'  vec3 scale = vec3('nl
+'    length(vec3(mMatrix[0][0], mMatrix[0][1], mMatrix[0][2])),'nl
+'    length(vec3(mMatrix[1][0], mMatrix[1][1], mMatrix[1][2])),'nl
+'    length(vec3(mMatrix[2][0], mMatrix[2][1], mMatrix[2][2]))'nl
+'  );'nl
 '  if (effect.spawnType == 1) {'nl
-'    outStartPos = rMatrix * (effect.sourcePosition + effect.sourcePositionVariance * normalize(vrpos));'nl
+'    outStartPos = rMatrix * (effect.sourcePosition + scale * effect.sourcePositionVariance * normalize(vrpos));'nl
 '  } else {'nl
-'    outStartPos = rMatrix * (effect.sourcePosition + effect.sourcePositionVariance * vrpos);'nl
+'    outStartPos = rMatrix * (effect.sourcePosition + scale * effect.sourcePositionVariance * vrpos);'nl
 '  }'nl
 '  outTranslate = vec3(mMatrix[3][0], mMatrix[3][1], mMatrix[3][2]);'nl
 '  outPosition.xyz = outTranslate + outStartPos;'nl
