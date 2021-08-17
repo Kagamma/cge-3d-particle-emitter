@@ -1,0 +1,615 @@
+{
+  "$$ClassName" : "TCastleUserInterface",
+  "FullSize" : true,
+  "Name" : "Group1",
+  "$Children" : [
+    {
+      "$$ClassName" : "TCastleViewport",
+      "Camera" : {
+        "$$ClassName" : "TCastleCamera",
+        "InitialPositionPersistent" : {
+          "$$ClassName" : "TCastleVector3Persistent",
+          "X" : -1.8069763183593750E+000,
+          "Y" : 8.0184192657470703E+000,
+          "Z" : 5.0000000000000000E+002
+        },
+        "Name" : "Camera",
+        "Orthographic" : {
+          "$$ClassName" : "TCastleOrthographic",
+          "Name" : "Orthographic",
+          "Scale" : 1.6444648742675781E+001,
+          "Width" : 3.0000000000000000E+000
+        },
+        "Perspective" : {
+          "$$ClassName" : "TCastlePerspective",
+          "Name" : "Perspective"
+        },
+        "ProjectionFar" : 1.0000000000000000E+003,
+        "ProjectionNear" : -1.0000000000000000E+003,
+        "ProjectionType" : "ptOrthographic"
+      },
+      "FullSize" : true,
+      "Items" : {
+        "$$ClassName" : "TCastleRootTransform",
+        "Name" : "Items",
+        "PhysicsProperties" : {
+          "$$ClassName" : "TPhysicsProperties",
+          "Name" : "PhysicsProperties"
+        },
+        "$Children" : [
+          {
+            "$$ClassName" : "TCastle3DParticleEmitterGPU",
+            "Effect" : "FireEffect",
+            "ExposeTransforms" : [
+            ],
+            "Name" : "FireEmitter",
+            "ShadowMaps" : false,
+            "StartEmitting" : true,
+            "TranslationPersistent" : {
+              "$$ClassName" : "TCastleVector3Persistent",
+              "X" : 5.4095716476440430E+000,
+              "Y" : 2.6546974182128906E+001
+            },
+            "$NonVisualComponents" : [
+              {
+                "$$ClassName" : "TCastle3DParticleEffect",
+                "Name" : "FireEffect",
+                "Texture" : "castle-data:/default.png"
+              }
+            ],
+            "$Children" : [
+              {
+                "$$ClassName" : "TCastleText",
+                "Name" : "Text1",
+                "RenderOptions" : {
+                  "$$ClassName" : "TCastleScene.TSceneRenderOptions",
+                  "Name" : "RenderOptions"
+                },
+                "Text" : [
+                  "Fire"
+                ],
+                "TranslationPersistent" : {
+                  "$$ClassName" : "TCastleVector3Persistent",
+                  "X" : -1.1520385742187500E+000,
+                  "Y" : -1.7531023025512695E+000
+                }
+              }
+            ]
+          },
+          {
+            "$$ClassName" : "TCastle3DParticleEmitterGPU",
+            "Effect" : "RainEffect",
+            "ExposeTransforms" : [
+            ],
+            "Name" : "RainEmitter",
+            "ShadowMaps" : false,
+            "StartEmitting" : true,
+            "TranslationPersistent" : {
+              "$$ClassName" : "TCastleVector3Persistent",
+              "X" : 1.4625875473022461E+001,
+              "Y" : 2.6546974182128906E+001
+            },
+            "$NonVisualComponents" : [
+              {
+                "$$ClassName" : "TCastle3DParticleEffect",
+                "DirectionPersistent" : {
+                  "$$ClassName" : "TCastleVector3Persistent",
+                  "X" : 9.8542362451553345E-002,
+                  "Y" : -9.9513286352157593E-001
+                },
+                "DirectionVariance" : 0.0000000000000000E+000,
+                "FinishColorPersistent" : {
+                  "$$ClassName" : "TCastleColorPersistent",
+                  "Blue" : 1.0000000000000000E+000,
+                  "Green" : 1.0000000000000000E+000,
+                  "Red" : 1.0000000000000000E+000
+                },
+                "FinishParticleSize" : 3.0000001192092896E-001,
+                "MiddleColorPersistent" : {
+                  "$$ClassName" : "TCastleColorPersistent",
+                  "Alpha" : 2.9803922772407532E-001,
+                  "Blue" : 1.0000000000000000E+000,
+                  "Green" : 1.0000000000000000E+000
+                },
+                "Name" : "RainEffect",
+                "ParticleLifeSpan" : 8.0000001192092896E-001,
+                "ParticleLifeSpanVariance" : 1.0000000149011612E-001,
+                "SourcePositionPersistent" : {
+                  "$$ClassName" : "TCastleVector3Persistent",
+                  "Y" : 4.0000000000000000E+000
+                },
+                "SourcePositionVariancePersistent" : {
+                  "$$ClassName" : "TCastleVector3Persistent",
+                  "X" : 4.0000000000000000E+000
+                },
+                "Speed" : 7.0000000000000000E+000,
+                "StartColorPersistent" : {
+                  "$$ClassName" : "TCastleColorPersistent",
+                  "Alpha" : 2.9803922772407532E-001,
+                  "Blue" : 1.0000000000000000E+000,
+                  "Green" : 1.0000000000000000E+000
+                },
+                "StartParticleSize" : 3.0000001192092896E-001,
+                "Texture" : "castle-data:/default.png"
+              }
+            ],
+            "$Children" : [
+              {
+                "$$ClassName" : "TCastleText",
+                "Name" : "Text2",
+                "RenderOptions" : {
+                  "$$ClassName" : "TCastleScene.TSceneRenderOptions",
+                  "Name" : "RenderOptions"
+                },
+                "Text" : [
+                  "Rain"
+                ],
+                "TranslationPersistent" : {
+                  "$$ClassName" : "TCastleVector3Persistent",
+                  "X" : -1.1520385742187500E+000,
+                  "Y" : -1.7531023025512695E+000
+                }
+              }
+            ]
+          },
+          {
+            "$$ClassName" : "TCastle3DParticleEmitterGPU",
+            "Effect" : "SpiralEffect",
+            "ExposeTransforms" : [
+            ],
+            "Name" : "SpiralEmitter",
+            "ShadowMaps" : false,
+            "StartEmitting" : true,
+            "TranslationPersistent" : {
+              "$$ClassName" : "TCastleVector3Persistent",
+              "X" : 2.5094400405883789E+001,
+              "Y" : 2.6546974182128906E+001
+            },
+            "$NonVisualComponents" : [
+              {
+                "$$ClassName" : "TCastle3DParticleEffect",
+                "DirectionPersistent" : {
+                  "$$ClassName" : "TCastleVector3Persistent",
+                  "Y" : 7.0710676908493042E-001,
+                  "Z" : 7.0710676908493042E-001
+                },
+                "DirectionVariance" : 0.0000000000000000E+000,
+                "FinishColorPersistent" : {
+                  "$$ClassName" : "TCastleColorPersistent",
+                  "Alpha" : 1.0000000000000000E+000,
+                  "Blue" : 0.0000000000000000E+000,
+                  "Green" : 0.0000000000000000E+000,
+                  "Red" : 1.0000000000000000E+000
+                },
+                "FinishParticleSize" : 3.0000001192092896E-001,
+                "MaxParticles" : 300,
+                "MiddleColorPersistent" : {
+                  "$$ClassName" : "TCastleColorPersistent",
+                  "Alpha" : 1.0000000000000000E+000,
+                  "Green" : 0.0000000000000000E+000
+                },
+                "Name" : "SpiralEffect",
+                "ParticleLifeSpan" : 2.0000000000000000E+000,
+                "ParticleLifeSpanVariance" : 1.0000000149011612E-001,
+                "Radial" : 1.0000000000000000E+001,
+                "SourcePositionPersistent" : {
+                  "$$ClassName" : "TCastleVector3Persistent",
+                  "X" : 1.0000000000000000E+000
+                },
+                "SourcePositionVariancePersistent" : {
+                  "$$ClassName" : "TCastleVector3Persistent",
+                  "X" : 0.0000000000000000E+000,
+                  "Y" : 0.0000000000000000E+000,
+                  "Z" : 0.0000000000000000E+000
+                },
+                "Speed" : 4.0000000000000000E+000,
+                "SpeedVariance" : 5.0000000000000000E-001,
+                "StartParticleSize" : 3.0000001192092896E-001,
+                "Texture" : "castle-data:/default.png"
+              }
+            ],
+            "$Children" : [
+              {
+                "$$ClassName" : "TCastleText",
+                "Name" : "Text3",
+                "RenderOptions" : {
+                  "$$ClassName" : "TCastleScene.TSceneRenderOptions",
+                  "Name" : "RenderOptions"
+                },
+                "Text" : [
+                  "Spiral"
+                ],
+                "TranslationPersistent" : {
+                  "$$ClassName" : "TCastleVector3Persistent",
+                  "X" : -1.1520385742187500E+000,
+                  "Y" : -1.7531023025512695E+000
+                }
+              }
+            ]
+          },
+          {
+            "$$ClassName" : "TCastle3DParticleEmitterGPU",
+            "Effect" : "OrbEffect",
+            "ExposeTransforms" : [
+            ],
+            "Name" : "OrbEmitter",
+            "ShadowMaps" : false,
+            "StartEmitting" : true,
+            "TranslationPersistent" : {
+              "$$ClassName" : "TCastleVector3Persistent",
+              "X" : 3.7165756225585938E+001,
+              "Y" : 2.7449174880981445E+001
+            },
+            "$NonVisualComponents" : [
+              {
+                "$$ClassName" : "TCastle3DParticleEffect",
+                "DirectionPersistent" : {
+                  "$$ClassName" : "TCastleVector3Persistent",
+                  "Y" : 0.0000000000000000E+000,
+                  "Z" : 1.0000000000000000E+000
+                },
+                "DirectionVariance" : 0.0000000000000000E+000,
+                "FinishColorPersistent" : {
+                  "$$ClassName" : "TCastleColorPersistent",
+                  "Blue" : 2.9803922772407532E-001,
+                  "Green" : 2.9803922772407532E-001,
+                  "Red" : 2.9803922772407532E-001
+                },
+                "FinishParticleSize" : 1.0000000000000000E+000,
+                "MaxParticles" : 200,
+                "MiddleColorPersistent" : {
+                  "$$ClassName" : "TCastleColorPersistent",
+                  "Alpha" : 5.0196081399917603E-001,
+                  "Green" : 5.0196081399917603E-001
+                },
+                "Name" : "OrbEffect",
+                "ParticleLifeSpan" : 1.3999999761581421E+000,
+                "ParticleLifeSpanVariance" : 1.0000000149011612E-001,
+                "RadialVariance" : 6.0000000000000000E+000,
+                "SourcePositionPersistent" : {
+                  "$$ClassName" : "TCastleVector3Persistent",
+                  "X" : 2.0000000298023224E-001
+                },
+                "SourcePositionVariancePersistent" : {
+                  "$$ClassName" : "TCastleVector3Persistent",
+                  "X" : 1.0000000000000000E+000,
+                  "Y" : 0.0000000000000000E+000,
+                  "Z" : 0.0000000000000000E+000
+                },
+                "Speed" : 4.0000000000000000E+000,
+                "SpeedVariance" : 2.0000000000000000E+000,
+                "StartParticleSize" : 3.0000001192092896E-001,
+                "Texture" : "castle-data:/default.png"
+              }
+            ],
+            "$Children" : [
+              {
+                "$$ClassName" : "TCastleText",
+                "Name" : "Text4",
+                "RenderOptions" : {
+                  "$$ClassName" : "TCastleScene.TSceneRenderOptions",
+                  "Name" : "RenderOptions"
+                },
+                "Text" : [
+                  "Orb"
+                ],
+                "TranslationPersistent" : {
+                  "$$ClassName" : "TCastleVector3Persistent",
+                  "X" : -1.1520385742187500E+000,
+                  "Y" : -2.6142930984497070E+000
+                }
+              }
+            ]
+          },
+          {
+            "$$ClassName" : "TCastle3DParticleEmitterGPU",
+            "Effect" : "AnchorEffect",
+            "ExposeTransforms" : [
+            ],
+            "Name" : "AnchorEmitter",
+            "ShadowMaps" : false,
+            "StartEmitting" : true,
+            "TranslationPersistent" : {
+              "$$ClassName" : "TCastleVector3Persistent",
+              "X" : 4.3433351516723633E+000,
+              "Y" : 1.7196897506713867E+001
+            },
+            "$NonVisualComponents" : [
+              {
+                "$$ClassName" : "TCastle3DParticleEffect",
+                "DirectionPersistent" : {
+                  "$$ClassName" : "TCastleVector3Persistent",
+                  "X" : 1.0000000000000000E+000,
+                  "Y" : 0.0000000000000000E+000
+                },
+                "DirectionVariance" : 0.0000000000000000E+000,
+                "FinishColorPersistent" : {
+                  "$$ClassName" : "TCastleColorPersistent",
+                  "Alpha" : 1.0000000000000000E+000,
+                  "Blue" : 1.0000000000000000E+000,
+                  "Green" : 0.0000000000000000E+000,
+                  "Red" : 0.0000000000000000E+000
+                },
+                "FinishParticleSize" : 5.0000000000000000E-001,
+                "MaxParticles" : 200,
+                "MiddleAnchor" : 5.0000000000000000E-001,
+                "MiddleColorPersistent" : {
+                  "$$ClassName" : "TCastleColorPersistent",
+                  "Alpha" : 1.0000000000000000E+000,
+                  "Green" : 1.0000000000000000E+000,
+                  "Red" : 0.0000000000000000E+000
+                },
+                "Name" : "AnchorEffect",
+                "ParticleLifeSpan" : 2.0000000000000000E+000,
+                "ParticleLifeSpanVariance" : 1.0000000149011612E-001,
+                "SourcePositionPersistent" : {
+                  "$$ClassName" : "TCastleVector3Persistent",
+                  "X" : -2.0000000000000000E+000
+                },
+                "StartParticleSize" : 5.0000000000000000E-001,
+                "Texture" : "castle-data:/default.png"
+              }
+            ],
+            "$Children" : [
+              {
+                "$$ClassName" : "TCastleText",
+                "Name" : "Text5",
+                "RenderOptions" : {
+                  "$$ClassName" : "TCastleScene.TSceneRenderOptions",
+                  "Name" : "RenderOptions"
+                },
+                "Text" : [
+                  "Anchor Color"
+                ],
+                "TranslationPersistent" : {
+                  "$$ClassName" : "TCastleVector3Persistent",
+                  "X" : -1.8902025222778320E+000,
+                  "Y" : -1.7531023025512695E+000
+                }
+              }
+            ]
+          },
+          {
+            "$$ClassName" : "TCastle3DParticleEmitterGPU",
+            "Effect" : "FountainEffect",
+            "ExposeTransforms" : [
+            ],
+            "Name" : "FountainEmitter",
+            "ShadowMaps" : false,
+            "StartEmitting" : true,
+            "TranslationPersistent" : {
+              "$$ClassName" : "TCastleVector3Persistent",
+              "X" : 1.5087718009948730E+001,
+              "Y" : 1.7114881515502930E+001
+            },
+            "$NonVisualComponents" : [
+              {
+                "$$ClassName" : "TCastle3DParticleEffect",
+                "DirectionVariance" : 2.0000000298023224E-001,
+                "FinishColorPersistent" : {
+                  "$$ClassName" : "TCastleColorPersistent",
+                  "Blue" : 1.0000000000000000E+000,
+                  "Green" : 9.9215686321258545E-001,
+                  "Red" : 8.2352942228317261E-001
+                },
+                "FinishParticleSize" : 3.0000001192092896E-001,
+                "GravityPersistent" : {
+                  "$$ClassName" : "TCastleVector3Persistent",
+                  "Y" : -5.0000000000000000E+000
+                },
+                "MaxParticles" : 200,
+                "MiddleColorPersistent" : {
+                  "$$ClassName" : "TCastleColorPersistent",
+                  "Blue" : 1.0000000000000000E+000,
+                  "Green" : 1.0000000000000000E+000,
+                  "Red" : 8.3529412746429443E-001
+                },
+                "Name" : "FountainEffect",
+                "ParticleLifeSpan" : 2.0000000000000000E+000,
+                "ParticleLifeSpanVariance" : 2.0000000298023224E-001,
+                "Speed" : 6.0000000000000000E+000,
+                "StartColorPersistent" : {
+                  "$$ClassName" : "TCastleColorPersistent",
+                  "Blue" : 1.0000000000000000E+000,
+                  "Green" : 9.7647058963775635E-001,
+                  "Red" : 6.6666668653488159E-001
+                },
+                "StartParticleSize" : 3.0000001192092896E-001,
+                "Texture" : "castle-data:/default.png"
+              }
+            ],
+            "$Children" : [
+              {
+                "$$ClassName" : "TCastleText",
+                "Name" : "Text6",
+                "RenderOptions" : {
+                  "$$ClassName" : "TCastleScene.TSceneRenderOptions",
+                  "Name" : "RenderOptions"
+                },
+                "Text" : [
+                  "Fountain"
+                ],
+                "TranslationPersistent" : {
+                  "$$ClassName" : "TCastleVector3Persistent",
+                  "X" : -1.1520385742187500E+000,
+                  "Y" : -1.7531023025512695E+000
+                }
+              }
+            ]
+          },
+          {
+            "$$ClassName" : "TCastle3DParticleEmitterGPU",
+            "Effect" : "BoxEffect",
+            "ExposeTransforms" : [
+            ],
+            "Name" : "BoxEmitter",
+            "ShadowMaps" : false,
+            "StartEmitting" : true,
+            "TranslationPersistent" : {
+              "$$ClassName" : "TCastleVector3Persistent",
+              "X" : 2.5504024505615234E+001,
+              "Y" : 1.9452404022216797E+001
+            },
+            "$NonVisualComponents" : [
+              {
+                "$$ClassName" : "TCastle3DParticleEffect",
+                "DirectionVariance" : 2.0000000298023224E-001,
+                "FinishColorPersistent" : {
+                  "$$ClassName" : "TCastleColorPersistent",
+                  "Blue" : 1.0000000000000000E+000,
+                  "Green" : 9.9215686321258545E-001,
+                  "Red" : 8.2352942228317261E-001
+                },
+                "FinishParticleSize" : 3.0000001192092896E-001,
+                "MaxParticles" : 500,
+                "MiddleColorPersistent" : {
+                  "$$ClassName" : "TCastleColorPersistent",
+                  "Blue" : 1.0000000000000000E+000,
+                  "Green" : 1.0000000000000000E+000,
+                  "Red" : 8.3529412746429443E-001
+                },
+                "Name" : "BoxEffect",
+                "ParticleLifeSpan" : 2.0000000000000000E+000,
+                "ParticleLifeSpanVariance" : 2.0000000298023224E-001,
+                "SourcePositionVariancePersistent" : {
+                  "$$ClassName" : "TCastleVector3Persistent",
+                  "X" : 2.0000000000000000E+000,
+                  "Y" : 2.0000000000000000E+000,
+                  "Z" : 2.0000000000000000E+000
+                },
+                "Speed" : 0.0000000000000000E+000,
+                "SpeedVariance" : 0.0000000000000000E+000,
+                "StartColorPersistent" : {
+                  "$$ClassName" : "TCastleColorPersistent",
+                  "Blue" : 1.0000000000000000E+000,
+                  "Green" : 9.7647058963775635E-001,
+                  "Red" : 6.6666668653488159E-001
+                },
+                "StartParticleSize" : 3.0000001192092896E-001,
+                "Texture" : "castle-data:/default.png"
+              }
+            ],
+            "$Children" : [
+              {
+                "$$ClassName" : "TCastleText",
+                "Name" : "Text7",
+                "RenderOptions" : {
+                  "$$ClassName" : "TCastleScene.TSceneRenderOptions",
+                  "Name" : "RenderOptions"
+                },
+                "Text" : [
+                  "Box"
+                ],
+                "TranslationPersistent" : {
+                  "$$ClassName" : "TCastleVector3Persistent",
+                  "X" : -1.1520385742187500E+000,
+                  "Y" : -4.0496129989624023E+000
+                }
+              }
+            ]
+          },
+          {
+            "$$ClassName" : "TCastle3DParticleEmitterGPU",
+            "Effect" : "SpheroidEffect",
+            "ExposeTransforms" : [
+            ],
+            "Name" : "SpheroidEmitter",
+            "ShadowMaps" : false,
+            "StartEmitting" : true,
+            "TranslationPersistent" : {
+              "$$ClassName" : "TCastleVector3Persistent",
+              "X" : 3.7027584075927734E+001,
+              "Y" : 1.9452404022216797E+001
+            },
+            "$NonVisualComponents" : [
+              {
+                "$$ClassName" : "TCastle3DParticleEffect",
+                "DirectionVariance" : 2.0000000298023224E-001,
+                "FinishColorPersistent" : {
+                  "$$ClassName" : "TCastleColorPersistent",
+                  "Blue" : 1.0000000000000000E+000,
+                  "Green" : 9.9215686321258545E-001,
+                  "Red" : 8.2352942228317261E-001
+                },
+                "FinishParticleSize" : 3.0000001192092896E-001,
+                "MaxParticles" : 500,
+                "MiddleColorPersistent" : {
+                  "$$ClassName" : "TCastleColorPersistent",
+                  "Blue" : 1.0000000000000000E+000,
+                  "Green" : 1.0000000000000000E+000,
+                  "Red" : 8.3529412746429443E-001
+                },
+                "Name" : "SpheroidEffect",
+                "ParticleLifeSpan" : 2.0000000000000000E+000,
+                "ParticleLifeSpanVariance" : 2.0000000298023224E-001,
+                "SourcePositionVariancePersistent" : {
+                  "$$ClassName" : "TCastleVector3Persistent",
+                  "X" : 3.0000000000000000E+000,
+                  "Y" : 1.5000000000000000E+000,
+                  "Z" : 2.0000000000000000E+000
+                },
+                "SpawnType" : "p3stSpheroid",
+                "Speed" : 0.0000000000000000E+000,
+                "SpeedVariance" : 0.0000000000000000E+000,
+                "StartColorPersistent" : {
+                  "$$ClassName" : "TCastleColorPersistent",
+                  "Blue" : 1.0000000000000000E+000,
+                  "Green" : 9.7647058963775635E-001,
+                  "Red" : 6.6666668653488159E-001
+                },
+                "StartParticleSize" : 3.0000001192092896E-001,
+                "Texture" : "castle-data:/default.png"
+              }
+            ],
+            "$Children" : [
+              {
+                "$$ClassName" : "TCastleText",
+                "Name" : "Text8",
+                "RenderOptions" : {
+                  "$$ClassName" : "TCastleScene.TSceneRenderOptions",
+                  "Name" : "RenderOptions"
+                },
+                "Text" : [
+                  "Spheroid"
+                ],
+                "TranslationPersistent" : {
+                  "$$ClassName" : "TCastleVector3Persistent",
+                  "X" : -2.3413009643554687E+000,
+                  "Y" : -4.0496129989624023E+000
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "Name" : "Viewport1",
+      "Navigation" : "Navigation2D1",
+      "$Children" : [
+        {
+          "$$ClassName" : "TCastle2DNavigation",
+          "Name" : "Navigation2D1"
+        }
+      ]
+    },
+    {
+      "$$ClassName" : "TCastleLabel",
+      "ColorPersistent" : {
+        "$$ClassName" : "TCastleColorPersistent",
+        "Green" : 1.0000000000000000E+000,
+        "Red" : 1.0000000000000000E+000
+      },
+      "FontSize" : 2.0000000000000000E+001,
+      "HorizontalAnchorDelta" : -2.0000000000000000E+001,
+      "HorizontalAnchorParent" : "hpRight",
+      "HorizontalAnchorSelf" : "hpRight",
+      "Name" : "LabelFps",
+      "Text" : [
+        "FPS: xxx"
+      ],
+      "VerticalAnchorDelta" : -2.0000000000000000E+001,
+      "VerticalAnchorParent" : "vpTop",
+      "VerticalAnchorSelf" : "vpTop",
+      "WordWrap" : false
+    }
+  ]
+}
