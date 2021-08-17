@@ -235,9 +235,12 @@ type
     FAllowsInstancing: Boolean;
     { If true, spawn all particles at once (burst) }
     FBurst: Boolean;
+    { If true, smooth texture }
+    FSmoothTexture: Boolean;
     procedure InternalRefreshEffect;
     procedure SetStartEmitting(V: Boolean);
     procedure SetBurst(V: Boolean);
+    procedure SetSmoothTexture(V: Boolean);
   protected
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
   public
@@ -263,6 +266,7 @@ type
     property DistanceCulling: Single read FDistanceCulling write FDistanceCulling default 0;
     property AllowsUpdateWhenCulled: Boolean read FAllowsUpdateWhenCulled write FAllowsUpdateWhenCulled default True;
     property AllowsInstancing: Boolean read FAllowsInstancing write FAllowsInstancing default False;
+    property SmoothTexture: Boolean read FSmoothTexture write SetSmoothTexture default True;
     property Burst: Boolean read FBurst write SetBurst default False;
   end;
 
@@ -1070,6 +1074,12 @@ begin
   Self.FIsNeedRefresh := True;
 end;
 
+procedure TCastle3DParticleEmitterGPU.SetSmoothTexture(V: Boolean);
+begin
+  Self.FSmoothTexture := V;
+  Self.FIsNeedRefresh := True;
+end;
+
 constructor TCastle3DParticleEmitterGPU.Create(AOwner: TComponent);
 begin
   inherited;
@@ -1083,6 +1093,7 @@ begin
   Self.FAllowsUpdateWhenCulled := True;
   Self.FAllowsInstancing := False;
   Self.FBurst := False;
+  Self.FSmoothTexture := True;
 end;
 
 destructor TCastle3DParticleEmitterGPU.Destroy;
@@ -1446,11 +1457,18 @@ begin
     Self.FEffect.ParticleLifeSpan := 0.001;
 
   glFreeTexture(Self.Texture);
-  Self.Texture := LoadGLTexture(
-    Self.FEffect.Texture,
-    TextureFilter(minLinear, magLinear),
-    Texture2DClampToEdge
-  );
+  if Self.FSmoothTexture then
+    Self.Texture := LoadGLTexture(
+      Self.FEffect.Texture,
+      TextureFilter(minLinear, magLinear),
+      Texture2DClampToEdge
+    )
+  else
+    Self.Texture := LoadGLTexture(
+      Self.FEffect.Texture,
+      TextureFilter(minNearest, magNearest),
+      Texture2DClampToEdge
+    );
 
   // Generate initial lifecycle
   for I := 0 to Self.FEffect.MaxParticles - 1 do
