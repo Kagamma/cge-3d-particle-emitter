@@ -227,6 +227,8 @@ type
     FIsDrawn: Boolean;
     { If true, the particle still perform update even when being culled }
     FAllowsUpdateWhenCulled: Boolean;
+    { If true, this instance can be used in multiple transform nodes }
+    FAllowsInstancing: Boolean;
     procedure InternalRefreshEffect;
     procedure SetStartEmitting(V: Boolean);
   protected
@@ -253,6 +255,7 @@ type
     property StartEmitting: Boolean read FStartEmitting write SetStartEmitting default False;
     property DistanceCulling: Single read FDistanceCulling write FDistanceCulling default 0;
     property AllowsUpdateWhenCulled: Boolean read FAllowsUpdateWhenCulled write FAllowsUpdateWhenCulled default True;
+    property AllowsInstancing: Boolean read FAllowsInstancing write FAllowsInstancing default False;
   end;
 
 function Castle3DParticleBlendValueToBlendMode(const AValue: Integer): TCastle3DParticleBlendMode;
@@ -263,7 +266,168 @@ uses
   CastleDownload, CastleURIUtils, Math;
 
 const
-  TransformVertexShaderSource: String =
+  TransformVertexShaderSourceMultipleInstances: String =
+'#version 330'nl
+'layout(location = 0) in vec4 inPosition;'nl
+'layout(location = 1) in vec2 inTimeToLive;'nl
+'layout(location = 2) in vec4 inSizeRotation;'nl
+'layout(location = 3) in vec4 inColor;'nl
+'layout(location = 4) in vec4 inColorDelta;'nl
+'layout(location = 5) in vec3 inStartPos;'nl
+'layout(location = 6) in vec4 inVelocity;'nl
+'layout(location = 7) in vec3 inDirection;'nl
+'layout(location = 8) in vec3 inTranslate;'nl
+
+'out vec4 outPosition;'nl
+'out vec2 outTimeToLive;'nl
+'out vec4 outSizeRotation;'nl
+'out vec4 outColor;'nl
+'out vec4 outColorDelta;'nl
+'out vec3 outStartPos;'nl
+'out vec4 outVelocity;'nl
+'out vec3 outDirection;'nl
+'out vec3 outTranslate;'nl
+
+'struct Effect {'nl
+'  int spawnType;'nl
+'  float particleLifeSpan;'nl
+'  float particleLifeSpanVariance;'nl
+'  float startParticleSize;'nl
+'  float startParticleSizeVariance;'nl
+'  float finishParticleSize;'nl
+'  float finishParticleSizeVariance;'nl
+'  float maxRadius;'nl
+'  float maxRadiusVariance;'nl
+'  float minRadius;'nl
+'  float minRadiusVariance;'nl
+'  float rotatePerSecond;'nl
+'  float rotatePerSecondVariance;'nl
+'  float rotationStart;'nl
+'  float rotationStartVariance;'nl
+'  float rotationEnd;'nl
+'  float rotationEndVariance;'nl
+'  float speed;'nl
+'  float speedVariance;'nl
+'  float radial;'nl
+'  float radialVariance;'nl
+'  float middleAnchor;'nl
+'  vec3 sourcePosition;'nl
+'  vec3 sourcePositionVariance;'nl
+'  vec3 gravity;'nl
+'  vec3 direction;'nl
+'  float directionVariance;'nl
+'  vec4 startColor;'nl
+'  vec4 startColorVariance;'nl
+'  vec4 middleColor;'nl
+'  vec4 middleColorVariance;'nl
+'  vec4 finishColor;'nl
+'  vec4 finishColorVariance;'nl
+'  int maxParticles;'nl
+'  int isColliable;'nl
+'};'nl
+'uniform Effect effect;'nl
+'uniform float emissionTime;'nl
+'uniform float deltaTime;'nl
+
+'float rnd() {'nl
+'  outPosition.w = fract(sin(outPosition.w + outPosition.x + outVelocity.x + outVelocity.y + outColor.x + deltaTime) * 43758.5453123);'nl
+'  return outPosition.w;'nl
+'}'nl
+
+'vec3 rotate(vec3 v, float angle, vec3 axis) {'nl
+'  axis = normalize(axis);'nl
+'  float c = cos(angle);'nl
+'  float s = sin(angle);'nl
+'  vec3 r = vec3('nl
+'      v.x * (axis.x * axis.x * (1.0 - c) + c)'nl
+'    + v.y * (axis.x * axis.y * (1.0 - c) - axis.z * s)'nl
+'    + v.z * (axis.x * axis.z * (1.0 - c) + axis.y * s),'nl
+'      v.x * (axis.y * axis.x * (1.0 - c) + axis.z * s)'nl
+'    + v.y * (axis.y * axis.y * (1.0 - c) + c)'nl
+'    + v.z * (axis.y * axis.z * (1.0 - c) - axis.x * s),'nl
+'      v.x * (axis.z * axis.x * (1.0 - c) - axis.y * s)'nl
+'    + v.y * (axis.z * axis.y * (1.0 - c) + axis.x * s)'nl
+'    + v.z * (axis.z * axis.z * (1.0 - c) + c)'nl
+'  );'nl
+'  return r;'nl
+'}'nl
+
+'void initParticle() {'nl
+'  outPosition = inPosition;'nl
+'  outTimeToLive = inTimeToLive;'nl
+'  outSizeRotation = inSizeRotation;'nl
+'  outColor = inColor;'nl
+'  outColorDelta = inColorDelta;'nl
+'  outStartPos = inStartPos;'nl
+'  outVelocity = inVelocity;'nl
+'  outDirection = inDirection;'nl
+'  outTranslate = inTranslate;'nl
+'}'nl
+
+'void emitParticle() {'nl
+'  outTimeToLive.x = effect.particleLifeSpan + effect.particleLifeSpanVariance * (rnd() * 2.0 - 1.0);'nl
+'  outTimeToLive.y = outTimeToLive.x - outTimeToLive.x * effect.middleAnchor;'nl
+'  float invLifeSpan = 1.0 / outTimeToLive.x;'nl
+'  vec3 vrpos = vec3(rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0);'nl
+'  if (effect.spawnType == 1) {'nl
+'    outPosition.xyz = effect.sourcePosition + effect.sourcePositionVariance * normalize(vrpos);'nl
+'  } else {'nl
+'    outPosition.xyz = effect.sourcePosition + effect.sourcePositionVariance * vrpos;'nl
+'  }'nl
+'  outTranslate = vec3(0.0);'nl // Do nothing
+'  outStartPos = vec3(0.0);'nl // Do nothing
+'  outColor = effect.startColor + effect.startColorVariance * vec4(rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0);'nl
+'  vec4 middleColor = effect.middleColor + effect.middleColorVariance * vec4(rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0);'nl
+'  outColorDelta = (middleColor - outColor) * (1.0 / (outTimeToLive.x - outTimeToLive.y));'nl
+'  outDirection = effect.direction;'nl
+'  vec3 cd = normalize(cross(outDirection, outDirection.zxy));'nl
+'  float angle = effect.directionVariance * (rnd() * 2.0 - 1.0);'nl
+'  vec3 vrdir = rotate(outDirection, angle, cd);'nl
+'  vrdir = rotate(vrdir, rnd() * 2.0 * 3.14159265359, outDirection);'nl
+'  vec3 vspeed = vec3('nl
+'    effect.speed + effect.speedVariance * (rnd() * 2.0 - 1.0),'nl
+'    effect.speed + effect.speedVariance * (rnd() * 2.0 - 1.0),'nl
+'    effect.speed + effect.speedVariance * (rnd() * 2.0 - 1.0));'nl
+'  outVelocity = vec4(vrdir * vspeed, effect.radial + effect.radialVariance * (rnd() * 2.0 - 1.0));'nl
+
+'  float startSize = max(0.0001, effect.startParticleSize + effect.startParticleSizeVariance * (rnd() * 2.0 - 1.0));'nl
+'  float finishSize = max(0.0001, effect.finishParticleSize + effect.finishParticleSizeVariance * (rnd() * 2.0 - 1.0));'nl
+'  outSizeRotation.xy = vec2(startSize, (finishSize - startSize) * invLifeSpan);'nl
+
+'  outSizeRotation.z = effect.rotationStart + effect.rotationStartVariance * (rnd() * 2.0 - 1.0);'nl
+'  float endRotation = effect.rotationEnd + effect.rotationEndVariance * (rnd() * 2.0 - 1.0);'nl
+'  outSizeRotation.w = (endRotation - outSizeRotation.z) * invLifeSpan;'nl
+'}'nl
+
+'void updateParticle() {'nl
+'  float timeBetweenParticle = max(deltaTime, effect.particleLifeSpan / effect.maxParticles);'nl
+'  if (outTimeToLive.x <= 0.0 && emissionTime == 0.0) {'nl
+'    outTimeToLive.x = (rnd() - 1.0) * effect.particleLifeSpan;'nl
+'  }'nl
+'  if (outTimeToLive.x == 0.0 && emissionTime != 0.0) {'nl
+'    emitParticle();'nl
+'  } else if (outTimeToLive.x < 0.0) {'nl
+'    outTimeToLive.x = min(0.0, outTimeToLive.x + timeBetweenParticle);'nl
+'    return;'nl
+'  }'nl
+'  outColor += outColorDelta * deltaTime;'nl
+'  if ((outTimeToLive.x >= outTimeToLive.y) && (outTimeToLive.x - deltaTime < outTimeToLive.y)) {'nl
+'    vec4 finishColor = effect.finishColor + effect.finishColorVariance * vec4(rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0);'nl
+'    outColorDelta = (finishColor - outColor) * (1.0 / outTimeToLive.y);'nl
+'  }'nl
+'  outTimeToLive.x = max(0.0, outTimeToLive.x - deltaTime);'nl
+'  outVelocity.xyz = rotate(outVelocity.xyz, outVelocity.w * deltaTime, outDirection) + effect.gravity * deltaTime;'nl
+'  outPosition.xyz = rotate(outPosition.xyz, outVelocity.w * deltaTime, outDirection) + outVelocity.xyz * deltaTime;'nl
+'  outSizeRotation.x += outSizeRotation.y * deltaTime;'nl
+'  outSizeRotation.z += outSizeRotation.w * deltaTime;'nl
+'}'nl
+
+'void main() {'nl
+'  initParticle();'nl
+'  updateParticle();'nl
+'}';
+
+  TransformVertexShaderSourceSingleInstance: String =
 '#version 330'nl
 'layout(location = 0) in vec4 inPosition;'nl
 'layout(location = 1) in vec2 inTimeToLive;'nl
@@ -432,7 +596,29 @@ const
 '  updateParticle();'nl
 '}';
 
-  VertexShaderSource: String =
+  VertexShaderSourceMultipleInstances: String =
+'#version 330'nl
+'layout(location = 0) in vec4 inPosition;'nl
+'layout(location = 1) in vec2 inTimeToLive;'nl
+'layout(location = 2) in vec4 inSizeRotation;'nl
+'layout(location = 3) in vec4 inColor;'nl
+
+'out float geomTimeToLive;'nl
+'out vec2 geomSize;'nl
+'out vec2 geomRotation;'nl
+'out vec4 geomColor;'nl
+
+'uniform mat4 mvMatrix;'nl
+
+'void main() {'nl
+'  gl_Position = mvMatrix * vec4(inPosition.xyz, 1.0);'nl
+'  geomTimeToLive = inTimeToLive.x;'nl
+'  geomSize = inSizeRotation.xy;'nl
+'  geomRotation = inSizeRotation.zw;'nl
+'  geomColor = inColor;'nl
+'}';
+
+  VertexShaderSourceSingleInstance: String =
 '#version 330'nl
 'layout(location = 0) in vec4 inPosition;'nl
 'layout(location = 1) in vec2 inTimeToLive;'nl
@@ -528,7 +714,11 @@ const
 var
   IsCheckedForUsable: Boolean = False;
   TransformFeedbackProgram: TGLSLProgram = nil;
+  TransformFeedbackProgramSingleInstance: TGLSLProgram = nil;
+  TransformFeedbackProgramMultipleInstances: TGLSLProgram = nil;
   RenderProgram: TGLSLProgram = nil;
+  RenderProgramSingleInstance: TGLSLProgram = nil;
+  RenderProgramMultipleInstances: TGLSLProgram = nil;
 
 procedure TCastle3DParticleEffect.SetBoundingBoxMinForPersistent(const AValue: TVector3);
 begin
@@ -799,6 +989,7 @@ begin
     SS.CopyFrom(MS, MS.Size);
     DeStreamer.JSONToObject(SS.DataString, Self);
     Self.Texture := ExtractURIPath(AURL) + Self.Texture;
+    Writeln(Self.Texture);
   finally
     FreeAndNil(DeStreamer);
     FreeAndNil(SS);
@@ -851,6 +1042,7 @@ begin
   Self.FIsNeedRefresh := False;
   Self.ShadowMaps := False;
   Self.FAllowsUpdateWhenCulled := True;
+  Self.FAllowsInstancing := False;
 end;
 
 destructor TCastle3DParticleEmitterGPU.Destroy;
@@ -894,6 +1086,15 @@ begin
 
     if ((not Self.FAllowsUpdateWhenCulled) and Self.FIsDrawn) or Self.FAllowsUpdateWhenCulled then
     begin
+      if Self.AllowsInstancing then
+      begin
+        TransformFeedbackProgram := TransformFeedbackProgramMultipleInstances;
+        RenderProgram := RenderProgramMultipleInstances;
+      end else
+      begin
+        TransformFeedbackProgram := TransformFeedbackProgramSingleInstance;
+        RenderProgram := RenderProgramSingleInstance;
+      end;
       glEnable(GL_RASTERIZER_DISCARD);
       TransformFeedbackProgram.Enable;
       if Self.TimePlaying then
@@ -904,7 +1105,8 @@ begin
         TransformFeedbackProgram.Uniform('emissionTime').SetValue(Self.FEmissionTime)
       else
         TransformFeedbackProgram.Uniform('emissionTime').SetValue(0);
-      TransformFeedbackProgram.Uniform('mMatrix').SetValue(Self.WorldTransform);
+      if not Self.AllowsInstancing then
+        TransformFeedbackProgram.Uniform('mMatrix').SetValue(Self.WorldTransform);
       TransformFeedbackProgram.Uniform('effect.spawnType').SetValue(Castle3DParticleSpawnValues[Self.FEffect.SpawnType]);
       TransformFeedbackProgram.Uniform('effect.sourcePosition').SetValue(Self.FEffect.SourcePosition);
       TransformFeedbackProgram.Uniform('effect.sourcePositionVariance').SetValue(Self.FEffect.SourcePositionVariance);
@@ -1009,6 +1211,16 @@ begin
   Inc(Params.Statistics.ScenesRendered);
 
   // Draw particles
+  if Self.AllowsInstancing then
+  begin
+    M := Params.RenderingCamera.Matrix * Params.Transform^;
+    TransformFeedbackProgram := TransformFeedbackProgramMultipleInstances;
+    RenderProgram := RenderProgramMultipleInstances;
+  end else
+  begin
+    TransformFeedbackProgram := TransformFeedbackProgramSingleInstance;
+    RenderProgram := RenderProgramSingleInstance;
+  end;
   glDepthMask(GL_FALSE);
   glEnable(GL_DEPTH_TEST);
   glEnable(GL_BLEND);
@@ -1016,7 +1228,13 @@ begin
   RenderProgram.Enable;
   RenderProgram.Uniform('scaleX').SetValue(Vector3(Params.Transform^[0,0], Params.Transform^[0,1], Params.Transform^[0,2]).Length);
   RenderProgram.Uniform('scaleY').SetValue(Vector3(Params.Transform^[1,0], Params.Transform^[1,1], Params.Transform^[1,2]).Length);
-  RenderProgram.Uniform('vMatrix').SetValue(Params.RenderingCamera.Matrix);
+  if Self.AllowsInstancing then
+  begin
+    RenderProgram.Uniform('mvMatrix').SetValue(M);
+  end else
+  begin
+    RenderProgram.Uniform('vMatrix').SetValue(Params.RenderingCamera.Matrix);
+  end;
   RenderProgram.Uniform('pMatrix').SetValue(RenderContext.ProjectionMatrix);
   glBindVertexArray(Self.VAOs[CurrentBuffer]);
   glActiveTexture(GL_TEXTURE0);
@@ -1124,18 +1342,29 @@ begin
     IsCheckedForUsable := True;
   end;
 
-  if TransformFeedbackProgram = nil then
+  if TransformFeedbackProgramSingleInstance = nil then
   begin
-    TransformFeedbackProgram := TGLSLProgram.Create;
-    TransformFeedbackProgram.AttachVertexShader(TransformVertexShaderSource);
-    TransformFeedbackProgram.SetTransformFeedbackVaryings(Varyings);
-    TransformFeedbackProgram.Link;
+    TransformFeedbackProgramSingleInstance := TGLSLProgram.Create;
+    TransformFeedbackProgramSingleInstance.AttachVertexShader(TransformVertexShaderSourceSingleInstance);
+    TransformFeedbackProgramSingleInstance.SetTransformFeedbackVaryings(Varyings);
+    TransformFeedbackProgramSingleInstance.Link;
 
-    RenderProgram := TGLSLProgram.Create;
-    RenderProgram.AttachVertexShader(VertexShaderSource);
-    RenderProgram.AttachGeometryShader(GeometryShaderSource);
-    RenderProgram.AttachFragmentShader(FragmentShaderSource);
-    RenderProgram.Link;
+    TransformFeedbackProgramMultipleInstances := TGLSLProgram.Create;
+    TransformFeedbackProgramMultipleInstances.AttachVertexShader(TransformVertexShaderSourceMultipleInstances);
+    TransformFeedbackProgramMultipleInstances.SetTransformFeedbackVaryings(Varyings);
+    TransformFeedbackProgramMultipleInstances.Link;
+
+    RenderProgramSingleInstance := TGLSLProgram.Create;
+    RenderProgramSingleInstance.AttachVertexShader(VertexShaderSourceSingleInstance);
+    RenderProgramSingleInstance.AttachGeometryShader(GeometryShaderSource);
+    RenderProgramSingleInstance.AttachFragmentShader(FragmentShaderSource);
+    RenderProgramSingleInstance.Link;
+
+    RenderProgramMultipleInstances := TGLSLProgram.Create;
+    RenderProgramMultipleInstances.AttachVertexShader(VertexShaderSourceMultipleInstances);
+    RenderProgramMultipleInstances.AttachGeometryShader(GeometryShaderSource);
+    RenderProgramMultipleInstances.AttachFragmentShader(FragmentShaderSource);
+    RenderProgramMultipleInstances.Link;
   end;
 
   glGenBuffers(2, @Self.VBOs);
