@@ -11,6 +11,7 @@ Due to emitter uses direct OpenGL calls instead of CGE's own renderer, only a fe
 - The component registers to TRenderStatistics as 1 Shape / 1 Scene.
 - Instancing, by putting the same emitter to multiple TCastleTransform nodes works. It doesn't use GPU instancing at the moment.
 - Use StartEmitting instead of ProcessEvents for start / stop emitting.
+- AllowsUpdateWhenCulled = False will stop update particle if emitter's boundingbox is outside of frustum view.
 
 License: MIT.
 
