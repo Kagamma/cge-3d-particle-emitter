@@ -555,7 +555,7 @@
                   "Y" : 1.5000000000000000E+000,
                   "Z" : 2.0000000000000000E+000
                 },
-                "SpawnType" : "p3stSpheroid",
+                "SourceType" : "p3stSpheroid",
                 "Speed" : 0.0000000000000000E+000,
                 "SpeedVariance" : 0.0000000000000000E+000,
                 "StartColorPersistent" : {

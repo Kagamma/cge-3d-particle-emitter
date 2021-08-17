@@ -36,7 +36,7 @@ type
     p3bmOneMinusDstColor
   );
 
-  TCastle3DParticleSpawnType = (
+  TCastle3DParticleSourceType = (
     p3stBox,
     p3stSpheroid
   );
@@ -45,7 +45,7 @@ const
   Castle3DParticleBlendValues: array [TCastle3DParticleBlendMode] of Integer = (
     0, 1, 768, 769, 770, 771, 772, 773, 774, 775
   );
-  Castle3DParticleSpawnValues: array [TCastle3DParticleSpawnType] of Integer = (
+  Castle3DParticleSourceValues: array [TCastle3DParticleSourceType] of Integer = (
     0, 1
   );
 
@@ -70,7 +70,7 @@ type
   TCastle3DParticleEffect = class(TCastleComponent)
   private
     FTexture: String;
-    FSpawnType: TCastle3DParticleSpawnType;
+    FSourceType: TCastle3DParticleSourceType;
     FBlendFuncSource,
     FBlendFuncDestination: TCastle3DParticleBlendMode;
     FMaxParticles: Integer;
@@ -164,7 +164,7 @@ type
     property BBox: TBox3D read FBBox write FBBox;
   published
     property Texture: String read FTexture write SetTexture;
-    property SpawnType: TCastle3DParticleSpawnType read FSpawnType write FSpawnType default p3stBox;
+    property SourceType: TCastle3DParticleSourceType read FSourceType write FSourceType default p3stBox;
     property BlendFuncSource: TCastle3DParticleBlendMode read FBlendFuncSource write FBlendFuncSource default p3bmOne;
     property BlendFuncDestination: TCastle3DParticleBlendMode read FBlendFuncDestination write FBlendFuncDestination default p3bmOne;
     property MaxParticles: Integer read FMaxParticles write SetMaxParticle default 100;
@@ -293,7 +293,7 @@ const
 'out vec3 outTranslate;'nl
 
 'struct Effect {'nl
-'  int spawnType;'nl
+'  int sourceType;'nl
 '  float particleLifeSpan;'nl
 '  float particleLifeSpanVariance;'nl
 '  float startParticleSize;'nl
@@ -376,7 +376,7 @@ const
 '  float invLifeSpan = 1.0 / outTimeToLive.x;'nl
 '  float invTimeRemaining = 1.0 / (outTimeToLive.x - outTimeToLive.y);'nl
 '  vec3 vrpos = vec3(rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0);'nl
-'  if (effect.spawnType == 1) {'nl
+'  if (effect.sourceType == 1) {'nl
 '    outPosition.xyz = effect.sourcePosition + effect.sourcePositionVariance * normalize(vrpos);'nl
 '  } else {'nl
 '    outPosition.xyz = effect.sourcePosition + effect.sourcePositionVariance * vrpos;'nl
@@ -460,7 +460,7 @@ const
 'out vec3 outTranslate;'nl
 
 'struct Effect {'nl
-'  int spawnType;'nl
+'  int sourceType;'nl
 '  float particleLifeSpan;'nl
 '  float particleLifeSpanVariance;'nl
 '  float startParticleSize;'nl
@@ -550,7 +550,7 @@ const
 '    length(vec3(mMatrix[1][0], mMatrix[1][1], mMatrix[1][2])),'nl
 '    length(vec3(mMatrix[2][0], mMatrix[2][1], mMatrix[2][2]))'nl
 '  );'nl
-'  if (effect.spawnType == 1) {'nl
+'  if (effect.sourceType == 1) {'nl
 '    outStartPos = rMatrix * (effect.sourcePosition + scale * effect.sourcePositionVariance * normalize(vrpos));'nl
 '  } else {'nl
 '    outStartPos = rMatrix * (effect.sourcePosition + scale * effect.sourcePositionVariance * vrpos);'nl
@@ -923,7 +923,7 @@ begin
   Self.FSpeedVariance := 1;
   Self.FBlendFuncSource := p3bmOne;
   Self.FBlendFuncDestination := p3bmOne;
-  Self.FSpawnType := p3stBox;
+  Self.FSourceType := p3stBox;
   //
   Self.FBoundingBoxMinPersistent := CreateVec3Persistent(
     @Self.GetBoundingBoxMinForPersistent,
@@ -1136,7 +1136,7 @@ begin
         TransformFeedbackProgram.Uniform('emissionTime').SetValue(0);
       if not Self.AllowsInstancing then
         TransformFeedbackProgram.Uniform('mMatrix').SetValue(Self.WorldTransform);
-      TransformFeedbackProgram.Uniform('effect.spawnType').SetValue(Castle3DParticleSpawnValues[Self.FEffect.SpawnType]);
+      TransformFeedbackProgram.Uniform('effect.sourceType').SetValue(Castle3DParticleSourceValues[Self.FEffect.SourceType]);
       TransformFeedbackProgram.Uniform('effect.sourcePosition').SetValue(Self.FEffect.SourcePosition);
       TransformFeedbackProgram.Uniform('effect.sourcePositionVariance').SetValue(Self.FEffect.SourcePositionVariance);
       TransformFeedbackProgram.Uniform('effect.maxParticles').SetValue(Self.FEffect.MaxParticles);
