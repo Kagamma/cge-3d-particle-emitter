@@ -364,10 +364,11 @@ const
 '  outTimeToLive.x = effect.particleLifeSpan + effect.particleLifeSpanVariance * (rnd() * 2.0 - 1.0);'nl
 '  outTimeToLive.y = outTimeToLive.x - outTimeToLive.x * effect.middleAnchor;'nl
 '  float invLifeSpan = 1.0 / outTimeToLive.x;'nl
+'  vec3 vrpos = vec3(rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0);'nl
 '  if (effect.spawnType == 1) {'nl
-'    outPosition.xyz = effect.sourcePosition + effect.sourcePositionVariance * normalize(vec3(rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0));'nl
+'    outPosition.xyz = effect.sourcePosition + effect.sourcePositionVariance * normalize(vrpos);'nl
 '  } else {'nl
-'    outPosition.xyz = effect.sourcePosition + effect.sourcePositionVariance * vec3(rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0);'nl
+'    outPosition.xyz = effect.sourcePosition + effect.sourcePositionVariance * vrpos;'nl
 '  }'nl
 '  outStartPos = effect.sourcePosition;'nl
 '  outColor = effect.startColor + effect.startColorVariance * vec4(rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0);'nl
@@ -692,6 +693,7 @@ begin
   Self.FSpeedVariance := 1;
   Self.FBlendFuncSource := p3bmOne;
   Self.FBlendFuncDestination := p3bmOne;
+  Self.FSpawnType := p3stBox;
   //
   Self.FBoundingBoxMinPersistent := CreateVec3Persistent(
     @Self.GetBoundingBoxMinForPersistent,
