@@ -363,21 +363,22 @@ const
 '}'nl
 
 'void emitParticle() {'nl
+'  mat3 rMatrix = mat3(mMatrix);'nl
 '  outTimeToLive.x = effect.particleLifeSpan + effect.particleLifeSpanVariance * (rnd() * 2.0 - 1.0);'nl
 '  outTimeToLive.y = outTimeToLive.x - outTimeToLive.x * effect.middleAnchor;'nl
 '  float invLifeSpan = 1.0 / outTimeToLive.x;'nl
 '  vec3 vrpos = vec3(rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0);'nl
 '  if (effect.spawnType == 1) {'nl
-'    outStartPos = mat3(mMatrix) * (effect.sourcePosition + effect.sourcePositionVariance * normalize(vrpos));'nl
+'    outStartPos = rMatrix * (effect.sourcePosition + effect.sourcePositionVariance * normalize(vrpos));'nl
 '  } else {'nl
-'    outStartPos = mat3(mMatrix) * (effect.sourcePosition + effect.sourcePositionVariance * vrpos);'nl
+'    outStartPos = rMatrix * (effect.sourcePosition + effect.sourcePositionVariance * vrpos);'nl
 '  }'nl
 '  outTranslate = vec3(mMatrix[3][0], mMatrix[3][1], mMatrix[3][2]);'nl
 '  outPosition.xyz = outTranslate + outStartPos;'nl
 '  outColor = effect.startColor + effect.startColorVariance * vec4(rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0);'nl
 '  vec4 middleColor = effect.middleColor + effect.middleColorVariance * vec4(rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0);'nl
 '  outColorDelta = (middleColor - outColor) * (1.0 / (outTimeToLive.x - outTimeToLive.y));'nl
-'  outDirection = mat3(mMatrix) * effect.direction;'nl
+'  outDirection = rMatrix * effect.direction;'nl
 '  vec3 cd = normalize(cross(outDirection, outDirection.zxy));'nl
 '  float angle = effect.directionVariance * (rnd() * 2.0 - 1.0);'nl
 '  vec3 vrdir = rotate(outDirection, angle, cd);'nl
