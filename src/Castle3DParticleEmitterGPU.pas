@@ -64,6 +64,7 @@ type
     StartPos: TVector3;
     Velocity: TVector4;
     Direction: TVector3;
+    Translate: TVector3;
   end;
 
   TCastle3DParticleEffect = class(TCastleComponent)
@@ -219,7 +220,6 @@ type
     { When this is set to true, the emitter will automatically freed after
       all particles destroyed. }
     FReleaseWhenDone: Boolean;
-    FPosition: TVector3;
     { Bypass GLContext problem }
     FIsGLContextInitialized: Boolean;
     FIsNeedRefresh: Boolean;
@@ -245,8 +245,6 @@ type
     procedure GLContextClose; override;
     procedure RefreshEffect;
     function LocalBoundingBox: TBox3D; override;
-    { Move the position of emitter only }
-    property Position: TVector3 read FPosition write FPosition;
   published
     { URL of a .p3d file. This will call LoadEffect to load particle effect }
     property URL: String read FURL write LoadEffect;
@@ -275,6 +273,7 @@ const
 'layout(location = 5) in vec3 inStartPos;'nl
 'layout(location = 6) in vec4 inVelocity;'nl
 'layout(location = 7) in vec3 inDirection;'nl
+'layout(location = 8) in vec3 inTranslate;'nl
 
 'out vec4 outPosition;'nl
 'out vec2 outTimeToLive;'nl
@@ -284,6 +283,7 @@ const
 'out vec3 outStartPos;'nl
 'out vec4 outVelocity;'nl
 'out vec3 outDirection;'nl
+'out vec3 outTranslate;'nl
 
 'struct Effect {'nl
 '  int spawnType;'nl
@@ -323,6 +323,7 @@ const
 '  int isColliable;'nl
 '};'nl
 'uniform Effect effect;'nl
+'uniform mat4 mMatrix;'nl
 'uniform float emissionTime;'nl
 'uniform float deltaTime;'nl
 
@@ -358,6 +359,7 @@ const
 '  outStartPos = inStartPos;'nl
 '  outVelocity = inVelocity;'nl
 '  outDirection = inDirection;'nl
+'  outTranslate = inTranslate;'nl
 '}'nl
 
 'void emitParticle() {'nl
@@ -366,18 +368,20 @@ const
 '  float invLifeSpan = 1.0 / outTimeToLive.x;'nl
 '  vec3 vrpos = vec3(rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0);'nl
 '  if (effect.spawnType == 1) {'nl
-'    outPosition.xyz = effect.sourcePosition + effect.sourcePositionVariance * normalize(vrpos);'nl
+'    outStartPos = effect.sourcePosition + effect.sourcePositionVariance * normalize(vrpos);'nl
 '  } else {'nl
-'    outPosition.xyz = effect.sourcePosition + effect.sourcePositionVariance * vrpos;'nl
+'    outStartPos = effect.sourcePosition + effect.sourcePositionVariance * vrpos;'nl
 '  }'nl
-'  outStartPos = effect.sourcePosition;'nl
+'  outTranslate = vec3(mMatrix[3][0], mMatrix[3][1], mMatrix[3][2]);'nl
+'  outPosition.xyz = outTranslate + outStartPos;'nl
 '  outColor = effect.startColor + effect.startColorVariance * vec4(rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0);'nl
 '  vec4 middleColor = effect.middleColor + effect.middleColorVariance * vec4(rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0);'nl
 '  outColorDelta = (middleColor - outColor) * (1.0 / (outTimeToLive.x - outTimeToLive.y));'nl
-'  vec3 cd = normalize(cross(effect.direction, effect.direction.zxy));'nl
+'  outDirection = mat3(mMatrix) * effect.direction;'nl
+'  vec3 cd = normalize(cross(outDirection, outDirection.zxy));'nl
 '  float angle = effect.directionVariance * (rnd() * 2.0 - 1.0);'nl
-'  vec3 vrdir = rotate(effect.direction, angle, cd);'nl
-'  vrdir = rotate(vrdir, rnd() * 2.0 * 3.14159265359, effect.direction);'nl
+'  vec3 vrdir = rotate(outDirection, angle, cd);'nl
+'  vrdir = rotate(vrdir, rnd() * 2.0 * 3.14159265359, outDirection);'nl
 '  vec3 vspeed = vec3('nl
 '    effect.speed + effect.speedVariance * (rnd() * 2.0 - 1.0),'nl
 '    effect.speed + effect.speedVariance * (rnd() * 2.0 - 1.0),'nl
@@ -391,7 +395,6 @@ const
 '  outSizeRotation.z = effect.rotationStart + effect.rotationStartVariance * (rnd() * 2.0 - 1.0);'nl
 '  float endRotation = effect.rotationEnd + effect.rotationEndVariance * (rnd() * 2.0 - 1.0);'nl
 '  outSizeRotation.w = (endRotation - outSizeRotation.z) * invLifeSpan;'nl
-'  outDirection = effect.direction;'nl
 '}'nl
 
 'void updateParticle() {'nl
@@ -412,7 +415,8 @@ const
 '  }'nl
 '  outTimeToLive.x = max(0.0, outTimeToLive.x - deltaTime);'nl
 '  outVelocity.xyz = rotate(outVelocity.xyz, outVelocity.w * deltaTime, outDirection) + effect.gravity * deltaTime;'nl
-'  outPosition.xyz = rotate(outPosition.xyz, outVelocity.w * deltaTime, outDirection) + outVelocity.xyz * deltaTime;'nl
+'  outStartPos = rotate(outStartPos, outVelocity.w * deltaTime, outDirection) + outVelocity.xyz * deltaTime;'nl
+'  outPosition.xyz = outStartPos + outTranslate;'nl
 '  outSizeRotation.x += outSizeRotation.y * deltaTime;'nl
 '  outSizeRotation.z += outSizeRotation.w * deltaTime;'nl
 '}'nl
@@ -434,10 +438,10 @@ const
 'out vec2 geomRotation;'nl
 'out vec4 geomColor;'nl
 
-'uniform mat4 mvMatrix;'nl
+'uniform mat4 vMatrix;'nl
 
 'void main() {'nl
-'  gl_Position = mvMatrix * vec4(inPosition.xyz, 1.0);'nl
+'  gl_Position = vMatrix * vec4(inPosition.xyz, 1.0);'nl
 '  geomTimeToLive = inTimeToLive.x;'nl
 '  geomSize = inSizeRotation.xy;'nl
 '  geomRotation = inSizeRotation.zw;'nl
@@ -503,7 +507,7 @@ const
 '  outColor.rgb *= outColor.a;'nl
 '}';
 
-  Varyings: array[0..7] of PChar = (
+  Varyings: array[0..8] of PChar = (
     'outPosition',
     'outTimeToLive',
     'outSizeRotation',
@@ -511,7 +515,8 @@ const
     'outColorDelta',
     'outStartPos',
     'outVelocity',
-    'outDirection'
+    'outDirection',
+    'outTranslate'
   );
 
 var
@@ -835,7 +840,6 @@ begin
   Self.FIsUpdated := False;
   Self.Texture := 0;
   Self.FSecondsPassed := 0;
-  Self.FPosition := Vector3(0, 0, 0);
   Self.Scale := Vector3(1, 1, 1);
   Self.FIsGLContextInitialized := False;
   Self.FIsNeedRefresh := False;
@@ -894,8 +898,8 @@ begin
         TransformFeedbackProgram.Uniform('emissionTime').SetValue(Self.FEmissionTime)
       else
         TransformFeedbackProgram.Uniform('emissionTime').SetValue(0);
+      TransformFeedbackProgram.Uniform('mMatrix').SetValue(Self.WorldTransform);
       TransformFeedbackProgram.Uniform('effect.spawnType').SetValue(Castle3DParticleSpawnValues[Self.FEffect.SpawnType]);
-      TransformFeedbackProgram.Uniform('effect.sourcePosition').SetValue(Self.FPosition);
       TransformFeedbackProgram.Uniform('effect.sourcePosition').SetValue(Self.FEffect.SourcePosition);
       TransformFeedbackProgram.Uniform('effect.sourcePositionVariance').SetValue(Self.FEffect.SourcePositionVariance);
       TransformFeedbackProgram.Uniform('effect.maxParticles').SetValue(Self.FEffect.MaxParticles);
@@ -962,10 +966,10 @@ end;
 
 procedure TCastle3DParticleEmitterGPU.LocalRender(const Params: TRenderParams);
 var
-  M: TMatrix4;
   BoundingBoxMin, BoundingBoxMax,
   RenderCameraPosition: TVector3;
   RelativeBBox: TBox3D;
+  M: TMatrix4;
 begin
   inherited;
   Self.FIsUpdated := False;
@@ -998,8 +1002,6 @@ begin
   Inc(Params.Statistics.ShapesRendered);
   Inc(Params.Statistics.ScenesRendered);
 
-  M := Params.RenderingCamera.Matrix * Params.Transform^;
-
   // Draw particles
   glDepthMask(GL_FALSE);
   glEnable(GL_DEPTH_TEST);
@@ -1008,7 +1010,7 @@ begin
   RenderProgram.Enable;
   RenderProgram.Uniform('scaleX').SetValue(Vector3(Params.Transform^[0,0], Params.Transform^[0,1], Params.Transform^[0,2]).Length);
   RenderProgram.Uniform('scaleY').SetValue(Vector3(Params.Transform^[1,0], Params.Transform^[1,1], Params.Transform^[1,2]).Length);
-  RenderProgram.Uniform('mvMatrix').SetValue(M);
+  RenderProgram.Uniform('vMatrix').SetValue(Params.RenderingCamera.Matrix);
   RenderProgram.Uniform('pMatrix').SetValue(RenderContext.ProjectionMatrix);
   glBindVertexArray(Self.VAOs[CurrentBuffer]);
   glActiveTexture(GL_TEXTURE0);
@@ -1025,6 +1027,7 @@ begin
     BoundingBoxMax := Self.FEffect.BBox.Data[1];
     RenderProgram.Disable;
     glUseProgram(0);
+    M := Params.RenderingCamera.Matrix * Params.Transform^;
     glMatrixMode(GL_MODELVIEW);
     glLoadMatrixf(@M);
     glMatrixMode(GL_PROJECTION);
@@ -1208,6 +1211,8 @@ begin
     glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, SizeOf(TCastle3DParticle), Pointer(84));
     glEnableVertexAttribArray(7);
     glVertexAttribPointer(7, 3, GL_FLOAT, GL_FALSE, SizeOf(TCastle3DParticle), Pointer(100));
+    glEnableVertexAttribArray(8);
+    glVertexAttribPointer(8, 3, GL_FLOAT, GL_FALSE, SizeOf(TCastle3DParticle), Pointer(112));
 
     glBindVertexArray(0);
   end;
