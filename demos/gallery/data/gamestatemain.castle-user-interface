@@ -94,8 +94,8 @@
                 "$$ClassName" : "TCastle3DParticleEffect",
                 "DirectionPersistent" : {
                   "$$ClassName" : "TCastleVector3Persistent",
-                  "X" : 9.6699871122837067E-002,
-                  "Y" : -9.9531358480453491E-001
+                  "X" : 9.6255086362361908E-002,
+                  "Y" : -9.9535679817199707E-001
                 },
                 "DirectionVariance" : 0.0000000000000000E+000,
                 "FinishColorPersistent" : {
@@ -111,6 +111,7 @@
                   "Blue" : 1.0000000000000000E+000,
                   "Green" : 1.0000000000000000E+000
                 },
+                "MiddleParticleSize" : 3.0000001192092896E-001,
                 "Name" : "RainEffect",
                 "ParticleLifeSpan" : 8.0000001192092896E-001,
                 "ParticleLifeSpanVariance" : 1.0000000149011612E-001,
@@ -170,8 +171,8 @@
                 "$$ClassName" : "TCastle3DParticleEffect",
                 "DirectionPersistent" : {
                   "$$ClassName" : "TCastleVector3Persistent",
-                  "Y" : 9.1287088394165039E-001,
-                  "Z" : 4.0824827551841736E-001
+                  "Y" : 9.2582011222839355E-001,
+                  "Z" : 3.7796446681022644E-001
                 },
                 "DirectionVariance" : 0.0000000000000000E+000,
                 "FinishColorPersistent" : {
@@ -188,6 +189,7 @@
                   "Alpha" : 1.0000000000000000E+000,
                   "Green" : 0.0000000000000000E+000
                 },
+                "MiddleParticleSize" : 3.0000001192092896E-001,
                 "Name" : "SpiralEffect",
                 "ParticleLifeSpanVariance" : 1.0000000149011612E-001,
                 "Radial" : 1.5000000000000000E+001,
@@ -311,7 +313,7 @@
             "TranslationPersistent" : {
               "$$ClassName" : "TCastleVector3Persistent",
               "X" : 4.3433351516723633E+000,
-              "Y" : 1.7196897506713867E+001
+              "Y" : 1.8263135910034180E+001
             },
             "$NonVisualComponents" : [
               {
@@ -329,7 +331,7 @@
                   "Green" : 0.0000000000000000E+000,
                   "Red" : 0.0000000000000000E+000
                 },
-                "FinishParticleSize" : 5.0000000000000000E-001,
+                "FinishParticleSize" : 3.0000001192092896E-001,
                 "MaxParticles" : 200,
                 "MiddleAnchor" : 5.0000000000000000E-001,
                 "MiddleColorPersistent" : {
@@ -338,6 +340,7 @@
                   "Green" : 1.0000000000000000E+000,
                   "Red" : 0.0000000000000000E+000
                 },
+                "MiddleParticleSize" : 1.5000000000000000E+000,
                 "Name" : "AnchorEffect",
                 "ParticleLifeSpan" : 2.0000000000000000E+000,
                 "ParticleLifeSpanVariance" : 1.0000000149011612E-001,
@@ -345,25 +348,27 @@
                   "$$ClassName" : "TCastleVector3Persistent",
                   "X" : -2.0000000000000000E+000
                 },
-                "StartParticleSize" : 5.0000000000000000E-001,
+                "SpeedVariance" : 0.0000000000000000E+000,
+                "StartParticleSize" : 3.0000001192092896E-001,
                 "Texture" : "castle-data:/default.png"
               }
             ],
             "$Children" : [
               {
                 "$$ClassName" : "TCastleText",
+                "Alignment" : "hpMiddle",
                 "Name" : "Text5",
                 "RenderOptions" : {
                   "$$ClassName" : "TCastleScene.TSceneRenderOptions",
                   "Name" : "RenderOptions"
                 },
                 "Text" : [
-                  "Anchor Color"
+                  "Anchor"
                 ],
                 "TranslationPersistent" : {
                   "$$ClassName" : "TCastleVector3Persistent",
-                  "X" : -1.8902025222778320E+000,
-                  "Y" : -1.7531023025512695E+000
+                  "X" : 1.2264890670776367E+000,
+                  "Y" : -2.6553049087524414E+000
                 }
               }
             ]
@@ -403,6 +408,7 @@
                   "Green" : 1.0000000000000000E+000,
                   "Red" : 8.3529412746429443E-001
                 },
+                "MiddleParticleSize" : 3.0000001192092896E-001,
                 "Name" : "FountainEffect",
                 "ParticleLifeSpan" : 2.0000000000000000E+000,
                 "ParticleLifeSpanVariance" : 2.0000000298023224E-001,
@@ -467,6 +473,7 @@
                   "Green" : 1.0000000000000000E+000,
                   "Red" : 8.3529412746429443E-001
                 },
+                "MiddleParticleSize" : 3.0000001192092896E-001,
                 "Name" : "BoxEffect",
                 "ParticleLifeSpan" : 2.0000000000000000E+000,
                 "ParticleLifeSpanVariance" : 2.0000000298023224E-001,
@@ -538,6 +545,7 @@
                   "Green" : 1.0000000000000000E+000,
                   "Red" : 8.3529412746429443E-001
                 },
+                "MiddleParticleSize" : 3.0000001192092896E-001,
                 "Name" : "SpheroidEffect",
                 "ParticleLifeSpan" : 2.0000000000000000E+000,
                 "ParticleLifeSpanVariance" : 2.0000000298023224E-001,
@@ -612,6 +620,7 @@
                   "Green" : 1.0000000000000000E+000,
                   "Red" : 8.3529412746429443E-001
                 },
+                "MiddleParticleSize" : 1.0000000000000000E+000,
                 "Name" : "RotationEffect",
                 "ParticleLifeSpan" : 3.0000000000000000E+000,
                 "ParticleLifeSpanVariance" : 2.0000000298023224E-001,

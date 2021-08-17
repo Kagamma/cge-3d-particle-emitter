@@ -78,6 +78,8 @@ type
     FParticleLifeSpanVariance,
     FStartParticleSize,
     FStartParticleSizeVariance,
+    FMiddleParticleSize,
+    FMiddleParticleSizeVariance,
     FFinishParticleSize,
     FFinishParticleSizeVariance,
     FMiddleAnchor,
@@ -170,6 +172,8 @@ type
     property ParticleLifeSpanVariance: Single read FParticleLifeSpanVariance write FParticleLifeSpanVariance default 0.5;
     property StartParticleSize: Single read FStartParticleSize write FStartParticleSize default 1;
     property StartParticleSizeVariance: Single read FStartParticleSizeVariance write FStartParticleSizeVariance;
+    property MiddleParticleSize: Single read FMiddleParticleSize write FMiddleParticleSize default 0.6;
+    property MiddleParticleSizeVariance: Single read FMiddleParticleSizeVariance write FMiddleParticleSizeVariance;
     property FinishParticleSize: Single read FFinishParticleSize write FFinishParticleSize default 0.1;
     property FinishParticleSizeVariance: Single read FFinishParticleSizeVariance write FFinishParticleSizeVariance;
     property MiddleAnchor: Single read FMiddleAnchor write FMiddleAnchor default 0.4;
@@ -294,6 +298,8 @@ const
 '  float particleLifeSpanVariance;'nl
 '  float startParticleSize;'nl
 '  float startParticleSizeVariance;'nl
+'  float middleParticleSize;'nl
+'  float middleParticleSizeVariance;'nl
 '  float finishParticleSize;'nl
 '  float finishParticleSizeVariance;'nl
 '  float maxRadius;'nl
@@ -368,6 +374,7 @@ const
 '  outTimeToLive.x = effect.particleLifeSpan + effect.particleLifeSpanVariance * (rnd() * 2.0 - 1.0);'nl
 '  outTimeToLive.y = outTimeToLive.x - outTimeToLive.x * effect.middleAnchor;'nl
 '  float invLifeSpan = 1.0 / outTimeToLive.x;'nl
+'  float invTimeRemaining = 1.0 / (outTimeToLive.x - outTimeToLive.y);'nl
 '  vec3 vrpos = vec3(rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0);'nl
 '  if (effect.spawnType == 1) {'nl
 '    outPosition.xyz = effect.sourcePosition + effect.sourcePositionVariance * normalize(vrpos);'nl
@@ -378,7 +385,7 @@ const
 '  outStartPos = vec3(0.0);'nl // Do nothing
 '  outColor = effect.startColor + effect.startColorVariance * vec4(rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0);'nl
 '  vec4 middleColor = effect.middleColor + effect.middleColorVariance * vec4(rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0);'nl
-'  outColorDelta = (middleColor - outColor) * (1.0 / (outTimeToLive.x - outTimeToLive.y));'nl
+'  outColorDelta = (middleColor - outColor) * invTimeRemaining;'nl
 '  outDirection = effect.direction;'nl
 '  vec3 cd = normalize(cross(outDirection, outDirection.zxy));'nl
 '  float angle = effect.directionVariance * (rnd() * 2.0 - 1.0);'nl
@@ -391,8 +398,8 @@ const
 '  outVelocity = vec4(vrdir * vspeed, effect.radial + effect.radialVariance * (rnd() * 2.0 - 1.0));'nl
 
 '  float startSize = max(0.0001, effect.startParticleSize + effect.startParticleSizeVariance * (rnd() * 2.0 - 1.0));'nl
-'  float finishSize = max(0.0001, effect.finishParticleSize + effect.finishParticleSizeVariance * (rnd() * 2.0 - 1.0));'nl
-'  outSizeRotation.xy = vec2(startSize, (finishSize - startSize) * invLifeSpan);'nl
+'  float finishSize = max(0.0001, effect.middleParticleSize + effect.middleParticleSizeVariance * (rnd() * 2.0 - 1.0));'nl
+'  outSizeRotation.xy = vec2(startSize, (finishSize - startSize) * invTimeRemaining);'nl
 
 '  outSizeRotation.z = effect.rotationStart + effect.rotationStartVariance * (rnd() * 2.0 - 1.0);'nl
 '  float endRotation = effect.rotationEnd + effect.rotationEndVariance * (rnd() * 2.0 - 1.0);'nl
@@ -412,8 +419,11 @@ const
 '  }'nl
 '  outColor += outColorDelta * deltaTime;'nl
 '  if ((outTimeToLive.x >= outTimeToLive.y) && (outTimeToLive.x - deltaTime < outTimeToLive.y)) {'nl
+'    float invTimeRemaining = 1.0 / outTimeToLive.y;'nl
 '    vec4 finishColor = effect.finishColor + effect.finishColorVariance * vec4(rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0);'nl
-'    outColorDelta = (finishColor - outColor) * (1.0 / outTimeToLive.y);'nl
+'    outColorDelta = (finishColor - outColor) * invTimeRemaining;'nl
+'    float finishSize = max(0.0001, effect.finishParticleSize + effect.finishParticleSizeVariance * (rnd() * 2.0 - 1.0));'nl
+'    outSizeRotation.xy = vec2(outSizeRotation.x, (finishSize - outSizeRotation.x) * invTimeRemaining);'nl
 '  }'nl
 '  outTimeToLive.x = max(0.0, outTimeToLive.x - deltaTime);'nl
 '  outVelocity.xyz = rotate(outVelocity.xyz, outVelocity.w * deltaTime, outDirection) + effect.gravity * deltaTime;'nl
@@ -455,6 +465,8 @@ const
 '  float particleLifeSpanVariance;'nl
 '  float startParticleSize;'nl
 '  float startParticleSizeVariance;'nl
+'  float middleParticleSize;'nl
+'  float middleParticleSizeVariance;'nl
 '  float finishParticleSize;'nl
 '  float finishParticleSizeVariance;'nl
 '  float maxRadius;'nl
@@ -531,6 +543,7 @@ const
 '  outTimeToLive.x = effect.particleLifeSpan + effect.particleLifeSpanVariance * (rnd() * 2.0 - 1.0);'nl
 '  outTimeToLive.y = outTimeToLive.x - outTimeToLive.x * effect.middleAnchor;'nl
 '  float invLifeSpan = 1.0 / outTimeToLive.x;'nl
+'  float invTimeRemaining = 1.0 / (outTimeToLive.x - outTimeToLive.y);'nl
 '  vec3 vrpos = vec3(rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0);'nl
 '  vec3 scale = vec3('nl
 '    length(vec3(mMatrix[0][0], mMatrix[0][1], mMatrix[0][2])),'nl
@@ -546,7 +559,7 @@ const
 '  outPosition.xyz = outTranslate + outStartPos;'nl
 '  outColor = effect.startColor + effect.startColorVariance * vec4(rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0);'nl
 '  vec4 middleColor = effect.middleColor + effect.middleColorVariance * vec4(rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0);'nl
-'  outColorDelta = (middleColor - outColor) * (1.0 / (outTimeToLive.x - outTimeToLive.y));'nl
+'  outColorDelta = (middleColor - outColor) * invTimeRemaining;'nl
 '  outDirection = rMatrix * effect.direction;'nl
 '  vec3 cd = normalize(cross(outDirection, outDirection.zxy));'nl
 '  float angle = effect.directionVariance * (rnd() * 2.0 - 1.0);'nl
@@ -559,8 +572,8 @@ const
 '  outVelocity = vec4(vrdir * vspeed, effect.radial + effect.radialVariance * (rnd() * 2.0 - 1.0));'nl
 
 '  float startSize = max(0.0001, effect.startParticleSize + effect.startParticleSizeVariance * (rnd() * 2.0 - 1.0));'nl
-'  float finishSize = max(0.0001, effect.finishParticleSize + effect.finishParticleSizeVariance * (rnd() * 2.0 - 1.0));'nl
-'  outSizeRotation.xy = vec2(startSize, (finishSize - startSize) * invLifeSpan);'nl
+'  float finishSize = max(0.0001, effect.middleParticleSize + effect.middleParticleSizeVariance * (rnd() * 2.0 - 1.0));'nl
+'  outSizeRotation.xy = vec2(startSize, (finishSize - startSize) * invTimeRemaining);'nl
 
 '  outSizeRotation.z = effect.rotationStart + effect.rotationStartVariance * (rnd() * 2.0 - 1.0);'nl
 '  float endRotation = effect.rotationEnd + effect.rotationEndVariance * (rnd() * 2.0 - 1.0);'nl
@@ -580,8 +593,11 @@ const
 '  }'nl
 '  outColor += outColorDelta * deltaTime;'nl
 '  if ((outTimeToLive.x >= outTimeToLive.y) && (outTimeToLive.x - deltaTime < outTimeToLive.y)) {'nl
+'    float invTimeRemaining = 1.0 / outTimeToLive.y;'nl
 '    vec4 finishColor = effect.finishColor + effect.finishColorVariance * vec4(rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0);'nl
-'    outColorDelta = (finishColor - outColor) * (1.0 / outTimeToLive.y);'nl
+'    outColorDelta = (finishColor - outColor) * invTimeRemaining;'nl
+'    float finishSize = max(0.0001, effect.finishParticleSize + effect.finishParticleSizeVariance * (rnd() * 2.0 - 1.0));'nl
+'    outSizeRotation.xy = vec2(outSizeRotation.x, (finishSize - outSizeRotation.x) * invTimeRemaining);'nl
 '  }'nl
 '  outTimeToLive.x = max(0.0, outTimeToLive.x - deltaTime);'nl
 '  outVelocity.xyz = rotate(outVelocity.xyz, outVelocity.w * deltaTime, outDirection) + effect.gravity * deltaTime;'nl
@@ -886,6 +902,7 @@ begin
   Self.FMiddleColor := Vector4(1, 0.5, 0, 0.5);
   Self.FFinishColor := Vector4(0.3, 0.3, 0.3, 0.3);
   Self.FStartParticleSize := 1;
+  Self.FMiddleParticleSize := 0.6;
   Self.FFinishParticleSize := 0.1;
   Self.FSourcePositionVariance := Vector3(0.02, 0.02, 0.02);
   Self.FDirection := Vector3(0, 1, 0);
@@ -1126,6 +1143,8 @@ begin
       TransformFeedbackProgram.Uniform('effect.particleLifeSpanVariance').SetValue(Self.FEffect.ParticleLifeSpanVariance);
       TransformFeedbackProgram.Uniform('effect.startParticleSize').SetValue(Self.FEffect.StartParticleSize);
       TransformFeedbackProgram.Uniform('effect.startParticleSizeVariance').SetValue(Self.FEffect.StartParticleSizeVariance);
+      TransformFeedbackProgram.Uniform('effect.middleParticleSize').SetValue(Self.FEffect.MiddleParticleSize);
+      TransformFeedbackProgram.Uniform('effect.middleParticleSizeVariance').SetValue(Self.FEffect.MiddleParticleSizeVariance);
       TransformFeedbackProgram.Uniform('effect.finishParticleSize').SetValue(Self.FEffect.FinishParticleSize);
       TransformFeedbackProgram.Uniform('effect.finishParticleSizeVariance').SetValue(Self.FEffect.FinishParticleSizeVariance);
       TransformFeedbackProgram.Uniform('effect.rotationStart').SetValue(Self.FEffect.RotationStart);
