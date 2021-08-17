@@ -94,8 +94,8 @@
                 "$$ClassName" : "TCastle3DParticleEffect",
                 "DirectionPersistent" : {
                   "$$ClassName" : "TCastleVector3Persistent",
-                  "X" : 9.8071947693824768E-002,
-                  "Y" : -9.9517935514450073E-001
+                  "X" : 9.7608156502246857E-002,
+                  "Y" : -9.9522489309310913E-001
                 },
                 "DirectionVariance" : 0.0000000000000000E+000,
                 "FinishColorPersistent" : {
@@ -170,8 +170,8 @@
                 "$$ClassName" : "TCastle3DParticleEffect",
                 "DirectionPersistent" : {
                   "$$ClassName" : "TCastleVector3Persistent",
-                  "Y" : 8.1649655103683472E-001,
-                  "Z" : 5.7735025882720947E-001
+                  "Y" : 8.6602544784545898E-001,
+                  "Z" : 5.0000000000000000E-001
                 },
                 "DirectionVariance" : 0.0000000000000000E+000,
                 "FinishColorPersistent" : {
@@ -582,6 +582,80 @@
           },
           {
             "$$ClassName" : "TCastle3DParticleEmitterGPU",
+            "Effect" : "RotationEffect",
+            "ExposeTransforms" : [
+            ],
+            "Name" : "RotationEmitter",
+            "ShadowMaps" : false,
+            "StartEmitting" : true,
+            "TranslationPersistent" : {
+              "$$ClassName" : "TCastleVector3Persistent",
+              "X" : 1.1150838851928711E+001,
+              "Y" : 1.3137002944946289E+001
+            },
+            "$NonVisualComponents" : [
+              {
+                "$$ClassName" : "TCastle3DParticleEffect",
+                "DirectionVariance" : 2.0000000298023224E-001,
+                "FinishColorPersistent" : {
+                  "$$ClassName" : "TCastleColorPersistent",
+                  "Alpha" : 0.0000000000000000E+000,
+                  "Blue" : 1.0000000000000000E+000,
+                  "Green" : 9.9215686321258545E-001,
+                  "Red" : 8.2352942228317261E-001
+                },
+                "FinishParticleSize" : 1.0000000000000000E+000,
+                "MaxParticles" : 20,
+                "MiddleColorPersistent" : {
+                  "$$ClassName" : "TCastleColorPersistent",
+                  "Alpha" : 1.0000000000000000E+000,
+                  "Blue" : 1.0000000000000000E+000,
+                  "Green" : 1.0000000000000000E+000,
+                  "Red" : 8.3529412746429443E-001
+                },
+                "Name" : "RotationEffect",
+                "ParticleLifeSpan" : 3.0000000000000000E+000,
+                "ParticleLifeSpanVariance" : 2.0000000298023224E-001,
+                "RotationEndVariance" : 6.2800002098083496E+000,
+                "SourcePositionVariancePersistent" : {
+                  "$$ClassName" : "TCastleVector3Persistent",
+                  "X" : 2.0000000000000000E+000,
+                  "Y" : 1.0000000000000000E+000,
+                  "Z" : 2.0000000000000000E+000
+                },
+                "Speed" : 0.0000000000000000E+000,
+                "SpeedVariance" : 0.0000000000000000E+000,
+                "StartColorPersistent" : {
+                  "$$ClassName" : "TCastleColorPersistent",
+                  "Alpha" : 0.0000000000000000E+000,
+                  "Blue" : 1.0000000000000000E+000,
+                  "Green" : 9.7647058963775635E-001,
+                  "Red" : 6.6666668653488159E-001
+                },
+                "Texture" : "castle-data:/snowflake.png"
+              }
+            ],
+            "$Children" : [
+              {
+                "$$ClassName" : "TCastleText",
+                "Name" : "Text10",
+                "RenderOptions" : {
+                  "$$ClassName" : "TCastleScene.TSceneRenderOptions",
+                  "Name" : "RenderOptions"
+                },
+                "Text" : [
+                  "Rotation"
+                ],
+                "TranslationPersistent" : {
+                  "$$ClassName" : "TCastleVector3Persistent",
+                  "X" : -2.1772661209106445E+000,
+                  "Y" : -3.3934679031372070E+000
+                }
+              }
+            ]
+          },
+          {
+            "$$ClassName" : "TCastle3DParticleEmitterGPU",
             "Effect" : "BBoxEffect",
             "ExposeTransforms" : [
             ],
@@ -590,7 +664,7 @@
             "StartEmitting" : true,
             "TranslationPersistent" : {
               "$$ClassName" : "TCastleVector3Persistent",
-              "X" : 2.0418901443481445E+001,
+              "X" : 3.0630168914794922E+001,
               "Y" : 1.1537641525268555E+001
             },
             "$NonVisualComponents" : [
