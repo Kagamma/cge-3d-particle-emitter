@@ -12,7 +12,7 @@ Due to emitter uses direct OpenGL calls instead of CGE's own renderer, only a fe
 - Instancing, by putting the same emitter to multiple TCastleTransform nodes works. It doesn't use GPU instancing at the moment. Note that it is necessary to set  AllowsInstancing = True for this to work.
 - If AllowsInstancing = False, then particle's position is independent from emitter's transformation.
 - Use StartEmitting instead of ProcessEvents for start / stop emitting.
-- AllowsUpdateWhenCulled = False will stop update particle if emitter's boundingbox is outside of frustum view.
+- AllowsUpdateWhenCulled = False will stop update particle if emitter's boundingbox is outside of view frustum.
 
 License: MIT.
 
