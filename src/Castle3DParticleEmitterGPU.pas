@@ -176,7 +176,7 @@ type
     property MiddleParticleSizeVariance: Single read FMiddleParticleSizeVariance write FMiddleParticleSizeVariance;
     property FinishParticleSize: Single read FFinishParticleSize write FFinishParticleSize default 0.1;
     property FinishParticleSizeVariance: Single read FFinishParticleSizeVariance write FFinishParticleSizeVariance;
-    property MiddleAnchor: Single read FMiddleAnchor write FMiddleAnchor default 0.4;
+    property MiddleAnchor: Single read FMiddleAnchor write FMiddleAnchor default 0.5;
     property Speed: Single read FSpeed write FSpeed default 3;
     property SpeedVariance: Single read FSpeedVariance write FSpeedVariance default 1;
     property RotationStart: Single read FRotationStart write FRotationStart;
@@ -917,7 +917,7 @@ begin
   Self.FDuration := -1;
   Self.FParticleLifeSpan := 1;
   Self.FParticleLifeSpanVariance := 0.5;
-  Self.FMiddleAnchor := 0.4;
+  Self.FMiddleAnchor := 0.5;
   Self.FStartColor := Vector4(1, 0, 0, 1);
   Self.FMiddleColor := Vector4(1, 0.5, 0, 0.5);
   Self.FFinishColor := Vector4(0.3, 0.3, 0.3, 0.3);
