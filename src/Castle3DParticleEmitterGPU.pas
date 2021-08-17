@@ -233,8 +233,11 @@ type
     FAllowsUpdateWhenCulled: Boolean;
     { If true, this instance can be used in multiple transform nodes }
     FAllowsInstancing: Boolean;
+    { If true, spawn all particles at once (burst) }
+    FBurst: Boolean;
     procedure InternalRefreshEffect;
     procedure SetStartEmitting(V: Boolean);
+    procedure SetBurst(V: Boolean);
   protected
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
   public
@@ -260,6 +263,7 @@ type
     property DistanceCulling: Single read FDistanceCulling write FDistanceCulling default 0;
     property AllowsUpdateWhenCulled: Boolean read FAllowsUpdateWhenCulled write FAllowsUpdateWhenCulled default True;
     property AllowsInstancing: Boolean read FAllowsInstancing write FAllowsInstancing default False;
+    property Burst: Boolean read FBurst write SetBurst default False;
   end;
 
 function Castle3DParticleBlendValueToBlendMode(const AValue: Integer): TCastle3DParticleBlendMode;
@@ -1060,6 +1064,12 @@ begin
     Self.FCountdownTillRemove := Self.FEffect.ParticleLifeSpan + Self.FEffect.ParticleLifeSpanVariance;
 end;
 
+procedure TCastle3DParticleEmitterGPU.SetBurst(V: Boolean);
+begin
+  Self.FBurst := V;
+  Self.FIsNeedRefresh := True;
+end;
+
 constructor TCastle3DParticleEmitterGPU.Create(AOwner: TComponent);
 begin
   inherited;
@@ -1072,6 +1082,7 @@ begin
   Self.ShadowMaps := False;
   Self.FAllowsUpdateWhenCulled := True;
   Self.FAllowsInstancing := False;
+  Self.FBurst := False;
 end;
 
 destructor TCastle3DParticleEmitterGPU.Destroy;
@@ -1446,7 +1457,10 @@ begin
   begin
     with Self.Particles[I] do
     begin
-      TimeToLive.X := Random * (Self.FEffect.ParticleLifeSpan + Self.FEffect.ParticleLifeSpanVariance);
+      if Self.FBurst then
+        TimeToLive.X := 0.005
+      else
+        TimeToLive.X := Random * (Self.FEffect.ParticleLifeSpan + Self.FEffect.ParticleLifeSpanVariance);
       // Position.W is being used as random seed
       Position := Vector4(Random, Random, Random, Random);
       Direction := Vector3(1, 0, 0);
