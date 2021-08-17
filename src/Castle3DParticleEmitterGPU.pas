@@ -368,9 +368,9 @@ const
 '  float invLifeSpan = 1.0 / outTimeToLive.x;'nl
 '  vec3 vrpos = vec3(rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0);'nl
 '  if (effect.spawnType == 1) {'nl
-'    outStartPos = effect.sourcePosition + effect.sourcePositionVariance * normalize(vrpos);'nl
+'    outStartPos = mat3(mMatrix) * (effect.sourcePosition + effect.sourcePositionVariance * normalize(vrpos));'nl
 '  } else {'nl
-'    outStartPos = effect.sourcePosition + effect.sourcePositionVariance * vrpos;'nl
+'    outStartPos = mat3(mMatrix) * (effect.sourcePosition + effect.sourcePositionVariance * vrpos);'nl
 '  }'nl
 '  outTranslate = vec3(mMatrix[3][0], mMatrix[3][1], mMatrix[3][2]);'nl
 '  outPosition.xyz = outTranslate + outStartPos;'nl
