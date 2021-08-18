@@ -22,7 +22,7 @@ uses
   fpjson, jsonparser,
   CastleTransform, CastleSceneCore, CastleComponentSerialize, CastleColors, CastleBoxes,
   CastleVectors, CastleRenderContext, Generics.Collections, CastleGLImages, CastleLog,
-  CastleUtils, CastleApplicationProperties, CastleGLShaders, CastleClassUtils, CastleComponentSerialize,
+  CastleUtils, CastleApplicationProperties, CastleGLShaders, CastleClassUtils,
   X3DNodes;
 
 type
@@ -118,6 +118,7 @@ type
     FFinishColorVariancePersistent: TCastleColorPersistent;
     FRadial,
     FRadialVariance: Single;
+    FEnableMiddleProperties: Boolean;
     FBBox: TBox3D;
     procedure SetBoundingBoxMinForPersistent(const AValue: TVector3);
     function GetBoundingBoxMinForPersistent: TVector3;
@@ -191,6 +192,7 @@ type
     property DirectionVariance: Single read FDirectionVariance write FDirectionVariance default 0.4;
     property Radial: Single read FRadial write FRadial;
     property RadialVariance: Single read FRadialVariance write FRadialVariance;
+    property EnableMiddleProperties: Boolean read FEnableMiddleProperties write FEnableMiddleProperties default True;
     property BoundingBoxMinPersistent: TCastleVector3Persistent read FBoundingBoxMinPersistent;
     property BoundingBoxMaxPersistent: TCastleVector3Persistent read FBoundingBoxMaxPersistent;
     property SourcePositionPersistent: TCastleVector3Persistent read FSourcePositionPersistent;
@@ -941,6 +943,7 @@ begin
   Self.FBlendFuncSource := p3bmOne;
   Self.FBlendFuncDestination := p3bmOne;
   Self.FSourceType := p3stBox;
+  Self.FEnableMiddleProperties := True;
   //
   Self.FBoundingBoxMinPersistent := CreateVec3Persistent(
     @Self.GetBoundingBoxMinForPersistent,
@@ -1170,23 +1173,33 @@ begin
       TransformFeedbackProgram.Uniform('effect.sourcePosition').SetValue(Self.FEffect.SourcePosition);
       TransformFeedbackProgram.Uniform('effect.sourcePositionVariance').SetValue(Self.FEffect.SourcePositionVariance);
       TransformFeedbackProgram.Uniform('effect.maxParticles').SetValue(Self.FEffect.MaxParticles);
-      if Self.FEffect.MiddleAnchor = 0 then
-        S := 0.01
-      else
-        S := Self.FEffect.MiddleAnchor;
-      TransformFeedbackProgram.Uniform('effect.middleAnchor').SetValue(S);
       TransformFeedbackProgram.Uniform('effect.startColor').SetValue(Self.FEffect.StartColor);
       TransformFeedbackProgram.Uniform('effect.startColorVariance').SetValue(Self.FEffect.StartColorVariance);
-      TransformFeedbackProgram.Uniform('effect.middleColor').SetValue(Self.FEffect.MiddleColor);
-      TransformFeedbackProgram.Uniform('effect.middleColorVariance').SetValue(Self.FEffect.MiddleColorVariance);
+      if Self.FEffect.EnableMiddleProperties then
+      begin
+        if Self.FEffect.MiddleAnchor = 0 then
+          S := 0.01
+        else
+          S := Self.FEffect.MiddleAnchor;
+        TransformFeedbackProgram.Uniform('effect.middleAnchor').SetValue(S);
+        TransformFeedbackProgram.Uniform('effect.middleColor').SetValue(Self.FEffect.MiddleColor);
+        TransformFeedbackProgram.Uniform('effect.middleColorVariance').SetValue(Self.FEffect.MiddleColorVariance);
+        TransformFeedbackProgram.Uniform('effect.middleParticleSize').SetValue(Self.FEffect.MiddleParticleSize);
+        TransformFeedbackProgram.Uniform('effect.middleParticleSizeVariance').SetValue(Self.FEffect.MiddleParticleSizeVariance);
+      end else
+      begin
+        TransformFeedbackProgram.Uniform('effect.middleAnchor').SetValue(0.01);
+        TransformFeedbackProgram.Uniform('effect.middleColor').SetValue(Self.FEffect.StartColor);
+        TransformFeedbackProgram.Uniform('effect.middleColorVariance').SetValue(Self.FEffect.StartColorVariance);
+        TransformFeedbackProgram.Uniform('effect.middleParticleSize').SetValue(Self.FEffect.StartParticleSize);
+        TransformFeedbackProgram.Uniform('effect.middleParticleSizeVariance').SetValue(Self.FEffect.StartParticleSizeVariance);
+      end;
       TransformFeedbackProgram.Uniform('effect.finishColor').SetValue(Self.FEffect.FinishColor);
       TransformFeedbackProgram.Uniform('effect.finishColorVariance').SetValue(Self.FEffect.FinishColorVariance);
       TransformFeedbackProgram.Uniform('effect.particleLifeSpan').SetValue(Self.FEffect.ParticleLifeSpan);
       TransformFeedbackProgram.Uniform('effect.particleLifeSpanVariance').SetValue(Self.FEffect.ParticleLifeSpanVariance);
       TransformFeedbackProgram.Uniform('effect.startParticleSize').SetValue(Self.FEffect.StartParticleSize);
       TransformFeedbackProgram.Uniform('effect.startParticleSizeVariance').SetValue(Self.FEffect.StartParticleSizeVariance);
-      TransformFeedbackProgram.Uniform('effect.middleParticleSize').SetValue(Self.FEffect.MiddleParticleSize);
-      TransformFeedbackProgram.Uniform('effect.middleParticleSizeVariance').SetValue(Self.FEffect.MiddleParticleSizeVariance);
       TransformFeedbackProgram.Uniform('effect.finishParticleSize').SetValue(Self.FEffect.FinishParticleSize);
       TransformFeedbackProgram.Uniform('effect.finishParticleSizeVariance').SetValue(Self.FEffect.FinishParticleSizeVariance);
       TransformFeedbackProgram.Uniform('effect.rotationStart').SetValue(Self.FEffect.RotationStart);
