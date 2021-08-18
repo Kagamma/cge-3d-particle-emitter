@@ -41,9 +41,9 @@
         <UnitName Value="gamestatemain"/>
       </Unit3>
       <Unit4>
-        <Filename Value="../../src/Castle3DParticleEmitterGPU.pas"/>
+        <Filename Value="../../src/CastleParticleEmitter.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="Castle3DParticleEmitterGPU"/>
+        <UnitName Value="CastleParticleEmitter"/>
       </Unit4>
     </Units>
   </ProjectOptions>

@@ -13,7 +13,7 @@ implementation
 
 uses SysUtils,
   CastleWindow, CastleLog, CastleUIState,
-  Castle3DParticleEmitterGPU
+  CastleParticleEmitter
   {$region 'Castle Initialization Uses'}
   // The content here may be automatically updated by CGE editor.
   , GameStateMain

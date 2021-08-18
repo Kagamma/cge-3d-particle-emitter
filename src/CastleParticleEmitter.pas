@@ -1,4 +1,4 @@
-unit Castle3DParticleEmitterGPU;
+unit CastleParticleEmitter;
 
 {$coperators on}
 {$macro on}
@@ -26,36 +26,36 @@ uses
   X3DNodes;
 
 type
-  TCastle3DParticleBlendMode = (
-    p3bmZero,
-    p3bmOne,
-    p3bmSrcColor,
-    p3bmOneMinusSrcColor,
-    p3bmSrcAlpha,
-    p3bmOneMinusSrcAlpha,
-    p3bmDstAlpha,
-    p3bmOneMinusDstAlpha,
-    p3bmDstColor,
-    p3bmOneMinusDstColor
+  TCastleParticleBlendMode = (
+    pbmZero,
+    pbmOne,
+    pbmSrcColor,
+    pbmOneMinusSrcColor,
+    pbmSrcAlpha,
+    pbmOneMinusSrcAlpha,
+    pbmDstAlpha,
+    pbmOneMinusDstAlpha,
+    pbmDstColor,
+    pbmOneMinusDstColor
   );
 
-  TCastle3DParticleSourceType = (
-    p3stBox,
-    p3stSpheroid
+  TCastleParticleSourceType = (
+    pstBox,
+    pstSpheroid
   );
 
 const
-  Castle3DParticleBlendValues: array [TCastle3DParticleBlendMode] of Integer = (
+  CastleParticleBlendValues: array [TCastleParticleBlendMode] of Integer = (
     0, 1, 768, 769, 770, 771, 772, 773, 774, 775
   );
-  Castle3DParticleSourceValues: array [TCastle3DParticleSourceType] of Integer = (
+  CastleParticleSourceValues: array [TCastleParticleSourceType] of Integer = (
     0, 1
   );
 
 type
-  { 3D particle struct to hold current particle settings. }
-  PCastle3DParticle = ^TCastle3DParticle;
-  TCastle3DParticle = packed record
+  { Particle struct to hold current particle settings. }
+  PCastleParticle = ^TCastleParticle;
+  TCastleParticle = packed record
     Position: TVector4;
     TimeToLive: TVector2;
     Size,
@@ -70,12 +70,12 @@ type
     Translate: TVector3;
   end;
 
-  TCastle3DParticleEffect = class(TCastleComponent)
+  TCastleParticleEffect = class(TCastleComponent)
   private
     FTexture: String;
-    FSourceType: TCastle3DParticleSourceType;
+    FSourceType: TCastleParticleSourceType;
     FBlendFuncSource,
-    FBlendFuncDestination: TCastle3DParticleBlendMode;
+    FBlendFuncDestination: TCastleParticleBlendMode;
     FMaxParticles: Integer;
     FParticleLifeSpan,
     FParticleLifeSpanVariance,
@@ -171,9 +171,9 @@ type
     property BBox: TBox3D read FBBox write FBBox;
   published
     property Texture: String read FTexture write SetTexture;
-    property SourceType: TCastle3DParticleSourceType read FSourceType write FSourceType default p3stBox;
-    property BlendFuncSource: TCastle3DParticleBlendMode read FBlendFuncSource write FBlendFuncSource default p3bmOne;
-    property BlendFuncDestination: TCastle3DParticleBlendMode read FBlendFuncDestination write FBlendFuncDestination default p3bmOne;
+    property SourceType: TCastleParticleSourceType read FSourceType write FSourceType default pstBox;
+    property BlendFuncSource: TCastleParticleBlendMode read FBlendFuncSource write FBlendFuncSource default pbmOne;
+    property BlendFuncDestination: TCastleParticleBlendMode read FBlendFuncDestination write FBlendFuncDestination default pbmOne;
     property MaxParticles: Integer read FMaxParticles write SetMaxParticle default 100;
     property ParticleLifeSpan: Single read FParticleLifeSpan write FParticleLifeSpan default 1;
     property ParticleLifeSpanVariance: Single read FParticleLifeSpanVariance write FParticleLifeSpanVariance default 0.5;
@@ -209,18 +209,18 @@ type
     property FinishColorVariancePersistent: TCastleColorPersistent read FFinishColorVariancePersistent;
   end;
 
-  TCastle3DParticleEmitterGPU = class(TCastleTransform)
+  TCastleParticleEmitter = class(TCastleTransform)
   strict private
     Texture: GLuint;
 
     VAOs,
     VBOs: array[0..1] of GLuint;
     CurrentBuffer: GLuint;
-    Particles: packed array of TCastle3DParticle;
+    Particles: packed array of TCastleParticle;
 
     FURL: String;
     FStartEmitting: Boolean;
-    FEffect: TCastle3DParticleEffect;
+    FEffect: TCastleParticleEffect;
     FParticleCount: Integer;
     FSecondsPassed: Single;
     FIsUpdated: Boolean;
@@ -263,7 +263,7 @@ type
     procedure SaveEffect(const AURL: String); overload;
     { Init a new FEffect and load settings from .castle-component file. }
     procedure LoadEffect(const AURL: String); overload;
-    procedure LoadEffect(const AEffect: TCastle3DParticleEffect);
+    procedure LoadEffect(const AEffect: TCastleParticleEffect);
     procedure GLContextOpen; virtual;
     procedure GLContextClose; override;
     procedure RefreshEffect;
@@ -272,7 +272,7 @@ type
     { URL of a .castle-component file. This will call LoadEffect to load particle effect }
     property URL: String read FURL write LoadEffect;
   published
-    property Effect: TCastle3DParticleEffect read FEffect write LoadEffect;
+    property Effect: TCastleParticleEffect read FEffect write LoadEffect;
     { If true, the emitter will start emitting }
     property StartEmitting: Boolean read FStartEmitting write SetStartEmitting default False;
     property DistanceCulling: Single read FDistanceCulling write FDistanceCulling default 0;
@@ -284,7 +284,7 @@ type
     property TimePlayingSpeed: Single read FTimePlayingSpeed write FTimePlayingSpeed default 1.0;
   end;
 
-function Castle3DParticleBlendValueToBlendMode(const AValue: Integer): TCastle3DParticleBlendMode;
+function CastleParticleBlendValueToBlendMode(const AValue: Integer): TCastleParticleBlendMode;
 
 implementation
 
@@ -770,155 +770,155 @@ begin
   end;
 end;
 
-procedure TCastle3DParticleEffect.SetBoundingBoxMinForPersistent(const AValue: TVector3);
+procedure TCastleParticleEffect.SetBoundingBoxMinForPersistent(const AValue: TVector3);
 begin
   Self.FBBox := Box3D(AValue, Self.FBBox.Data[1]);
 end;
 
-function TCastle3DParticleEffect.GetBoundingBoxMinForPersistent: TVector3;
+function TCastleParticleEffect.GetBoundingBoxMinForPersistent: TVector3;
 begin
   Result := Self.FBBox.Data[0];
 end;
 
-procedure TCastle3DParticleEffect.SetBoundingBoxMaxForPersistent(const AValue: TVector3);
+procedure TCastleParticleEffect.SetBoundingBoxMaxForPersistent(const AValue: TVector3);
 begin
   Self.FBBox := Box3D(Self.FBBox.Data[0], AValue);
 end;
 
-function TCastle3DParticleEffect.GetBoundingBoxMaxForPersistent: TVector3;
+function TCastleParticleEffect.GetBoundingBoxMaxForPersistent: TVector3;
 begin
   Result := Self.FBBox.Data[1];
 end;
 
-procedure TCastle3DParticleEffect.SetSourcePositionForPersistent(const AValue: TVector3);
+procedure TCastleParticleEffect.SetSourcePositionForPersistent(const AValue: TVector3);
 begin
   Self.FSourcePosition := AValue;
 end;
 
-function TCastle3DParticleEffect.GetSourcePositionForPersistent: TVector3;
+function TCastleParticleEffect.GetSourcePositionForPersistent: TVector3;
 begin
   Result := Self.FSourcePosition;
 end;
 
-procedure TCastle3DParticleEffect.SetSourcePositionVarianceForPersistent(const AValue: TVector3);
+procedure TCastleParticleEffect.SetSourcePositionVarianceForPersistent(const AValue: TVector3);
 begin
   Self.FSourcePositionVariance := AValue;
 end;
 
-function TCastle3DParticleEffect.GetSourcePositionVarianceForPersistent: TVector3;
+function TCastleParticleEffect.GetSourcePositionVarianceForPersistent: TVector3;
 begin
   Result := FSourcePositionVariance;
 end;
 
-procedure TCastle3DParticleEffect.SetDirectionForPersistent(const AValue: TVector3);
+procedure TCastleParticleEffect.SetDirectionForPersistent(const AValue: TVector3);
 begin
   Self.FDirection := AValue.Normalize;
 end;
 
-function TCastle3DParticleEffect.GetDirectionForPersistent: TVector3;
+function TCastleParticleEffect.GetDirectionForPersistent: TVector3;
 begin
   Result := Self.FDirection;
 end;
 
-procedure TCastle3DParticleEffect.SetGravityForPersistent(const AValue: TVector3);
+procedure TCastleParticleEffect.SetGravityForPersistent(const AValue: TVector3);
 begin
   Self.FGravity := AValue;
 end;
 
-function TCastle3DParticleEffect.GetGravityForPersistent: TVector3;
+function TCastleParticleEffect.GetGravityForPersistent: TVector3;
 begin
   Result := Self.FGravity;
 end;
 
-procedure TCastle3DParticleEffect.SetStartColorForPersistent(const AValue: TVector4);
+procedure TCastleParticleEffect.SetStartColorForPersistent(const AValue: TVector4);
 begin
   Self.FStartColor := AValue;
 end;
 
-function TCastle3DParticleEffect.GetStartColorForPersistent: TVector4;
+function TCastleParticleEffect.GetStartColorForPersistent: TVector4;
 begin
   Result := Self.FStartColor;
 end;
 
-procedure TCastle3DParticleEffect.SetStartColorVarianceForPersistent(const AValue: TVector4);
+procedure TCastleParticleEffect.SetStartColorVarianceForPersistent(const AValue: TVector4);
 begin
   Self.FStartColorVariance := AValue;
 end;
 
-function TCastle3DParticleEffect.GetStartColorVarianceForPersistent: TVector4;
+function TCastleParticleEffect.GetStartColorVarianceForPersistent: TVector4;
 begin
   Result := Self.FStartColorVariance;
 end;
 
-procedure TCastle3DParticleEffect.SetMiddleColorForPersistent(const AValue: TVector4);
+procedure TCastleParticleEffect.SetMiddleColorForPersistent(const AValue: TVector4);
 begin
   Self.FMiddleColor := AValue;
 end;
 
-function TCastle3DParticleEffect.GetMiddleColorForPersistent: TVector4;
+function TCastleParticleEffect.GetMiddleColorForPersistent: TVector4;
 begin
   Result := Self.FMiddleColor;
 end;
 
-procedure TCastle3DParticleEffect.SetMiddleColorVarianceForPersistent(const AValue: TVector4);
+procedure TCastleParticleEffect.SetMiddleColorVarianceForPersistent(const AValue: TVector4);
 begin
   Self.FMiddleColorVariance := AValue;
 end;
 
-function TCastle3DParticleEffect.GetMiddleColorVarianceForPersistent: TVector4;
+function TCastleParticleEffect.GetMiddleColorVarianceForPersistent: TVector4;
 begin
   Result := Self.FMiddleColorVariance;
 end;
 
-procedure TCastle3DParticleEffect.SetFinishColorForPersistent(const AValue: TVector4);
+procedure TCastleParticleEffect.SetFinishColorForPersistent(const AValue: TVector4);
 begin
   Self.FFinishColor := AValue;
 end;
 
-function TCastle3DParticleEffect.GetFinishColorForPersistent: TVector4;
+function TCastleParticleEffect.GetFinishColorForPersistent: TVector4;
 begin
   Result := Self.FFinishColor;
 end;
 
-procedure TCastle3DParticleEffect.SetFinishColorVarianceForPersistent(const AValue: TVector4);
+procedure TCastleParticleEffect.SetFinishColorVarianceForPersistent(const AValue: TVector4);
 begin
   Self.FFinishColorVariance := AValue;
 end;
 
-function TCastle3DParticleEffect.GetFinishColorVarianceForPersistent: TVector4;
+function TCastleParticleEffect.GetFinishColorVarianceForPersistent: TVector4;
 begin
   Result := Self.FFinishColorVariance;
 end;
 
-procedure TCastle3DParticleEffect.SetTexture(const AValue: String);
+procedure TCastleParticleEffect.SetTexture(const AValue: String);
 begin
   Self.FTexture := AValue;
   Self.IsNeedRefresh := True;
 end;
 
-procedure TCastle3DParticleEffect.SetMaxParticle(const AValue: Integer);
+procedure TCastleParticleEffect.SetMaxParticle(const AValue: Integer);
 begin
   Self.FMaxParticles := Max(AValue, 0);
   Self.IsNeedRefresh := True;
 end;
 
-procedure TCastle3DParticleEffect.SetDuration(const AValue: Single);
+procedure TCastleParticleEffect.SetDuration(const AValue: Single);
 begin
   Self.FDuration := AValue;
   Self.IsNeedRefresh := True;
 end;
 
-procedure TCastle3DParticleEffect.SetMiddleAnchor(const AValue: Single);
+procedure TCastleParticleEffect.SetMiddleAnchor(const AValue: Single);
 begin
   Self.FMiddleAnchor := Max(0, Min(1, AValue));
 end;
 
-function TCastle3DParticleEffect.PropertySections(const PropertyName: String): TPropertySections;
+function TCastleParticleEffect.PropertySections(const PropertyName: String): TPropertySections;
 begin
   Result := [psBasic];
 end;
 
-constructor TCastle3DParticleEffect.Create(AOwner: TComponent);
+constructor TCastleParticleEffect.Create(AOwner: TComponent);
   function CreateVec3Persistent(const G: TGetVector3Event; const S: TSetVector3Event; const ADefaultValue: TVector3): TCastleVector3Persistent;
   begin
     Result := TCastleVector3Persistent.Create;
@@ -953,9 +953,9 @@ begin
   Self.FDirectionVariance := 0.4;
   Self.FSpeed := 3;
   Self.FSpeedVariance := 1;
-  Self.FBlendFuncSource := p3bmOne;
-  Self.FBlendFuncDestination := p3bmOne;
-  Self.FSourceType := p3stBox;
+  Self.FBlendFuncSource := pbmOne;
+  Self.FBlendFuncDestination := pbmOne;
+  Self.FSourceType := pstBox;
   Self.FEnableMiddleProperties := True;
   //
   Self.FBoundingBoxMinPersistent := CreateVec3Persistent(
@@ -1020,7 +1020,7 @@ begin
   );
 end;
 
-destructor TCastle3DParticleEffect.Destroy;
+destructor TCastleParticleEffect.Destroy;
 begin
   FreeAndNil(Self.FBoundingBoxMinPersistent);
   FreeAndNil(Self.FBoundingBoxMaxPersistent);
@@ -1037,7 +1037,7 @@ begin
   inherited;
 end;
 
-procedure TCastle3DParticleEffect.Load(const AURL: String);
+procedure TCastleParticleEffect.Load(const AURL: String);
 var
   MS: TStream;
   DeStreamer: TJSONDeStreamer;
@@ -1058,7 +1058,7 @@ begin
   end;
 end;
 
-procedure TCastle3DParticleEffect.Save(const AURL: String);
+procedure TCastleParticleEffect.Save(const AURL: String);
 var
   FS: TFileStream;
   Streamer: TJSONStreamer;
@@ -1085,26 +1085,26 @@ begin
   end;
 end;
 
-procedure TCastle3DParticleEmitterGPU.SetStartEmitting(V: Boolean);
+procedure TCastleParticleEmitter.SetStartEmitting(V: Boolean);
 begin
   Self.FStartEmitting := V;
   if V and Assigned(FEffect) then
     Self.FCountdownTillRemove := Self.FEffect.ParticleLifeSpan + Self.FEffect.ParticleLifeSpanVariance;
 end;
 
-procedure TCastle3DParticleEmitterGPU.SetBurst(V: Boolean);
+procedure TCastleParticleEmitter.SetBurst(V: Boolean);
 begin
   Self.FBurst := V;
   Self.FIsNeedRefresh := True;
 end;
 
-procedure TCastle3DParticleEmitterGPU.SetSmoothTexture(V: Boolean);
+procedure TCastleParticleEmitter.SetSmoothTexture(V: Boolean);
 begin
   Self.FSmoothTexture := V;
   Self.FIsNeedRefresh := True;
 end;
 
-constructor TCastle3DParticleEmitterGPU.Create(AOwner: TComponent);
+constructor TCastleParticleEmitter.Create(AOwner: TComponent);
 begin
   inherited;
   Self.FIsUpdated := False;
@@ -1121,12 +1121,12 @@ begin
   FTimePlayingSpeed := 1.0;
 end;
 
-destructor TCastle3DParticleEmitterGPU.Destroy;
+destructor TCastleParticleEmitter.Destroy;
 begin
   inherited;
 end;
 
-procedure TCastle3DParticleEmitterGPU.Update(const SecondsPassed: Single; var RemoveMe: TRemoveType);
+procedure TCastleParticleEmitter.Update(const SecondsPassed: Single; var RemoveMe: TRemoveType);
 var
   S: Single;
 begin
@@ -1183,7 +1183,7 @@ begin
         TransformFeedbackProgram.Uniform('emissionTime').SetValue(0);
       if not Self.AllowsInstancing then
         TransformFeedbackProgram.Uniform('mMatrix').SetValue(Self.WorldTransform);
-      TransformFeedbackProgram.Uniform('effect.sourceType').SetValue(Castle3DParticleSourceValues[Self.FEffect.SourceType]);
+      TransformFeedbackProgram.Uniform('effect.sourceType').SetValue(CastleParticleSourceValues[Self.FEffect.SourceType]);
       TransformFeedbackProgram.Uniform('effect.sourcePosition').SetValue(Self.FEffect.SourcePosition);
       TransformFeedbackProgram.Uniform('effect.sourcePositionVariance').SetValue(Self.FEffect.SourcePositionVariance);
       TransformFeedbackProgram.Uniform('effect.maxParticles').SetValue(Self.FEffect.MaxParticles);
@@ -1260,7 +1260,7 @@ begin
   Self.FIsDrawn := False;
 end;
 
-procedure TCastle3DParticleEmitterGPU.LocalRender(const Params: TRenderParams);
+procedure TCastleParticleEmitter.LocalRender(const Params: TRenderParams);
 var
   BoundingBoxMin, BoundingBoxMax,
   RenderCameraPosition: TVector3;
@@ -1312,7 +1312,7 @@ begin
   glDepthMask(GL_FALSE);
   glEnable(GL_DEPTH_TEST);
   glEnable(GL_BLEND);
-  glBlendFunc(Castle3DParticleBlendValues[Self.FEffect.BlendFuncSource], Castle3DParticleBlendValues[Self.FEffect.BlendFuncDestination]);
+  glBlendFunc(CastleParticleBlendValues[Self.FEffect.BlendFuncSource], CastleParticleBlendValues[Self.FEffect.BlendFuncDestination]);
   RenderProgram.Enable;
   RenderProgram.Uniform('scaleX').SetValue(Vector3(Params.Transform^[0,0], Params.Transform^[0,1], Params.Transform^[0,2]).Length);
   RenderProgram.Uniform('scaleY').SetValue(Vector3(Params.Transform^[1,0], Params.Transform^[1,1], Params.Transform^[1,2]).Length);
@@ -1382,20 +1382,20 @@ begin
   glDepthMask(GL_TRUE);
 end;
 
-procedure TCastle3DParticleEmitterGPU.SaveEffect(const AURL: String);
+procedure TCastleParticleEmitter.SaveEffect(const AURL: String);
 begin
   Self.FEffect.Save(AURL);
 end;
 
-procedure TCastle3DParticleEmitterGPU.LoadEffect(const AURL: String);
+procedure TCastleParticleEmitter.LoadEffect(const AURL: String);
 begin
-  Self.FEffect := TCastle3DParticleEffect.Create(Self);
+  Self.FEffect := TCastleParticleEffect.Create(Self);
   Self.FEffect.Load(AURL);
   FURL := AURL;
   RefreshEffect;
 end;
 
-procedure TCastle3DParticleEmitterGPU.LoadEffect(const AEffect: TCastle3DParticleEffect);
+procedure TCastleParticleEmitter.LoadEffect(const AEffect: TCastleParticleEffect);
 begin
   Self.FEffect := AEffect;
   if AEffect <> nil then
@@ -1405,7 +1405,7 @@ begin
   RefreshEffect;
 end;
 
-function TCastle3DParticleEmitterGPU.PropertySections(const PropertyName: String): TPropertySections;
+function TCastleParticleEmitter.PropertySections(const PropertyName: String): TPropertySections;
 begin
   case PropertyName of
     'Burst',
@@ -1416,7 +1416,7 @@ begin
   end;
 end;
 
-procedure TCastle3DParticleEmitterGPU.Notification(AComponent: TComponent; Operation: TOperation);
+procedure TCastleParticleEmitter.Notification(AComponent: TComponent; Operation: TOperation);
 begin
   inherited;
   if (Operation = opRemove) and (AComponent = Self.FEffect) then
@@ -1425,7 +1425,7 @@ begin
   end;
 end;
 
-procedure TCastle3DParticleEmitterGPU.GLContextOpen;
+procedure TCastleParticleEmitter.GLContextOpen;
 var
   V: Integer;
 begin
@@ -1439,7 +1439,7 @@ begin
     glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, @V);
     WritelnLog('GL_MAX_VERTEX_ATTRIBS: ' + IntToStr(V));
     if V < Length(Varyings) then
-      raise Exception.Create(Format('TCastle3DParticleEmitterGPU requires GL_MAX_VERTEX_ATTRIBS at least %d', [Length(Varyings)]));
+      raise Exception.Create(Format('TCastleParticleEmitter requires GL_MAX_VERTEX_ATTRIBS at least %d', [Length(Varyings)]));
     IsCheckedForUsable := True;
   end;
 
@@ -1474,7 +1474,7 @@ begin
   Self.FIsGLContextInitialized := True;
 end;
 
-procedure TCastle3DParticleEmitterGPU.GLContextClose;
+procedure TCastleParticleEmitter.GLContextClose;
 begin
   if Self.FIsGLContextInitialized then
   begin
@@ -1486,7 +1486,7 @@ begin
   inherited;
 end;
 
-procedure TCastle3DParticleEmitterGPU.InternalRefreshEffect;
+procedure TCastleParticleEmitter.InternalRefreshEffect;
 var
   I: Integer;
 begin
@@ -1540,26 +1540,26 @@ begin
     glBindVertexArray(Self.VAOs[I]);
 
     glBindBuffer(GL_ARRAY_BUFFER, Self.VBOs[I]);
-    glBufferData(GL_ARRAY_BUFFER, Self.FEffect.MaxParticles * SizeOf(TCastle3DParticle), @Self.Particles[0], GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, Self.FEffect.MaxParticles * SizeOf(TCastleParticle), @Self.Particles[0], GL_STATIC_DRAW);
 
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, SizeOf(TCastle3DParticle), Pointer(0));
+    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), Pointer(0));
     glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, SizeOf(TCastle3DParticle), Pointer(16));
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), Pointer(16));
     glEnableVertexAttribArray(2);
-    glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, SizeOf(TCastle3DParticle), Pointer(24));
+    glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), Pointer(24));
     glEnableVertexAttribArray(3);
-    glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, SizeOf(TCastle3DParticle), Pointer(40));
+    glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), Pointer(40));
     glEnableVertexAttribArray(4);
-    glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, SizeOf(TCastle3DParticle), Pointer(56));
+    glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), Pointer(56));
     glEnableVertexAttribArray(5);
-    glVertexAttribPointer(5, 3, GL_FLOAT, GL_FALSE, SizeOf(TCastle3DParticle), Pointer(72));
+    glVertexAttribPointer(5, 3, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), Pointer(72));
     glEnableVertexAttribArray(6);
-    glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, SizeOf(TCastle3DParticle), Pointer(84));
+    glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), Pointer(84));
     glEnableVertexAttribArray(7);
-    glVertexAttribPointer(7, 3, GL_FLOAT, GL_FALSE, SizeOf(TCastle3DParticle), Pointer(100));
+    glVertexAttribPointer(7, 3, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), Pointer(100));
     glEnableVertexAttribArray(8);
-    glVertexAttribPointer(8, 3, GL_FLOAT, GL_FALSE, SizeOf(TCastle3DParticle), Pointer(112));
+    glVertexAttribPointer(8, 3, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), Pointer(112));
 
     glBindVertexArray(0);
   end;
@@ -1568,12 +1568,12 @@ begin
   Self.FEffect.IsNeedRefresh := False;
 end;
 
-procedure TCastle3DParticleEmitterGPU.RefreshEffect;
+procedure TCastleParticleEmitter.RefreshEffect;
 begin
   Self.FIsNeedRefresh := True;
 end;
 
-function TCastle3DParticleEmitterGPU.LocalBoundingBox: TBox3D;
+function TCastleParticleEmitter.LocalBoundingBox: TBox3D;
 begin
   if GetExists and (Self.FEffect <> nil) then
   begin
@@ -1589,28 +1589,28 @@ begin
   Result.Include(inherited LocalBoundingBox);
 end;
 
-function Castle3DParticleBlendValueToBlendMode(const AValue: Integer): TCastle3DParticleBlendMode;
+function CastleParticleBlendValueToBlendMode(const AValue: Integer): TCastleParticleBlendMode;
 begin
   case AValue of
-    0: Result := p3bmZero;
-    1: Result := p3bmOne;
-    768: Result := p3bmSrcColor;
-    769: Result := p3bmOneMinusSrcColor;
-    770: Result := p3bmSrcAlpha;
-    771: Result := p3bmOneMinusSrcAlpha;
-    772: Result := p3bmDstAlpha;
-    773: Result := p3bmOneMinusDstAlpha;
-    774: Result := p3bmDstColor;
-    775: Result := p3bmOneMinusDstColor;
+    0: Result := pbmZero;
+    1: Result := pbmOne;
+    768: Result := pbmSrcColor;
+    769: Result := pbmOneMinusSrcColor;
+    770: Result := pbmSrcAlpha;
+    771: Result := pbmOneMinusSrcAlpha;
+    772: Result := pbmDstAlpha;
+    773: Result := pbmOneMinusDstAlpha;
+    774: Result := pbmDstColor;
+    775: Result := pbmOneMinusDstColor;
   end;
 end;
 
 initialization
   {$ifdef CASTLE_DESIGN_MODE}
-  RegisterPropertyEditor(TypeInfo(AnsiString), TCastle3DParticleEffect,
+  RegisterPropertyEditor(TypeInfo(AnsiString), TCastleParticleEffect,
     'Texture', TImageURLPropertyEditor);
   {$endif}
-  RegisterSerializableComponent(TCastle3DParticleEmitterGPU, '3D Particle Emitter (GPU)');
-  RegisterSerializableComponent(TCastle3DParticleEffect, '3D Particle Effect');
+  RegisterSerializableComponent(TCastleParticleEmitter, '3D Particle Emitter (GPU)');
+  RegisterSerializableComponent(TCastleParticleEffect, '3D Particle Effect');
 
 end.

@@ -5,7 +5,7 @@ interface
 uses Classes,
   CastleUIState, CastleComponentSerialize, CastleUIControls, CastleControls,
   CastleKeysMouse, CastleViewport, CastleScene, CastleVectors, CastleBoxes,
-  CastleTransform, X3DNodes, CastleColors, Castle3DParticleEmitterGPU;
+  CastleTransform, X3DNodes, CastleColors, CastleParticleEmitter;
 
 type
   // Borrowed from view3dscene
@@ -90,8 +90,8 @@ type
     ButtonMiddleColor,
     ButtonFinishColor,
     ButtonApply: TCastleButton;
-    Effect: TCastle3DParticleEffect;
-    Emitter: TCastle3DParticleEmitterGPU;
+    Effect: TCastleParticleEffect;
+    Emitter: TCastleParticleEmitter;
     BoundingBoxScene: TBoundingBoxScene;
     procedure EffectToUI;
     procedure UIToEffect;
@@ -255,9 +255,9 @@ begin
   ButtonMiddleColor.OnClick := @ButtonMiddleColorClick;
   ButtonFinishColor.OnClick := @ButtonFinishColorClick;
 
-  Effect := TCastle3DParticleEffect.Create(Self);
+  Effect := TCastleParticleEffect.Create(Self);
   Effect.Load('castle-data:/default.json');
-  Emitter := TCastle3DParticleEmitterGPU.Create(Self);
+  Emitter := TCastleParticleEmitter.Create(Self);
   Emitter.LoadEffect(Effect);
   Effect.Texture := 'data/default.png';
   Emitter.StartEmitting := True;
@@ -347,8 +347,8 @@ begin
   EditBBoxY2.Value := Effect.BBox.Data[1].Y;
   EditBBoxZ2.Value := Effect.BBox.Data[1].Z;
   EditMaxParticles.Value := Effect.MaxParticles;
-  EditBlendSource.Value := Castle3DParticleBlendValues[Effect.BlendFuncSource];
-  EditBlendDestination.Value := Castle3DParticleBlendValues[Effect.BlendFuncDestination];
+  EditBlendSource.Value := CastleParticleBlendValues[Effect.BlendFuncSource];
+  EditBlendDestination.Value := CastleParticleBlendValues[Effect.BlendFuncDestination];
 end;
 
 procedure TStateMain.UIToEffect;
@@ -427,8 +427,8 @@ begin
   Effect.RotationEnd := EditFinishRotation.Value;
   Effect.RotationEndVariance := EditFinishRotationVariance.Value;
   Effect.MaxParticles := EditMaxParticles.Value;
-  Effect.BlendFuncSource := Castle3DParticleBlendValueToBlendMode(EditBlendSource.Value);
-  Effect.BlendFuncDestination := Castle3DParticleBlendValueToBlendMode(EditBlendDestination.Value);
+  Effect.BlendFuncSource := CastleParticleBlendValueToBlendMode(EditBlendSource.Value);
+  Effect.BlendFuncDestination := CastleParticleBlendValueToBlendMode(EditBlendDestination.Value);
   BoundingBoxScene.UpdateBox(Effect.BBox);
 end;
 

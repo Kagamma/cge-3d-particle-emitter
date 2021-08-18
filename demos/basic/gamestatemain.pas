@@ -11,7 +11,7 @@ uses Classes,
   CastleUIState, CastleComponentSerialize, CastleUIControls, CastleControls,
   CastleKeysMouse, CastleViewport, CastleScene, CastleVectors, CastleBoxes,
   CastleCameras,
-  Castle3DParticleEmitterGPU;
+  CastleParticleEmitter;
 
 type
   { Main state, where most of the application logic takes place. }
@@ -25,7 +25,7 @@ type
     ButtonFireflies,
     ButtonDustDevil,
     ButtonFountain: TCastleButton;
-    Emitter: TCastle3DParticleEmitterGPU;
+    Emitter: TCastleParticleEmitter;
     procedure ButtonFireClick(Sender: TObject);
     procedure ButtonFirefliesClick(Sender: TObject);
     procedure ButtonFountainClick(Sender: TObject);
@@ -90,7 +90,7 @@ begin
   ButtonFountain.OnClick := @ButtonFountainClick;
   ButtonDustDevil.OnClick := @ButtonDustDevilClick;
 
-  Emitter := TCastle3DParticleEmitterGPU.Create(Self);
+  Emitter := TCastleParticleEmitter.Create(Self);
   Emitter.LoadEffect('castle-data:/fire.json');
   Emitter.StartEmitting := True;
   Viewport.Items.Add(Emitter);

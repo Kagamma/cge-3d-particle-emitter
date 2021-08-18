@@ -38,7 +38,7 @@
         },
         "$Children" : [
           {
-            "$$ClassName" : "TCastle3DParticleEmitterGPU",
+            "$$ClassName" : "TCastleParticleEmitter",
             "Effect" : "FireEffect",
             "ExposeTransforms" : [
             ],
@@ -52,7 +52,7 @@
             },
             "$NonVisualComponents" : [
               {
-                "$$ClassName" : "TCastle3DParticleEffect",
+                "$$ClassName" : "TCastleParticleEffect",
                 "Name" : "FireEffect",
                 "Texture" : "castle-data:/default.png"
               }
@@ -77,7 +77,7 @@
             ]
           },
           {
-            "$$ClassName" : "TCastle3DParticleEmitterGPU",
+            "$$ClassName" : "TCastleParticleEmitter",
             "Effect" : "RainEffect",
             "ExposeTransforms" : [
             ],
@@ -91,7 +91,7 @@
             },
             "$NonVisualComponents" : [
               {
-                "$$ClassName" : "TCastle3DParticleEffect",
+                "$$ClassName" : "TCastleParticleEffect",
                 "DirectionPersistent" : {
                   "$$ClassName" : "TCastleVector3Persistent",
                   "X" : 9.5383472740650177E-002,
@@ -154,7 +154,7 @@
             ]
           },
           {
-            "$$ClassName" : "TCastle3DParticleEmitterGPU",
+            "$$ClassName" : "TCastleParticleEmitter",
             "Effect" : "SpiralEffect",
             "ExposeTransforms" : [
             ],
@@ -168,7 +168,7 @@
             },
             "$NonVisualComponents" : [
               {
-                "$$ClassName" : "TCastle3DParticleEffect",
+                "$$ClassName" : "TCastleParticleEffect",
                 "DirectionPersistent" : {
                   "$$ClassName" : "TCastleVector3Persistent",
                   "Y" : 9.4280910491943359E-001,
@@ -229,7 +229,7 @@
             ]
           },
           {
-            "$$ClassName" : "TCastle3DParticleEmitterGPU",
+            "$$ClassName" : "TCastleParticleEmitter",
             "Effect" : "OrbEffect",
             "ExposeTransforms" : [
             ],
@@ -243,7 +243,7 @@
             },
             "$NonVisualComponents" : [
               {
-                "$$ClassName" : "TCastle3DParticleEffect",
+                "$$ClassName" : "TCastleParticleEffect",
                 "DirectionPersistent" : {
                   "$$ClassName" : "TCastleVector3Persistent",
                   "Y" : 0.0000000000000000E+000,
@@ -303,7 +303,7 @@
             ]
           },
           {
-            "$$ClassName" : "TCastle3DParticleEmitterGPU",
+            "$$ClassName" : "TCastleParticleEmitter",
             "Effect" : "AnchorEffect",
             "ExposeTransforms" : [
             ],
@@ -317,7 +317,7 @@
             },
             "$NonVisualComponents" : [
               {
-                "$$ClassName" : "TCastle3DParticleEffect",
+                "$$ClassName" : "TCastleParticleEffect",
                 "DirectionPersistent" : {
                   "$$ClassName" : "TCastleVector3Persistent",
                   "X" : 9.9999994039535522E-001,
@@ -373,7 +373,7 @@
             ]
           },
           {
-            "$$ClassName" : "TCastle3DParticleEmitterGPU",
+            "$$ClassName" : "TCastleParticleEmitter",
             "Effect" : "FountainEffect",
             "ExposeTransforms" : [
             ],
@@ -387,7 +387,7 @@
             },
             "$NonVisualComponents" : [
               {
-                "$$ClassName" : "TCastle3DParticleEffect",
+                "$$ClassName" : "TCastleParticleEffect",
                 "DirectionVariance" : 2.0000000298023224E-001,
                 "FinishColorPersistent" : {
                   "$$ClassName" : "TCastleColorPersistent",
@@ -442,7 +442,7 @@
             ]
           },
           {
-            "$$ClassName" : "TCastle3DParticleEmitterGPU",
+            "$$ClassName" : "TCastleParticleEmitter",
             "Effect" : "BoxEffect",
             "ExposeTransforms" : [
             ],
@@ -456,7 +456,7 @@
             },
             "$NonVisualComponents" : [
               {
-                "$$ClassName" : "TCastle3DParticleEffect",
+                "$$ClassName" : "TCastleParticleEffect",
                 "DirectionVariance" : 2.0000000298023224E-001,
                 "FinishColorPersistent" : {
                   "$$ClassName" : "TCastleColorPersistent",
@@ -514,7 +514,7 @@
             ]
           },
           {
-            "$$ClassName" : "TCastle3DParticleEmitterGPU",
+            "$$ClassName" : "TCastleParticleEmitter",
             "Effect" : "SpheroidEffect",
             "ExposeTransforms" : [
             ],
@@ -528,7 +528,7 @@
             },
             "$NonVisualComponents" : [
               {
-                "$$ClassName" : "TCastle3DParticleEffect",
+                "$$ClassName" : "TCastleParticleEffect",
                 "DirectionVariance" : 2.0000000298023224E-001,
                 "FinishColorPersistent" : {
                   "$$ClassName" : "TCastleColorPersistent",
@@ -554,7 +554,7 @@
                   "Y" : 1.5000000000000000E+000,
                   "Z" : 2.0000000000000000E+000
                 },
-                "SourceType" : "p3stSpheroid",
+                "SourceType" : "pstSpheroid",
                 "Speed" : 0.0000000000000000E+000,
                 "SpeedVariance" : 0.0000000000000000E+000,
                 "StartColorPersistent" : {
@@ -587,7 +587,7 @@
             ]
           },
           {
-            "$$ClassName" : "TCastle3DParticleEmitterGPU",
+            "$$ClassName" : "TCastleParticleEmitter",
             "Burst" : true,
             "Effect" : "BurstEffect",
             "ExposeTransforms" : [
@@ -602,7 +602,7 @@
             },
             "$NonVisualComponents" : [
               {
-                "$$ClassName" : "TCastle3DParticleEffect",
+                "$$ClassName" : "TCastleParticleEffect",
                 "DirectionVariance" : 3.1400001049041748E+000,
                 "FinishColorPersistent" : {
                   "$$ClassName" : "TCastleColorPersistent",
@@ -629,7 +629,7 @@
                   "Y" : 9.9999997764825821E-003,
                   "Z" : 9.9999997764825821E-003
                 },
-                "SourceType" : "p3stSpheroid",
+                "SourceType" : "pstSpheroid",
                 "Speed" : 2.0000000000000000E+000,
                 "SpeedVariance" : 0.0000000000000000E+000,
                 "StartColorPersistent" : {
@@ -663,7 +663,7 @@
             ]
           },
           {
-            "$$ClassName" : "TCastle3DParticleEmitterGPU",
+            "$$ClassName" : "TCastleParticleEmitter",
             "Effect" : "RotationEffect",
             "ExposeTransforms" : [
             ],
@@ -677,7 +677,7 @@
             },
             "$NonVisualComponents" : [
               {
-                "$$ClassName" : "TCastle3DParticleEffect",
+                "$$ClassName" : "TCastleParticleEffect",
                 "DirectionVariance" : 2.0000000298023224E-001,
                 "FinishColorPersistent" : {
                   "$$ClassName" : "TCastleColorPersistent",
@@ -738,7 +738,7 @@
             ]
           },
           {
-            "$$ClassName" : "TCastle3DParticleEmitterGPU",
+            "$$ClassName" : "TCastleParticleEmitter",
             "Effect" : "BBoxEffect",
             "ExposeTransforms" : [
             ],
@@ -752,7 +752,7 @@
             },
             "$NonVisualComponents" : [
               {
-                "$$ClassName" : "TCastle3DParticleEffect",
+                "$$ClassName" : "TCastleParticleEffect",
                 "BoundingBoxMaxPersistent" : {
                   "$$ClassName" : "TCastleVector3Persistent",
                   "X" : 1.7000000476837158E+000,
@@ -791,7 +791,7 @@
             ]
           },
           {
-            "$$ClassName" : "TCastle3DParticleEmitterGPU",
+            "$$ClassName" : "TCastleParticleEmitter",
             "AllowsInstancing" : true,
             "Effect" : "FireEffect",
             "ExposeTransforms" : [

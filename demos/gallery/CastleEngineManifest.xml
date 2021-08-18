@@ -4,7 +4,7 @@
   game_units="GameInitialize"
   qualified_name="com.mycompany.gallery"
   caption="gallery"
-  editor_units="Castle3DParticleEmitterGPU"
+  editor_units="CastleParticleEmitter"
 >
   <compiler_options>
     <search_paths>

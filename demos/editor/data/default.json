@@ -1,6 +1,6 @@
 {
-  "BlendFuncDestination" : "p3bmOne",
-  "BlendFuncSource" : "p3bmSrcAlpha",
+  "BlendFuncDestination" : "pbmOne",
+  "BlendFuncSource" : "pbmSrcAlpha",
   "BoundingBoxMaxPersistent" : {
     "X" : -1.0000000000000000E+000,
     "Y" : -1.0000000000000000E+000,
