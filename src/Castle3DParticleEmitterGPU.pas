@@ -146,6 +146,7 @@ type
     procedure SetTexture(const AValue: String);
     procedure SetMaxParticle(const AValue: Integer);
     procedure SetDuration(const AValue: Single);
+    procedure SetMiddleAnchor(const AValue: Single);
   public
     IsColliable: Boolean;
     IsNeedRefresh: Boolean;
@@ -179,7 +180,7 @@ type
     property MiddleParticleSizeVariance: Single read FMiddleParticleSizeVariance write FMiddleParticleSizeVariance;
     property FinishParticleSize: Single read FFinishParticleSize write FFinishParticleSize default 0.1;
     property FinishParticleSizeVariance: Single read FFinishParticleSizeVariance write FFinishParticleSizeVariance;
-    property MiddleAnchor: Single read FMiddleAnchor write FMiddleAnchor default 0.5;
+    property MiddleAnchor: Single read FMiddleAnchor write SetMiddleAnchor default 0.5;
     property Speed: Single read FSpeed write FSpeed default 3;
     property SpeedVariance: Single read FSpeedVariance write FSpeedVariance default 1;
     property RotationStart: Single read FRotationStart write FRotationStart;
@@ -895,6 +896,11 @@ procedure TCastle3DParticleEffect.SetDuration(const AValue: Single);
 begin
   Self.FDuration := AValue;
   Self.IsNeedRefresh := True;
+end;
+
+procedure TCastle3DParticleEffect.SetMiddleAnchor(const AValue: Single);
+begin
+  Self.FMiddleAnchor := Max(0, Min(1, AValue));
 end;
 
 constructor TCastle3DParticleEffect.Create(AOwner: TComponent);
