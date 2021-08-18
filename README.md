@@ -1,4 +1,3 @@
-# cge-3d-particle-emitter
 GPU-based Particle System for Castle Game Engine
 
 ### Notes ###
