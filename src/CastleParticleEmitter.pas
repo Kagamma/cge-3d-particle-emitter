@@ -907,7 +907,12 @@ end;
 
 function TCastleParticleEffect.PropertySections(const PropertyName: String): TPropertySections;
 begin
-  Result := [psBasic];
+  case PropertyName of
+    'Tag':
+      Result := inherited PropertySections(PropertyName);
+    else
+      Result := [psBasic];
+  end;
 end;
 
 constructor TCastleParticleEffect.Create(AOwner: TComponent);
