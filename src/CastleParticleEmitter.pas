@@ -1279,7 +1279,8 @@ begin
     Exit;
   if (not Self.FStartEmitting) and (Self.FCountdownTillRemove <= 0) then
     Exit;
-  Inc(Params.Statistics.ScenesVisible);
+  if not Self.ExcludeFromStatistics then
+    Inc(Params.Statistics.ScenesVisible);
   if DistanceCulling > 0 then
   begin
     RenderCameraPosition := Params.InverseTransform^.MultPoint(Params.RenderingCamera.Position);
@@ -1296,9 +1297,12 @@ begin
       Exit;
   end;
   Self.FIsDrawn := True;
-  Inc(Params.Statistics.ShapesVisible);
-  Inc(Params.Statistics.ShapesRendered);
-  Inc(Params.Statistics.ScenesRendered);
+  if not Self.ExcludeFromStatistics then
+  begin
+    Inc(Params.Statistics.ShapesVisible);
+    Inc(Params.Statistics.ShapesRendered);
+    Inc(Params.Statistics.ScenesRendered);
+  end;
 
   // Draw particles
   if Self.AllowsInstancing then
