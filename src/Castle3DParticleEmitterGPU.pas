@@ -16,6 +16,9 @@ uses
   {$else}
   GL, GLExt,
   {$endif}
+  {$ifdef CASTLE_DESIGN_MODE}
+  PropEdits, CastlePropEdits,
+  {$endif}
   fpjson, jsonparser,
   CastleTransform, CastleSceneCore, CastleComponentSerialize, CastleColors, CastleBoxes,
   CastleVectors, CastleRenderContext, Generics.Collections, CastleGLImages, CastleLog,
@@ -1558,6 +1561,10 @@ begin
 end;
 
 initialization
+  {$ifdef CASTLE_DESIGN_MODE}
+  RegisterPropertyEditor(TypeInfo(AnsiString), TCastle3DParticleEffect,
+    'Texture', TImageURLPropertyEditor);
+  {$endif}
   RegisterSerializableComponent(TCastle3DParticleEmitterGPU, '3D Particle Emitter (GPU)');
   RegisterSerializableComponent(TCastle3DParticleEffect, '3D Particle Effect');
 
