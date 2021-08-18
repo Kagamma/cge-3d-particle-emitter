@@ -1035,7 +1035,6 @@ begin
     SS.CopyFrom(MS, MS.Size);
     DeStreamer.JSONToObject(SS.DataString, Self);
     Self.Texture := ExtractURIPath(AURL) + Self.Texture;
-    Writeln(Self.Texture);
   finally
     FreeAndNil(DeStreamer);
     FreeAndNil(SS);
