@@ -207,7 +207,7 @@ type
     property FinishColorVariancePersistent: TCastleColorPersistent read FFinishColorVariancePersistent;
   end;
 
-  TCastle3DParticleEmitterGPU = class(TCastleSceneCore)
+  TCastle3DParticleEmitterGPU = class(TCastleTransform)
   strict private
     Texture: GLuint;
 
@@ -243,6 +243,8 @@ type
     FBurst: Boolean;
     { If true, smooth texture }
     FSmoothTexture: Boolean;
+    FTimePlaying: Boolean;
+    FTimePlayingSpeed: Single;
     procedure InternalRefreshEffect;
     procedure SetStartEmitting(V: Boolean);
     procedure SetBurst(V: Boolean);
@@ -274,6 +276,8 @@ type
     property AllowsInstancing: Boolean read FAllowsInstancing write FAllowsInstancing default False;
     property SmoothTexture: Boolean read FSmoothTexture write SetSmoothTexture default True;
     property Burst: Boolean read FBurst write SetBurst default False;
+    property TimePlaying: Boolean read FTimePlaying write FTimePlaying default true;
+    property TimePlayingSpeed: Single read FTimePlayingSpeed write FTimePlayingSpeed default 1.0;
   end;
 
 function Castle3DParticleBlendValueToBlendMode(const AValue: Integer): TCastle3DParticleBlendMode;
@@ -1100,11 +1104,12 @@ begin
   Self.Scale := Vector3(1, 1, 1);
   Self.FIsGLContextInitialized := False;
   Self.FIsNeedRefresh := False;
-  Self.ShadowMaps := False;
   Self.FAllowsUpdateWhenCulled := True;
   Self.FAllowsInstancing := False;
   Self.FBurst := False;
   Self.FSmoothTexture := True;
+  FTimePlaying := true;
+  FTimePlayingSpeed := 1.0;
 end;
 
 destructor TCastle3DParticleEmitterGPU.Destroy;
