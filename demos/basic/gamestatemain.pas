@@ -25,6 +25,7 @@ type
     ButtonFireflies,
     ButtonDustDevil,
     ButtonFountain: TCastleButton;
+    Effect: TCastleParticleEffect;
     Emitter: TCastleParticleEmitter;
     procedure ButtonFireClick(Sender: TObject);
     procedure ButtonFirefliesClick(Sender: TObject);
@@ -47,22 +48,26 @@ uses SysUtils;
 
 procedure TStateMain.ButtonFireClick(Sender: TObject);
 begin
-  Emitter.LoadEffect('castle-data:/fire.json');
+  Effect.Load('castle-data:/fire.json', True);
+  Emitter.RefreshEffect;
 end;
 
 procedure TStateMain.ButtonFirefliesClick(Sender: TObject);
 begin
-  Emitter.LoadEffect('castle-data:/fireflies.json');
+  Effect.Load('castle-data:/fireflies.json', True);
+  Emitter.RefreshEffect;
 end;
 
 procedure TStateMain.ButtonFountainClick(Sender: TObject);
 begin
-  Emitter.LoadEffect('castle-data:/fountain.json');
+  Effect.Load('castle-data:/fountain.json', True);
+  Emitter.RefreshEffect;
 end;
 
 procedure TStateMain.ButtonDustDevilClick(Sender: TObject);
 begin
-  Emitter.LoadEffect('castle-data:/dustdevil.json');
+  Effect.Load('castle-data:/dustdevil.json', True);
+  Emitter.RefreshEffect;
 end;
 
 constructor TStateMain.Create(AOwner: TComponent);
@@ -91,7 +96,9 @@ begin
   ButtonDustDevil.OnClick := @ButtonDustDevilClick;
 
   Emitter := TCastleParticleEmitter.Create(Self);
-  Emitter.LoadEffect('castle-data:/fire.json');
+  Effect := TCastleParticleEffect.Create(Emitter);
+  Effect.Load('castle-data:/fire.json', True);
+  Emitter.Effect := Effect;
   Emitter.StartEmitting := True;
   Viewport.Items.Add(Emitter);
 

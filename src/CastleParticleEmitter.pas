@@ -155,8 +155,8 @@ type
     IsNeedRefresh: Boolean;
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-    procedure Load(const AURL: String);
-    procedure Save(const AURL: String);
+    procedure Load(const AURL: String; const IsTexturePathRelative: Boolean = False);
+    procedure Save(const AURL: String; const IsTexturePathRelative: Boolean = False);
 
     property SourcePosition: TVector3 read FSourcePosition write FSourcePosition;
     property SourcePositionVariance: TVector3 read FSourcePositionVariance write FSourcePositionVariance;
@@ -218,7 +218,6 @@ type
     CurrentBuffer: GLuint;
     Particles: packed array of TCastleParticle;
 
-    FURL: String;
     FStartEmitting: Boolean;
     FEffect: TCastleParticleEffect;
     FParticleCount: Integer;
@@ -259,18 +258,11 @@ type
     destructor Destroy; override;
     procedure Update(const SecondsPassed: Single; var RemoveMe: TRemoveType); override;
     procedure LocalRender(const Params: TRenderParams); override;
-    { Save effect to a file }
-    procedure SaveEffect(const AURL: String); overload;
-    { Init a new FEffect and load settings from .castle-component file. }
-    procedure LoadEffect(const AURL: String); overload;
     procedure LoadEffect(const AEffect: TCastleParticleEffect);
     procedure GLContextOpen; virtual;
     procedure GLContextClose; override;
     procedure RefreshEffect;
     function LocalBoundingBox: TBox3D; override;
-
-    { URL of a .castle-component file. This will call LoadEffect to load particle effect }
-    property URL: String read FURL write LoadEffect;
   published
     property Effect: TCastleParticleEffect read FEffect write LoadEffect;
     { If true, the emitter will start emitting }
@@ -1037,7 +1029,7 @@ begin
   inherited;
 end;
 
-procedure TCastleParticleEffect.Load(const AURL: String);
+procedure TCastleParticleEffect.Load(const AURL: String; const IsTexturePathRelative: Boolean = False);
 var
   MS: TStream;
   DeStreamer: TJSONDeStreamer;
@@ -1050,7 +1042,8 @@ begin
     MS.Position := 0;
     SS.CopyFrom(MS, MS.Size);
     DeStreamer.JSONToObject(SS.DataString, Self);
-    Self.Texture := ExtractURIPath(AURL) + Self.Texture;
+    if IsTexturePathRelative then
+      Self.Texture := ExtractURIPath(AURL) + Self.Texture;
   finally
     FreeAndNil(DeStreamer);
     FreeAndNil(SS);
@@ -1058,7 +1051,7 @@ begin
   end;
 end;
 
-procedure TCastleParticleEffect.Save(const AURL: String);
+procedure TCastleParticleEffect.Save(const AURL: String; const IsTexturePathRelative: Boolean = False);
 var
   FS: TFileStream;
   Streamer: TJSONStreamer;
@@ -1069,10 +1062,14 @@ begin
   Streamer := TJSONStreamer.Create(nil);
   try
     Streamer.Options := Streamer.Options + [jsoUseFormatString];
-    S := Self.Texture;
-    Self.Texture := ExtractFileName(Self.Texture);
+    if IsTexturePathRelative then
+    begin
+      S := Self.Texture;
+      Self.Texture := ExtractFileName(Self.Texture);
+    end;
     SS := TStringStream.Create(Streamer.ObjectToJSONString(Self));
-    Self.Texture := S;
+    if IsTexturePathRelative then
+      Self.Texture := S;
     try
       SS.Position := 0;
       FS.CopyFrom(SS, SS.Size);
@@ -1380,19 +1377,6 @@ begin
   // Which pass is this?
   glDisable(GL_DEPTH_TEST);
   glDepthMask(GL_TRUE);
-end;
-
-procedure TCastleParticleEmitter.SaveEffect(const AURL: String);
-begin
-  Self.FEffect.Save(AURL);
-end;
-
-procedure TCastleParticleEmitter.LoadEffect(const AURL: String);
-begin
-  Self.FEffect := TCastleParticleEffect.Create(Self);
-  Self.FEffect.Load(AURL);
-  FURL := AURL;
-  RefreshEffect;
 end;
 
 procedure TCastleParticleEmitter.LoadEffect(const AEffect: TCastleParticleEffect);

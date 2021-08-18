@@ -256,9 +256,9 @@ begin
   ButtonFinishColor.OnClick := @ButtonFinishColorClick;
 
   Effect := TCastleParticleEffect.Create(Self);
-  Effect.Load('castle-data:/default.json');
+  Effect.Load('castle-data:/default.json', True);
   Emitter := TCastleParticleEmitter.Create(Self);
-  Emitter.LoadEffect(Effect);
+  Emitter.Effect := Effect;
   Effect.Texture := 'data/default.png';
   Emitter.StartEmitting := True;
   Viewport.Items.Add(Emitter);
@@ -439,7 +439,7 @@ begin
   if Window.FileDialog('Save Particle', URL, False, '*.json') then
   begin
     UIToEffect;
-    Effect.Save(URL);
+    Effect.Save(URL, True);
   end;
 end;
 
