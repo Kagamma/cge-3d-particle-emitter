@@ -22,7 +22,7 @@ uses
   fpjson, jsonparser,
   CastleTransform, CastleSceneCore, CastleComponentSerialize, CastleColors, CastleBoxes,
   CastleVectors, CastleRenderContext, Generics.Collections, CastleGLImages, CastleLog,
-  CastleUtils, CastleApplicationProperties, CastleGLShaders, CastleClassUtils,
+  CastleUtils, CastleApplicationProperties, CastleGLShaders, CastleClassUtils, CastleComponentSerialize,
   X3DNodes;
 
 type
@@ -1304,6 +1304,7 @@ begin
   glBindTexture(GL_TEXTURE_2D, 0);
   glBindVertexArray(0);
   // Render boundingbox in editor
+  {$ifdef CASTLE_DESIGN_MODE}
   if CastleDesignMode and (not Self.FEffect.BBox.IsEmptyOrZero) then
   begin
     // OpenGL FFP is enough for visualizing bounding box
@@ -1347,6 +1348,7 @@ begin
       glVertex3f(BoundingBoxMin.X, BoundingBoxMax.Y, BoundingBoxMax.Z);
     glEnd();
   end;
+  {$endif}
   glDisable(GL_BLEND);
   // Which pass is this?
   glDisable(GL_DEPTH_TEST);
