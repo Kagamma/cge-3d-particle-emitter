@@ -51,6 +51,7 @@
     "Green" : 2.5000000000000000E-001,
     "Red" : 2.5000000000000000E-001
   },
+  "MiddleParticleSize" : 1.0000000149011612E-001,
   "Name" : "",
   "ParticleLifeSpan" : 3.0000000000000000E+000,
   "ParticleLifeSpanVariance" : 1.0000000000000000E+000,
