@@ -53,7 +53,7 @@ const
   );
 
 type
-  { 2D particle struct to hold current particle settings. }
+  { 3D particle struct to hold current particle settings. }
   PCastle3DParticle = ^TCastle3DParticle;
   TCastle3DParticle = packed record
     Position: TVector4;
@@ -148,6 +148,8 @@ type
     procedure SetMaxParticle(const AValue: Integer);
     procedure SetDuration(const AValue: Single);
     procedure SetMiddleAnchor(const AValue: Single);
+  protected
+    function PropertySections(const PropertyName: String): TPropertySections; override;
   public
     IsColliable: Boolean;
     IsNeedRefresh: Boolean;
@@ -250,6 +252,7 @@ type
     procedure SetBurst(V: Boolean);
     procedure SetSmoothTexture(V: Boolean);
   protected
+    function PropertySections(const PropertyName: String): TPropertySections; override;
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
   public
     constructor Create(AOwner: TComponent); override;
@@ -258,16 +261,17 @@ type
     procedure LocalRender(const Params: TRenderParams); override;
     { Save effect to a file }
     procedure SaveEffect(const AURL: String); overload;
-    { Init a new FEffect and load settings from .json file. }
+    { Init a new FEffect and load settings from .castle-component file. }
     procedure LoadEffect(const AURL: String); overload;
     procedure LoadEffect(const AEffect: TCastle3DParticleEffect);
     procedure GLContextOpen; virtual;
     procedure GLContextClose; override;
     procedure RefreshEffect;
     function LocalBoundingBox: TBox3D; override;
-  published
-    { URL of a .p3d file. This will call LoadEffect to load particle effect }
+
+    { URL of a .castle-component file. This will call LoadEffect to load particle effect }
     property URL: String read FURL write LoadEffect;
+  published
     property Effect: TCastle3DParticleEffect read FEffect write LoadEffect;
     { If true, the emitter will start emitting }
     property StartEmitting: Boolean read FStartEmitting write SetStartEmitting default False;
@@ -276,7 +280,7 @@ type
     property AllowsInstancing: Boolean read FAllowsInstancing write FAllowsInstancing default False;
     property SmoothTexture: Boolean read FSmoothTexture write SetSmoothTexture default True;
     property Burst: Boolean read FBurst write SetBurst default False;
-    property TimePlaying: Boolean read FTimePlaying write FTimePlaying default true;
+    property TimePlaying: Boolean read FTimePlaying write FTimePlaying default True;
     property TimePlayingSpeed: Single read FTimePlayingSpeed write FTimePlayingSpeed default 1.0;
   end;
 
@@ -909,6 +913,11 @@ begin
   Self.FMiddleAnchor := Max(0, Min(1, AValue));
 end;
 
+function TCastle3DParticleEffect.PropertySections(const PropertyName: String): TPropertySections;
+begin
+  Result := [psBasic];
+end;
+
 constructor TCastle3DParticleEffect.Create(AOwner: TComponent);
   function CreateVec3Persistent(const G: TGetVector3Event; const S: TSetVector3Event; const ADefaultValue: TVector3): TCastleVector3Persistent;
   begin
@@ -1394,6 +1403,17 @@ begin
     AEffect.FreeNotification(Self);
   end;
   RefreshEffect;
+end;
+
+function TCastle3DParticleEmitterGPU.PropertySections(const PropertyName: String): TPropertySections;
+begin
+  case PropertyName of
+    'Burst',
+    'Effect':
+      Result := [psBasic];
+    else
+      Result := inherited PropertySections(PropertyName);
+  end;
 end;
 
 procedure TCastle3DParticleEmitterGPU.Notification(AComponent: TComponent; Operation: TOperation);
