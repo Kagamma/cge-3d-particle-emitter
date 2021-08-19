@@ -1307,7 +1307,6 @@ begin
   // Draw particles
   if Self.AllowsInstancing then
   begin
-    M := Params.RenderingCamera.Matrix * Params.Transform^;
     TransformFeedbackProgram := TransformFeedbackProgramMultipleInstances;
     RenderProgram := RenderProgramMultipleInstances;
   end else
@@ -1324,6 +1323,7 @@ begin
   RenderProgram.Uniform('scaleY').SetValue(Vector3(Params.Transform^[1,0], Params.Transform^[1,1], Params.Transform^[1,2]).Length);
   if Self.AllowsInstancing then
   begin
+    M := Params.RenderingCamera.Matrix * Params.Transform^;
     RenderProgram.Uniform('mvMatrix').SetValue(M);
   end else
   begin
@@ -1346,7 +1346,8 @@ begin
     BoundingBoxMax := Self.FEffect.BBox.Data[1];
     RenderProgram.Disable;
     glUseProgram(0);
-    M := Params.RenderingCamera.Matrix * Params.Transform^;
+    if not Self.AllowsInstancing then
+      M := Params.RenderingCamera.Matrix * Params.Transform^;
     glMatrixMode(GL_MODELVIEW);
     glLoadMatrixf(@M);
     glMatrixMode(GL_PROJECTION);
