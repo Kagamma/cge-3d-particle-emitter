@@ -40,10 +40,7 @@
           {
             "$$ClassName" : "TCastleParticleEmitter",
             "Effect" : "FireEffect",
-            "ExposeTransforms" : [
-            ],
             "Name" : "FireEmitter",
-            "ShadowMaps" : false,
             "StartEmitting" : true,
             "TranslationPersistent" : {
               "$$ClassName" : "TCastleVector3Persistent",
@@ -79,10 +76,7 @@
           {
             "$$ClassName" : "TCastleParticleEmitter",
             "Effect" : "RainEffect",
-            "ExposeTransforms" : [
-            ],
             "Name" : "RainEmitter",
-            "ShadowMaps" : false,
             "StartEmitting" : true,
             "TranslationPersistent" : {
               "$$ClassName" : "TCastleVector3Persistent",
@@ -94,8 +88,8 @@
                 "$$ClassName" : "TCastleParticleEffect",
                 "DirectionPersistent" : {
                   "$$ClassName" : "TCastleVector3Persistent",
-                  "X" : 9.5383472740650177E-002,
-                  "Y" : -9.9544060230255127E-001
+                  "X" : 9.4956412911415100E-002,
+                  "Y" : -9.9548143148422241E-001
                 },
                 "DirectionVariance" : 0.0000000000000000E+000,
                 "FinishColorPersistent" : {
@@ -121,7 +115,8 @@
                 },
                 "SourcePositionVariancePersistent" : {
                   "$$ClassName" : "TCastleVector3Persistent",
-                  "X" : 4.0000000000000000E+000
+                  "X" : 4.0000000000000000E+000,
+                  "Z" : 4.0000000000000000E+000
                 },
                 "Speed" : 7.0000000000000000E+000,
                 "StartColorPersistent" : {
@@ -156,10 +151,7 @@
           {
             "$$ClassName" : "TCastleParticleEmitter",
             "Effect" : "SpiralEffect",
-            "ExposeTransforms" : [
-            ],
             "Name" : "SpiralEmitter",
-            "ShadowMaps" : false,
             "StartEmitting" : true,
             "TranslationPersistent" : {
               "$$ClassName" : "TCastleVector3Persistent",
@@ -171,8 +163,8 @@
                 "$$ClassName" : "TCastleParticleEffect",
                 "DirectionPersistent" : {
                   "$$ClassName" : "TCastleVector3Persistent",
-                  "Y" : 9.4280910491943359E-001,
-                  "Z" : 3.3333334326744080E-001
+                  "Y" : 9.4868332147598267E-001,
+                  "Z" : 3.1622779369354248E-001
                 },
                 "DirectionVariance" : 0.0000000000000000E+000,
                 "FinishColorPersistent" : {
@@ -231,10 +223,7 @@
           {
             "$$ClassName" : "TCastleParticleEmitter",
             "Effect" : "OrbEffect",
-            "ExposeTransforms" : [
-            ],
             "Name" : "OrbEmitter",
-            "ShadowMaps" : false,
             "StartEmitting" : true,
             "TranslationPersistent" : {
               "$$ClassName" : "TCastleVector3Persistent",
@@ -305,10 +294,7 @@
           {
             "$$ClassName" : "TCastleParticleEmitter",
             "Effect" : "AnchorEffect",
-            "ExposeTransforms" : [
-            ],
             "Name" : "AnchorEmitter",
-            "ShadowMaps" : false,
             "StartEmitting" : true,
             "TranslationPersistent" : {
               "$$ClassName" : "TCastleVector3Persistent",
@@ -375,10 +361,7 @@
           {
             "$$ClassName" : "TCastleParticleEmitter",
             "Effect" : "FountainEffect",
-            "ExposeTransforms" : [
-            ],
             "Name" : "FountainEmitter",
-            "ShadowMaps" : false,
             "StartEmitting" : true,
             "TranslationPersistent" : {
               "$$ClassName" : "TCastleVector3Persistent",
@@ -444,10 +427,7 @@
           {
             "$$ClassName" : "TCastleParticleEmitter",
             "Effect" : "BoxEffect",
-            "ExposeTransforms" : [
-            ],
             "Name" : "BoxEmitter",
-            "ShadowMaps" : false,
             "StartEmitting" : true,
             "TranslationPersistent" : {
               "$$ClassName" : "TCastleVector3Persistent",
@@ -516,10 +496,7 @@
           {
             "$$ClassName" : "TCastleParticleEmitter",
             "Effect" : "SpheroidEffect",
-            "ExposeTransforms" : [
-            ],
             "Name" : "SpheroidEmitter",
-            "ShadowMaps" : false,
             "StartEmitting" : true,
             "TranslationPersistent" : {
               "$$ClassName" : "TCastleVector3Persistent",
@@ -590,10 +567,7 @@
             "$$ClassName" : "TCastleParticleEmitter",
             "Burst" : true,
             "Effect" : "BurstEffect",
-            "ExposeTransforms" : [
-            ],
             "Name" : "BurstEmitter",
-            "ShadowMaps" : false,
             "StartEmitting" : true,
             "TranslationPersistent" : {
               "$$ClassName" : "TCastleVector3Persistent",
@@ -665,10 +639,7 @@
           {
             "$$ClassName" : "TCastleParticleEmitter",
             "Effect" : "RotationEffect",
-            "ExposeTransforms" : [
-            ],
             "Name" : "RotationEmitter",
-            "ShadowMaps" : false,
             "StartEmitting" : true,
             "TranslationPersistent" : {
               "$$ClassName" : "TCastleVector3Persistent",
@@ -740,10 +711,7 @@
           {
             "$$ClassName" : "TCastleParticleEmitter",
             "Effect" : "BBoxEffect",
-            "ExposeTransforms" : [
-            ],
             "Name" : "BBoxEmitter",
-            "ShadowMaps" : false,
             "StartEmitting" : true,
             "TranslationPersistent" : {
               "$$ClassName" : "TCastleVector3Persistent",
@@ -794,10 +762,7 @@
             "$$ClassName" : "TCastleParticleEmitter",
             "AllowsInstancing" : true,
             "Effect" : "FireEffect",
-            "ExposeTransforms" : [
-            ],
             "Name" : "SingleInstanceEmitter",
-            "ShadowMaps" : false,
             "StartEmitting" : true,
             "TranslationPersistent" : {
               "$$ClassName" : "TCastleVector3Persistent",
