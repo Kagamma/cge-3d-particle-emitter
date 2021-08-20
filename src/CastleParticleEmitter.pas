@@ -41,7 +41,9 @@ type
 
   TCastleParticleSourceType = (
     pstBox,
-    pstSpheroid
+    pstSpheroid,
+    pstBoxSurface,
+    pstSpheroidSurface
   );
 
 const
@@ -49,7 +51,7 @@ const
     0, 1, 768, 769, 770, 771, 772, 773, 774, 775
   );
   CastleParticleSourceValues: array [TCastleParticleSourceType] of Integer = (
-    0, 1
+    0, 1, 2, 3
   );
 
 type
@@ -391,6 +393,18 @@ const
 '  float invTimeRemaining = 1.0 / (outTimeToLive.x - outTimeToLive.y);'nl
 '  vec3 vrpos = vec3(rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0);'nl
 '  if (effect.sourceType == 1) {'nl
+'    vrpos = vec3(rnd(), rnd(), rnd()) * normalize(vrpos);'nl
+'    outPosition.xyz = effect.sourcePosition + effect.sourcePositionVariance * vrpos;'nl
+'  } else if (effect.sourceType == 2) {'nl
+'    float face = rnd();'nl
+'    if (face < 1.0 / 3.0)'nl
+'      vrpos = vec3(sign(vrpos.x), vrpos.y, vrpos.z);'nl
+'    else if (face < 2.0 / 3.0)'nl
+'      vrpos = vec3(vrpos.x, sign(vrpos.y), vrpos.z);'nl
+'    else'nl
+'      vrpos = vec3(vrpos.x, vrpos.y, sign(vrpos.z));'nl
+'    outPosition.xyz = effect.sourcePosition + effect.sourcePositionVariance * vrpos;'nl
+'  } else if (effect.sourceType == 3) {'nl
 '    outPosition.xyz = effect.sourcePosition + effect.sourcePositionVariance * normalize(vrpos);'nl
 '  } else {'nl
 '    outPosition.xyz = effect.sourcePosition + effect.sourcePositionVariance * vrpos;'nl
@@ -558,13 +572,25 @@ const
 '  outTimeToLive.y = outTimeToLive.x - outTimeToLive.x * effect.middleAnchor;'nl
 '  float invLifeSpan = 1.0 / outTimeToLive.x;'nl
 '  float invTimeRemaining = 1.0 / (outTimeToLive.x - outTimeToLive.y);'nl
-'  vec3 vrpos = vec3(rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0);'nl
 '  vec3 scale = vec3('nl
 '    length(vec3(mMatrix[0][0], mMatrix[0][1], mMatrix[0][2])),'nl
 '    length(vec3(mMatrix[1][0], mMatrix[1][1], mMatrix[1][2])),'nl
 '    length(vec3(mMatrix[2][0], mMatrix[2][1], mMatrix[2][2]))'nl
 '  );'nl
+'  vec3 vrpos = vec3(rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0);'nl
 '  if (effect.sourceType == 1) {'nl
+'    vrpos = vec3(rnd(), rnd(), rnd()) * normalize(vrpos);'nl
+'    outStartPos = rMatrix * (effect.sourcePosition + scale * effect.sourcePositionVariance * vrpos);'nl
+'  } else if (effect.sourceType == 2) {'nl
+'    float face = rnd();'nl
+'    if (face < 1.0 / 3.0)'nl
+'      vrpos = vec3(sign(vrpos.x), vrpos.y, vrpos.z);'nl
+'    else if (face < 2.0 / 3.0)'nl
+'      vrpos = vec3(vrpos.x, sign(vrpos.y), vrpos.z);'nl
+'    else'nl
+'      vrpos = vec3(vrpos.x, vrpos.y, sign(vrpos.z));'nl
+'    outStartPos = rMatrix * (effect.sourcePosition + scale * effect.sourcePositionVariance * vrpos);'nl
+'  } else if (effect.sourceType == 3) {'nl
 '    outStartPos = rMatrix * (effect.sourcePosition + scale * effect.sourcePositionVariance * normalize(vrpos));'nl
 '  } else {'nl
 '    outStartPos = rMatrix * (effect.sourcePosition + scale * effect.sourcePositionVariance * vrpos);'nl
