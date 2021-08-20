@@ -1403,6 +1403,8 @@ function TCastleParticleEmitter.PropertySections(const PropertyName: String): TP
 begin
   case PropertyName of
     'Burst',
+    'AllowsInstancing',
+    'StartEmitting',
     'Effect':
       Result := [psBasic];
     else
