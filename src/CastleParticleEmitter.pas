@@ -1632,7 +1632,7 @@ initialization
   RegisterPropertyEditor(TypeInfo(AnsiString), TCastleParticleEffect,
     'Texture', TImageURLPropertyEditor);
   {$endif}
-  RegisterSerializableComponent(TCastleParticleEmitter, '3D Particle Emitter (GPU)');
-  RegisterSerializableComponent(TCastleParticleEffect, '3D Particle Effect');
+  RegisterSerializableComponent(TCastleParticleEmitter, 'Particle Emitter (GPU)');
+  RegisterSerializableComponent(TCastleParticleEffect, 'Particle Effect');
 
 end.
