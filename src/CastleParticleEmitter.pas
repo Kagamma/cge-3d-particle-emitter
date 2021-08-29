@@ -779,11 +779,11 @@ const
 
 'void main() {'nl
 '  outColor = texture(baseColor, fragTexCoord) * fragColor;'nl
-'  outColor.rgb *= outColor.a;'nl
 '  if (fogEnable == 1) {'nl
 '    float fogFactor = (fogEnd - fragFogCoord) / fogEnd;'nl
 '    outColor.rgb = mix(fogColor, outColor.rgb, clamp(fogFactor, 0.0, 1.0));'nl
 '  }'nl
+'  outColor.rgb *= outColor.a;'nl
 '}';
 
   VertexShaderSourceMesh: String =
@@ -854,11 +854,11 @@ const
 
 'void main() {'nl
 '  outColor = texture(baseColor, fragTexCoord) * fragColor;'nl
-'  outColor.rgb *= outColor.a;'nl
 '  if (fogEnable == 1) {'nl
 '    float fogFactor = (fogEnd - fragFogCoord) / fogEnd;'nl
 '    outColor.rgb = mix(fogColor, outColor.rgb, clamp(fogFactor, 0.0, 1.0));'nl
 '  }'nl
+'  outColor.rgb *= outColor.a;'nl
 '}';
 
   Varyings: array[0..9] of PChar = (
