@@ -719,30 +719,23 @@ const
 'uniform float scaleY;'nl
 'uniform float scaleZ;'nl
 
-'mat4 createRotate(vec3 p) {'nl
+'mat3 createRotate(vec3 p) {'nl
 '  float cr = cos(p.x);'nl
 '  float sr = sin(p.x);'nl
 '  float cp = cos(p.y);'nl
 '  float sp = sin(p.y);'nl
 '  float cy = cos(p.z);'nl
 '  float sy = sin(p.z);'nl
-'  mat4 m;'nl
+'  mat3 m;'nl
 '  m[0][0] = cp * cy;'nl
 '  m[0][1] = cp * sy;'nl
 '  m[0][2] = - sp;'nl
-'  m[0][3] = 0.0;'nl
 '  m[1][0] = sr * sp * cy - cr * sy;'nl
 '  m[1][1] = sr * sp * sy + cr * cy;'nl
 '  m[1][2] = sr * cp;'nl
-'  m[1][3] = 0.0;'nl
 '  m[2][0] = cr * sp * cy + sr * sy;'nl
 '  m[2][1] = cr * sp * sy - sr * cy;'nl
 '  m[2][2] = cr * cp;'nl
-'  m[2][3] = 0.0;'nl
-'  m[3][0] = 0.0;'nl
-'  m[3][1] = 0.0;'nl
-'  m[3][2] = 0.0;'nl
-'  m[3][3] = 1.0;'nl
 '  return m;'nl
 '}'nl
 
@@ -751,9 +744,9 @@ const
 '    vec4 center = vOrMvMatrix * vec4(inPosition.xyz, 1.0);'nl
 '    fragTexCoord = inTexcoord;'nl
 '    fragColor = inColor;'nl
-'    mat4 m = createRotate(vec3(inRotationXY.x, inRotationXY.z, inSizeRotation.z));'nl
-'    vec4 p = m * (vec4(inVertex, 1.0) * vec4(scaleX, scaleY, scaleZ, 1.0) * vec4(vec3(inSizeRotation.x), 1.0));'nl
-'    gl_Position = pMatrix * (vec4(center.x, center.y, center.z, center.w) + vec4(p.xyz, 0.0));'nl
+'    mat3 m = createRotate(vec3(inRotationXY.x, inRotationXY.z, inSizeRotation.z));'nl
+'    vec3 p = m * (inVertex * vec3(scaleX, scaleY, scaleZ) * vec3(inSizeRotation.x));'nl
+'    gl_Position = pMatrix * (vec4(vec3(center.x, center.y, center.z) + p, center.w));'nl
 '  } else'nl
 '    gl_Position = vec4(-1.0, -1.0, -1.0, 1.0);'nl // Discard this vertex by making it outside of clip plane
 '}';
