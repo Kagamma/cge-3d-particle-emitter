@@ -756,10 +756,9 @@ const
 '    fragColor = inColor;'nl
 '    vec3 center = vec3(vOrMvMatrix * vec4(inPosition.xyz, 1.0)).xyz;'nl
 '    mat3 m = createRotate(vec3(inRotationXY.x, inRotationXY.z, inSizeRotation.z));'nl
-'    vec3 p = m * (inVertex * vec3(scaleX, scaleY, scaleZ) * vec3(inSizeRotation.x));'nl
-'    vec4 p2 = vOrMvMatrix * vec4(p, 1.0);'nl
-'    fragFogCoord = abs(p2.z/ p2.w);'nl
-'    gl_Position = pMatrix * p2;'nl
+'    vec4 p = vec4(m * (inVertex * vec3(scaleX, scaleY, scaleZ) * vec3(inSizeRotation.x)) + center, 1.0);'nl
+'    fragFogCoord = abs(p.z / p.w);'nl
+'    gl_Position = pMatrix * p;'nl
 '  } else'nl
 '    gl_Position = vec4(-1.0, -1.0, -1.0, 1.0);'nl // Discard this vertex by making it outside of clip plane
 '}';
@@ -832,10 +831,9 @@ const
 '    fragTexCoord = inTexcoord;'nl
 '    fragColor = inColor;'nl
 '    mat3 m = createRotate(vec3(inRotationXY.x, inRotationXY.z, inSizeRotation.z));'nl
-'    vec3 p = m * (inVertex * vec3(scaleX, scaleY, scaleZ) * vec3(inSizeRotation.x)) + inPosition.xyz;'nl
-'    vec4 p2 = vOrMvMatrix * vec4(p, 1.0);'nl
-'    fragFogCoord = abs(p2.z/ p2.w);'nl
-'    gl_Position = pMatrix * p2;'nl
+'    vec4 p = vOrMvMatrix * vec4(m * inVertex * vec3(scaleX, scaleY, scaleZ) * vec3(inSizeRotation.x) + inPosition.xyz, 1.0);'nl
+'    fragFogCoord = abs(p.z / p.w);'nl
+'    gl_Position = pMatrix * p;'nl
 '  } else'nl
 '    gl_Position = vec4(-1.0, -1.0, -1.0, 1.0);'nl // Discard this vertex by making it outside of clip plane
 '}';
