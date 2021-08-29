@@ -700,7 +700,7 @@ const
 '  updateParticle();'nl
 '}';
 
-  VertexShaderSourceMultipleInstances: String =
+  VertexShaderSourceQuad: String =
 '#version 330'nl
 'layout(location = 0) in vec4 inPosition;'nl
 'layout(location = 1) in vec2 inTimeToLive;'nl
@@ -713,7 +713,7 @@ const
 'out vec2 fragTexCoord;'nl
 'out vec4 fragColor;'nl
 
-'uniform mat4 mvMatrix;'nl
+'uniform mat4 vOrMvMatrix;'nl
 'uniform mat4 pMatrix;'nl
 'uniform float scaleX;'nl
 'uniform float scaleY;'nl
@@ -748,7 +748,7 @@ const
 
 'void main() {'nl
 '  if (inTimeToLive.x > 0.0) {'nl
-'    vec4 center = mvMatrix * vec4(inPosition.xyz, 1.0);'nl
+'    vec4 center = vOrMvMatrix * vec4(inPosition.xyz, 1.0);'nl
 '    fragTexCoord = inTexcoord;'nl
 '    fragColor = inColor;'nl
 '    mat4 m = createRotate(vec3(inRotationXY.x, inRotationXY.z, inSizeRotation.z));'nl
@@ -758,65 +758,7 @@ const
 '    gl_Position = vec4(-1.0, -1.0, -1.0, 1.0);'nl // Discard this vertex by making it outside of clip plane
 '}';
 
-  VertexShaderSourceSingleInstance: String =
-'#version 330'nl
-'layout(location = 0) in vec4 inPosition;'nl
-'layout(location = 1) in vec2 inTimeToLive;'nl
-'layout(location = 2) in vec4 inSizeRotation;'nl
-'layout(location = 3) in vec4 inColor;'nl
-'layout(location = 9) in vec4 inRotationXY;'nl
-'layout(location = 13) in vec3 inVertex;'nl
-'layout(location = 14) in vec2 inTexcoord;'nl
-
-'out vec2 fragTexCoord;'nl
-'out vec4 fragColor;'nl
-
-'uniform mat4 vMatrix;'nl
-'uniform mat4 pMatrix;'nl
-'uniform float scaleX;'nl
-'uniform float scaleY;'nl
-'uniform float scaleZ;'nl
-
-'mat4 createRotate(vec3 p) {'nl
-'  float cr = cos(p.x);'nl
-'  float sr = sin(p.x);'nl
-'  float cp = cos(p.y);'nl
-'  float sp = sin(p.y);'nl
-'  float cy = cos(p.z);'nl
-'  float sy = sin(p.z);'nl
-'  mat4 m;'nl
-'  m[0][0] = cp * cy;'nl
-'  m[0][1] = cp * sy;'nl
-'  m[0][2] = - sp;'nl
-'  m[0][3] = 0.0;'nl
-'  m[1][0] = sr * sp * cy - cr * sy;'nl
-'  m[1][1] = sr * sp * sy + cr * cy;'nl
-'  m[1][2] = sr * cp;'nl
-'  m[1][3] = 0.0;'nl
-'  m[2][0] = cr * sp * cy + sr * sy;'nl
-'  m[2][1] = cr * sp * sy - sr * cy;'nl
-'  m[2][2] = cr * cp;'nl
-'  m[2][3] = 0.0;'nl
-'  m[3][0] = 0.0;'nl
-'  m[3][1] = 0.0;'nl
-'  m[3][2] = 0.0;'nl
-'  m[3][3] = 1.0;'nl
-'  return m;'nl
-'}'nl
-
-'void main() {'nl
-'  if (inTimeToLive.x > 0.0) {'nl
-'    vec4 center = vMatrix * vec4(inPosition.xyz, 1.0);'nl
-'    fragTexCoord = inTexcoord;'nl
-'    fragColor = inColor;'nl
-'    mat4 m = createRotate(vec3(inRotationXY.x, inRotationXY.z, inSizeRotation.z));'nl
-'    vec4 p = m * (vec4(inVertex, 1.0) * vec4(scaleX, scaleY, scaleZ, 1.0) * vec4(vec3(inSizeRotation.x), 1.0));'nl
-'    gl_Position = pMatrix * (vec4(center.x, center.y, center.z, center.w) + vec4(p.xyz, 0.0));'nl
-'  } else'nl
-'    gl_Position = vec4(-1.0, -1.0, -1.0, 1.0);'nl // Discard this vertex by making it outside of clip plane
-'}';
-
-  FragmentShaderSource: String =
+  FragmentShaderSourceQuad: String =
 '#version 330'nl
 'precision lowp float;'nl
 'in vec2 fragTexCoord;'nl
@@ -860,8 +802,7 @@ var
   TransformFeedbackProgramSingleInstance: TGLSLProgram = nil;
   TransformFeedbackProgramMultipleInstances: TGLSLProgram = nil;
   RenderProgram: TGLSLProgram = nil;
-  RenderProgramSingleInstance: TGLSLProgram = nil;
-  RenderProgramMultipleInstances: TGLSLProgram = nil;
+  RenderProgramQuad: TGLSLProgram = nil;
 
 { Call when OpenGL context is closed }
 procedure FreeGLContext;
@@ -870,8 +811,7 @@ begin
   begin
     FreeAndNil(TransformFeedbackProgramSingleInstance);
     FreeAndNil(TransformFeedbackProgramMultipleInstances);
-    FreeAndNil(RenderProgramSingleInstance);
-    FreeAndNil(RenderProgramMultipleInstances);
+    FreeAndNil(RenderProgramQuad);
   end;
 end;
 
@@ -1344,12 +1284,11 @@ begin
       if Self.AllowsInstancing then
       begin
         TransformFeedbackProgram := TransformFeedbackProgramMultipleInstances;
-        RenderProgram := RenderProgramMultipleInstances;
       end else
       begin
         TransformFeedbackProgram := TransformFeedbackProgramSingleInstance;
-        RenderProgram := RenderProgramSingleInstance;
       end;
+      RenderProgram := RenderProgramQuad;
       glEnable(GL_RASTERIZER_DISCARD);
       TransformFeedbackProgram.Enable;
       if Self.TimePlaying then
@@ -1485,12 +1424,11 @@ begin
   if Self.AllowsInstancing then
   begin
     TransformFeedbackProgram := TransformFeedbackProgramMultipleInstances;
-    RenderProgram := RenderProgramMultipleInstances;
   end else
   begin
     TransformFeedbackProgram := TransformFeedbackProgramSingleInstance;
-    RenderProgram := RenderProgramSingleInstance;
   end;
+  RenderProgram := RenderProgramQuad;
   glDepthMask(GL_FALSE);
   glEnable(GL_DEPTH_TEST);
   glEnable(GL_BLEND);
@@ -1502,10 +1440,10 @@ begin
   if Self.AllowsInstancing then
   begin
     M := Params.RenderingCamera.Matrix * Params.Transform^;
-    RenderProgram.Uniform('mvMatrix').SetValue(M);
+    RenderProgram.Uniform('vOrMvMatrix').SetValue(M);
   end else
   begin
-    RenderProgram.Uniform('vMatrix').SetValue(Params.RenderingCamera.Matrix);
+    RenderProgram.Uniform('vOrMvMatrix').SetValue(Params.RenderingCamera.Matrix);
   end;
   RenderProgram.Uniform('pMatrix').SetValue(RenderContext.ProjectionMatrix);
   glBindVertexArray(Self.VAOMeshes[CurrentBuffer]);
@@ -1629,15 +1567,11 @@ begin
     TransformFeedbackProgramMultipleInstances.SetTransformFeedbackVaryings(Varyings);
     TransformFeedbackProgramMultipleInstances.Link;
 
-    RenderProgramSingleInstance := TGLSLProgram.Create;
-    RenderProgramSingleInstance.AttachVertexShader(VertexShaderSourceSingleInstance);
-    RenderProgramSingleInstance.AttachFragmentShader(FragmentShaderSource);
-    RenderProgramSingleInstance.Link;
+    RenderProgramQuad := TGLSLProgram.Create;
+    RenderProgramQuad.AttachVertexShader(VertexShaderSourceQuad);
+    RenderProgramQuad.AttachFragmentShader(FragmentShaderSourceQuad);
+    RenderProgramQuad.Link;
 
-    RenderProgramMultipleInstances := TGLSLProgram.Create;
-    RenderProgramMultipleInstances.AttachVertexShader(VertexShaderSourceMultipleInstances);
-    RenderProgramMultipleInstances.AttachFragmentShader(FragmentShaderSource);
-    RenderProgramMultipleInstances.Link;
     ApplicationProperties.OnGLContextClose.Add(@FreeGLContext);
   end;
 
