@@ -1737,8 +1737,10 @@ var
   VertexList, NormalList: TVector3List;
   TexcoordList: TVector2List;
   IndexList: TLongIntList;
+  CanProcess: Boolean = True;
 begin
   SetLength(Self.ParticleMeshIndices, 0);
+  SetLength(Self.ParticleMesh, 0);
   // Load built-in mesh if Mesh is empty
   if (Self.FEffect.Mesh = '') or (not URIFileExists(Self.FEffect.Mesh)) then
   begin
@@ -1757,36 +1759,60 @@ begin
       // We only care the first shape
       ShapeList := Scene.Shapes.TraverseList(True);
       if ShapeList.Count = 0 then
-        raise Exception.Create('No mesh found in this model');
-      Shape := ShapeList.Items[0];
-      ShapeNode := Shape.Node as TShapeNode;
-      //
-      IndexedTriangleSetNode := ShapeNode.FindNode(TIndexedTriangleSetNode, False) as TIndexedTriangleSetNode;
-      if IndexedTriangleSetNode = nil then
-        raise Exception.Create('The mesh doesn''t contain indices');
-      CoordNode := ShapeNode.FindNode(TCoordinateNode, False) as TCoordinateNode;
-      if CoordNode = nil then
-        raise Exception.Create('The mesh doesn''t contain vertices');
-      TexcoordNode := ShapeNode.FindNode(TTextureCoordinateNode, False) as TTextureCoordinateNode;
-      if TexcoordNode = nil then
-        raise Exception.Create('The mesh doesn''t contain texcoords');
-      VertexList := CoordNode.FdPoint.Items;
-      TexcoordList := TexcoordNode.FdPoint.Items;
-      NormalList := Shape.NormalsSmooth(False, True);
-      IndexList := IndexedTriangleSetNode.FdIndex.Items;
-      if (VertexList.Count <> TexcoordList.Count) or (VertexList.Count <> NormalList.Count) then
-        raise Exception.Create('Invalid mesh data');
-      //
-      SetLength(Self.ParticleMesh, VertexList.Count);
-      for I := 0 to VertexList.Count - 1 do
       begin
-        Self.ParticleMesh[I].Vertex := VertexList[I];
-        Self.ParticleMesh[I].Texcoord := TexcoordList[I];
-        Self.ParticleMesh[I].Normal := NormalList[I];
+        WritelnWarning('CastleParticleEmitter', 'No mesh found in this model');
+        CanProcess := False;
       end;
-      SetLength(Self.ParticleMeshIndices, IndexList.Count);
-      for I := 0 to IndexList.Count - 1 do
-        Self.ParticleMeshIndices[I] := IndexList[I];
+      if CanProcess then
+      begin
+        Shape := ShapeList.Items[0];
+        ShapeNode := Shape.Node as TShapeNode;
+        //
+        try IndexedTriangleSetNode := ShapeNode.FindNode(TIndexedTriangleSetNode, False) as TIndexedTriangleSetNode; except IndexedTriangleSetNode := nil; end;
+        if IndexedTriangleSetNode = nil then
+        begin
+          WritelnWarning('CastleParticleEmitter', 'The mesh doesn''t contain indices');
+          CanProcess := False;
+        end;
+        try CoordNode := ShapeNode.FindNode(TCoordinateNode, False) as TCoordinateNode; except CoordNode := nil; end;
+        if CoordNode = nil then
+        begin
+          WritelnWarning('CastleParticleEmitter', 'The mesh doesn''t contain vertices');
+          CanProcess := False;
+        end;
+        try TexcoordNode := ShapeNode.FindNode(TTextureCoordinateNode, False) as TTextureCoordinateNode; except TexcoordNode := nil; end;
+        if TexcoordNode = nil then
+        begin
+          WritelnWarning('CastleParticleEmitter', 'The mesh doesn''t contain texcoords');
+          CanProcess := False;
+        end;
+        if CanProcess then
+        begin
+          VertexList := CoordNode.FdPoint.Items;
+          TexcoordList := TexcoordNode.FdPoint.Items;
+          NormalList := Shape.NormalsSmooth(False, True);
+          IndexList := IndexedTriangleSetNode.FdIndex.Items;
+          if (VertexList.Count <> TexcoordList.Count) or (VertexList.Count <> NormalList.Count) then
+          begin
+            WritelnWarning('CastleParticleEmitter', 'Invalid mesh data');
+            CanProcess := False;
+          end;
+          //
+          if CanProcess then
+          begin
+            SetLength(Self.ParticleMesh, VertexList.Count);
+            for I := 0 to VertexList.Count - 1 do
+            begin
+              Self.ParticleMesh[I].Vertex := VertexList[I];
+              Self.ParticleMesh[I].Texcoord := TexcoordList[I];
+              Self.ParticleMesh[I].Normal := NormalList[I];
+            end;
+            SetLength(Self.ParticleMeshIndices, IndexList.Count);
+            for I := 0 to IndexList.Count - 1 do
+              Self.ParticleMeshIndices[I] := IndexList[I];
+          end;
+        end;
+      end;
     finally
       FreeAndNil(Scene);
     end;
