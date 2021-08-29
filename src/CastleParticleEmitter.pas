@@ -70,6 +70,7 @@ type
     Velocity: TVector4;
     Direction: TVector3;
     Translate: TVector3;
+    RotationXY: TVector4;
   end;
 
   PCastleParticleMesh = ^TCastleParticleMesh;
@@ -96,12 +97,12 @@ type
     FMiddleAnchor,
     FSpeed,
     FSpeedVariance,
+    FDuration: Single;
+    FDirectionVariance: Single;
     FRotationStart,
     FRotationStartVariance,
     FRotationEnd,
     FRotationEndVariance,
-    FDuration: Single;
-    FDirectionVariance: Single;
     FSourcePosition,
     FSourcePositionVariance,
     FDirection,
@@ -114,6 +115,10 @@ type
     FFinishColorVariance: TVector4;
     FBoundingBoxMinPersistent,
     FBoundingBoxMaxPersistent,
+    FRotationStartPersistent,
+    FRotationStartVariancePersistent,
+    FRotationEndPersistent,
+    FRotationEndVariancePersistent,
     FSourcePositionPersistent,
     FSourcePositionVariancePersistent,
     FDirectionPersistent,
@@ -132,6 +137,14 @@ type
     function GetBoundingBoxMinForPersistent: TVector3;
     procedure SetBoundingBoxMaxForPersistent(const AValue: TVector3);
     function GetBoundingBoxMaxForPersistent: TVector3;
+    procedure SetRotationStartForPersistent(const AValue: TVector3);
+    function GetRotationStartForPersistent: TVector3;
+    procedure SetRotationStartVarianceForPersistent(const AValue: TVector3);
+    function GetRotationStartVarianceForPersistent: TVector3;
+    procedure SetRotationEndForPersistent(const AValue: TVector3);
+    function GetRotationEndForPersistent: TVector3;
+    procedure SetRotationEndVarianceForPersistent(const AValue: TVector3);
+    function GetRotationEndVarianceForPersistent: TVector3;
     procedure SetSourcePositionForPersistent(const AValue: TVector3);
     function GetSourcePositionForPersistent: TVector3;
     procedure SetSourcePositionVarianceForPersistent(const AValue: TVector3);
@@ -166,6 +179,10 @@ type
     procedure Load(const AURL: String; const IsTexturePathRelative: Boolean = False);
     procedure Save(const AURL: String; const IsTexturePathRelative: Boolean = False);
 
+    property RotationStart: TVector3 read FRotationStart write FRotationStart;
+    property RotationStartVariance: TVector3 read FRotationStartVariance write FRotationStartVariance;
+    property RotationEnd: TVector3 read FRotationEnd write FRotationEnd;
+    property RotationEndVariance: TVector3 read FRotationEndVariance write FRotationEndVariance;
     property SourcePosition: TVector3 read FSourcePosition write FSourcePosition;
     property SourcePositionVariance: TVector3 read FSourcePositionVariance write FSourcePositionVariance;
     property Direction: TVector3 read FDirection write FDirection;
@@ -194,10 +211,6 @@ type
     property MiddleAnchor: Single read FMiddleAnchor write SetMiddleAnchor default 0.5;
     property Speed: Single read FSpeed write FSpeed default 3;
     property SpeedVariance: Single read FSpeedVariance write FSpeedVariance default 1;
-    property RotationStart: Single read FRotationStart write FRotationStart;
-    property RotationStartVariance: Single read FRotationStartVariance write FRotationStartVariance;
-    property RotationEnd: Single read FRotationEnd write FRotationEnd;
-    property RotationEndVariance: Single read FRotationEndVariance write FRotationEndVariance;
     property Duration: Single read FDuration write SetDuration default -1;
     property DirectionVariance: Single read FDirectionVariance write FDirectionVariance default 0.4;
     property Radial: Single read FRadial write FRadial;
@@ -205,6 +218,10 @@ type
     property EnableMiddleProperties: Boolean read FEnableMiddleProperties write FEnableMiddleProperties default True;
     property BoundingBoxMinPersistent: TCastleVector3Persistent read FBoundingBoxMinPersistent;
     property BoundingBoxMaxPersistent: TCastleVector3Persistent read FBoundingBoxMaxPersistent;
+    property RotationStartPersistent: TCastleVector3Persistent read FRotationStartPersistent write FRotationStartPersistent;
+    property RotationStartVariancePersistent: TCastleVector3Persistent read FRotationStartVariancePersistent write FRotationStartVariancePersistent;
+    property RotationEndPersistent: TCastleVector3Persistent read FRotationEndPersistent write FRotationEndPersistent;
+    property RotationEndVariancePersistent: TCastleVector3Persistent read FRotationEndVariancePersistent write FRotationEndVariancePersistent;
     property SourcePositionPersistent: TCastleVector3Persistent read FSourcePositionPersistent;
     property SourcePositionVariancePersistent: TCastleVector3Persistent read FSourcePositionVariancePersistent;
     property DirectionPersistent: TCastleVector3Persistent read FDirectionPersistent;
@@ -306,6 +323,7 @@ const
 'layout(location = 6) in vec4 inVelocity;'nl
 'layout(location = 7) in vec3 inDirection;'nl
 'layout(location = 8) in vec3 inTranslate;'nl
+'layout(location = 9) in vec4 inRotationXY;'nl
 
 'out vec4 outPosition;'nl
 'out vec2 outTimeToLive;'nl
@@ -316,6 +334,7 @@ const
 'out vec4 outVelocity;'nl
 'out vec3 outDirection;'nl
 'out vec3 outTranslate;'nl
+'out vec4 outRotationXY;'nl
 
 'struct Effect {'nl
 '  int sourceType;'nl
@@ -333,10 +352,10 @@ const
 '  float minRadiusVariance;'nl
 '  float rotatePerSecond;'nl
 '  float rotatePerSecondVariance;'nl
-'  float rotationStart;'nl
-'  float rotationStartVariance;'nl
-'  float rotationEnd;'nl
-'  float rotationEndVariance;'nl
+'  vec3 rotationStart;'nl
+'  vec3 rotationStartVariance;'nl
+'  vec3 rotationEnd;'nl
+'  vec3 rotationEndVariance;'nl
 '  float speed;'nl
 '  float speedVariance;'nl
 '  float radial;'nl
@@ -393,6 +412,7 @@ const
 '  outVelocity = inVelocity;'nl
 '  outDirection = inDirection;'nl
 '  outTranslate = inTranslate;'nl
+'  outRotationXY = inRotationXY;'nl
 '}'nl
 
 'void emitParticle() {'nl
@@ -438,9 +458,15 @@ const
 '  float finishSize = max(0.0001, effect.middleParticleSize + effect.middleParticleSizeVariance * (rnd() * 2.0 - 1.0));'nl
 '  outSizeRotation.xy = vec2(startSize, (finishSize - startSize) * invTimeRemaining);'nl
 
-'  outSizeRotation.z = effect.rotationStart + effect.rotationStartVariance * (rnd() * 2.0 - 1.0);'nl
-'  float endRotation = effect.rotationEnd + effect.rotationEndVariance * (rnd() * 2.0 - 1.0);'nl
+'  outSizeRotation.z = effect.rotationStart.z + effect.rotationStartVariance.z * (rnd() * 2.0 - 1.0);'nl
+'  float endRotation = effect.rotationEnd.z + effect.rotationEndVariance.z * (rnd() * 2.0 - 1.0);'nl
 '  outSizeRotation.w = (endRotation - outSizeRotation.z) * invLifeSpan;'nl
+'  outRotationXY.x = effect.rotationStart.x + effect.rotationStartVariance.x * (rnd() * 2.0 - 1.0);'nl
+'  endRotation = effect.rotationEnd.x + effect.rotationEndVariance.x * (rnd() * 2.0 - 1.0);'nl
+'  outRotationXY.y = (endRotation - outRotationXY.x) * invLifeSpan;'nl
+'  outRotationXY.z = effect.rotationStart.y + effect.rotationStartVariance.x * (rnd() * 2.0 - 1.0);'nl
+'  endRotation = effect.rotationEnd.y + effect.rotationEndVariance.y * (rnd() * 2.0 - 1.0);'nl
+'  outRotationXY.w = (endRotation - outRotationXY.z) * invLifeSpan;'nl
 '}'nl
 
 'void updateParticle() {'nl
@@ -467,6 +493,8 @@ const
 '  outPosition.xyz = rotate(outPosition.xyz, outVelocity.w * deltaTime, outDirection) + outVelocity.xyz * deltaTime;'nl
 '  outSizeRotation.x += outSizeRotation.y * deltaTime;'nl
 '  outSizeRotation.z += outSizeRotation.w * deltaTime;'nl
+'  outRotationXY.x += outRotationXY.y * deltaTime;'nl
+'  outRotationXY.z += outRotationXY.w * deltaTime;'nl
 '}'nl
 
 'void main() {'nl
@@ -485,6 +513,7 @@ const
 'layout(location = 6) in vec4 inVelocity;'nl
 'layout(location = 7) in vec3 inDirection;'nl
 'layout(location = 8) in vec3 inTranslate;'nl
+'layout(location = 9) in vec4 inRotationXY;'nl
 
 'out vec4 outPosition;'nl
 'out vec2 outTimeToLive;'nl
@@ -495,6 +524,7 @@ const
 'out vec4 outVelocity;'nl
 'out vec3 outDirection;'nl
 'out vec3 outTranslate;'nl
+'out vec4 outRotationXY;'nl
 
 'struct Effect {'nl
 '  int sourceType;'nl
@@ -512,10 +542,10 @@ const
 '  float minRadiusVariance;'nl
 '  float rotatePerSecond;'nl
 '  float rotatePerSecondVariance;'nl
-'  float rotationStart;'nl
-'  float rotationStartVariance;'nl
-'  float rotationEnd;'nl
-'  float rotationEndVariance;'nl
+'  vec3 rotationStart;'nl
+'  vec3 rotationStartVariance;'nl
+'  vec3 rotationEnd;'nl
+'  vec3 rotationEndVariance;'nl
 '  float speed;'nl
 '  float speedVariance;'nl
 '  float radial;'nl
@@ -573,6 +603,7 @@ const
 '  outVelocity = inVelocity;'nl
 '  outDirection = inDirection;'nl
 '  outTranslate = inTranslate;'nl
+'  outRotationXY = inRotationXY;'nl
 '}'nl
 
 'void emitParticle() {'nl
@@ -624,9 +655,15 @@ const
 '  float finishSize = max(0.0001, effect.middleParticleSize + effect.middleParticleSizeVariance * (rnd() * 2.0 - 1.0));'nl
 '  outSizeRotation.xy = vec2(startSize, (finishSize - startSize) * invTimeRemaining);'nl
 
-'  outSizeRotation.z = effect.rotationStart + effect.rotationStartVariance * (rnd() * 2.0 - 1.0);'nl
-'  float endRotation = effect.rotationEnd + effect.rotationEndVariance * (rnd() * 2.0 - 1.0);'nl
+'  outSizeRotation.z = effect.rotationStart.z + effect.rotationStartVariance.z * (rnd() * 2.0 - 1.0);'nl
+'  float endRotation = effect.rotationEnd.z + effect.rotationEndVariance.z * (rnd() * 2.0 - 1.0);'nl
 '  outSizeRotation.w = (endRotation - outSizeRotation.z) * invLifeSpan;'nl
+'  outRotationXY.x = effect.rotationStart.x + effect.rotationStartVariance.x * (rnd() * 2.0 - 1.0);'nl
+'  endRotation = effect.rotationEnd.x + effect.rotationEndVariance.x * (rnd() * 2.0 - 1.0);'nl
+'  outRotationXY.y = (endRotation - outRotationXY.x) * invLifeSpan;'nl
+'  outRotationXY.z = effect.rotationStart.y + effect.rotationStartVariance.x * (rnd() * 2.0 - 1.0);'nl
+'  endRotation = effect.rotationEnd.y + effect.rotationEndVariance.y * (rnd() * 2.0 - 1.0);'nl
+'  outRotationXY.w = (endRotation - outRotationXY.z) * invLifeSpan;'nl
 '}'nl
 
 'void updateParticle() {'nl
@@ -654,6 +691,8 @@ const
 '  outPosition.xyz = outStartPos + outTranslate;'nl
 '  outSizeRotation.x += outSizeRotation.y * deltaTime;'nl
 '  outSizeRotation.z += outSizeRotation.w * deltaTime;'nl
+'  outRotationXY.x += outRotationXY.y * deltaTime;'nl
+'  outRotationXY.z += outRotationXY.w * deltaTime;'nl
 '}'nl
 
 'void main() {'nl
@@ -677,6 +716,7 @@ const
 'uniform mat4 pMatrix;'nl
 'uniform float scaleX;'nl
 'uniform float scaleY;'nl
+'uniform float scaleZ;'nl
 
 'void main() {'nl
 '  if (inTimeToLive.x > 0.0) {'nl
@@ -689,7 +729,7 @@ const
 '    float sy = inVertex.y * inSizeRotation.x * scaleY;'nl
 '    float rx = c * sx - s * sy;'nl
 '    float ry = s * sx + c * sy;'nl
-'    gl_Position = pMatrix * vec4(p.x + rx, p.y + ry, p.zw);'nl
+'    gl_Position = pMatrix * vec4(p.x + rx, p.y + ry, p.z + inVertex.z * scaleZ, p.w);'nl
 '  } else'nl
 '    gl_Position = vec4(-1.0, -1.0, -1.0, 1.0);'nl // Discard this vertex by making it outside of clip plane
 '}';
@@ -710,6 +750,7 @@ const
 'uniform mat4 pMatrix;'nl
 'uniform float scaleX;'nl
 'uniform float scaleY;'nl
+'uniform float scaleZ;'nl
 
 'void main() {'nl
 '  if (inTimeToLive.x > 0.0) {'nl
@@ -722,7 +763,7 @@ const
 '    float sy = inVertex.y * inSizeRotation.x * scaleY;'nl
 '    float rx = c * sx - s * sy;'nl
 '    float ry = s * sx + c * sy;'nl
-'    gl_Position = pMatrix * vec4(p.x + rx, p.y + ry, p.zw);'nl
+'    gl_Position = pMatrix * vec4(p.x + rx, p.y + ry, p.z + inVertex.z * scaleZ, p.w);'nl
 '  } else'nl
 '    gl_Position = vec4(-1.0, -1.0, -1.0, 1.0);'nl // Discard this vertex by making it outside of clip plane
 '}';
@@ -742,7 +783,7 @@ const
 '  outColor.rgb *= outColor.a;'nl
 '}';
 
-  Varyings: array[0..8] of PChar = (
+  Varyings: array[0..9] of PChar = (
     'outPosition',
     'outTimeToLive',
     'outSizeRotation',
@@ -751,7 +792,8 @@ const
     'outStartPos',
     'outVelocity',
     'outDirection',
-    'outTranslate'
+    'outTranslate',
+    'outRotationXY'
   );
 
   // Built-in particle vertices & texcoords
@@ -803,6 +845,46 @@ end;
 function TCastleParticleEffect.GetBoundingBoxMaxForPersistent: TVector3;
 begin
   Result := Self.FBBox.Data[1];
+end;
+
+procedure TCastleParticleEffect.SetRotationStartForPersistent(const AValue: TVector3);
+begin
+  Self.FRotationStart := AValue;
+end;
+
+function TCastleParticleEffect.GetRotationStartForPersistent: TVector3;
+begin
+  Result := Self.FRotationStart;
+end;
+
+procedure TCastleParticleEffect.SetRotationStartVarianceForPersistent(const AValue: TVector3);
+begin
+  Self.FRotationStartVariance := AValue;
+end;
+
+function TCastleParticleEffect.GetRotationStartVarianceForPersistent: TVector3;
+begin
+  Result := Self.FRotationStartVariance;
+end;
+
+procedure TCastleParticleEffect.SetRotationEndForPersistent(const AValue: TVector3);
+begin
+  Self.FRotationEnd := AValue;
+end;
+
+function TCastleParticleEffect.GetRotationEndForPersistent: TVector3;
+begin
+  Result := Self.FRotationEnd;
+end;
+
+procedure TCastleParticleEffect.SetRotationEndVarianceForPersistent(const AValue: TVector3);
+begin
+  Self.FRotationEndVariance := AValue;
+end;
+
+function TCastleParticleEffect.GetRotationEndVarianceForPersistent: TVector3;
+begin
+  Result := Self.FRotationEndVariance;
 end;
 
 procedure TCastleParticleEffect.SetSourcePositionForPersistent(const AValue: TVector3);
@@ -988,6 +1070,26 @@ begin
     @Self.SetBoundingBoxMaxForPersistent,
     Self.BBox.Data[1]
   );
+  Self.FRotationStartPersistent := CreateVec3Persistent(
+    @Self.GetRotationStartForPersistent,
+    @Self.SetRotationStartForPersistent,
+    Self.FRotationStart
+  );
+  Self.FRotationStartVariancePersistent := CreateVec3Persistent(
+    @Self.GetRotationStartVarianceForPersistent,
+    @Self.SetRotationStartVarianceForPersistent,
+    Self.FRotationStartVariance
+  );
+  Self.FRotationEndPersistent := CreateVec3Persistent(
+    @Self.GetRotationEndForPersistent,
+    @Self.SetRotationEndForPersistent,
+    Self.FRotationStart
+  );
+  Self.FRotationEndVariancePersistent := CreateVec3Persistent(
+    @Self.GetRotationEndVarianceForPersistent,
+    @Self.SetRotationEndVarianceForPersistent,
+    Self.FRotationEndVariance
+  );
   Self.FSourcePositionPersistent := CreateVec3Persistent(
     @Self.GetSourcePositionForPersistent,
     @Self.SetSourcePositionForPersistent,
@@ -1044,6 +1146,10 @@ destructor TCastleParticleEffect.Destroy;
 begin
   FreeAndNil(Self.FBoundingBoxMinPersistent);
   FreeAndNil(Self.FBoundingBoxMaxPersistent);
+  FreeAndNil(Self.FRotationStartPersistent);
+  FreeAndNil(Self.FRotationStartVariancePersistent);
+  FreeAndNil(Self.FRotationEndPersistent);
+  FreeAndNil(Self.FRotationEndVariancePersistent);
   FreeAndNil(Self.FSourcePositionPersistent);
   FreeAndNil(Self.FSourcePositionVariancePersistent);
   FreeAndNil(Self.FDirectionPersistent);
@@ -1344,6 +1450,7 @@ begin
   RenderProgram.Enable;
   RenderProgram.Uniform('scaleX').SetValue(Vector3(Params.Transform^[0,0], Params.Transform^[0,1], Params.Transform^[0,2]).Length);
   RenderProgram.Uniform('scaleY').SetValue(Vector3(Params.Transform^[1,0], Params.Transform^[1,1], Params.Transform^[1,2]).Length);
+  RenderProgram.Uniform('scaleZ').SetValue(Vector3(Params.Transform^[2,0], Params.Transform^[2,1], Params.Transform^[2,2]).Length);
   if Self.AllowsInstancing then
   begin
     M := Params.RenderingCamera.Matrix * Params.Transform^;
@@ -1591,6 +1698,8 @@ begin
     glVertexAttribPointer(7, 3, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), Pointer(100));
     glEnableVertexAttribArray(8);
     glVertexAttribPointer(8, 3, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), Pointer(112));
+    glEnableVertexAttribArray(9);
+    glVertexAttribPointer(9, 4, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), Pointer(124));
 
     // Instancing VAO
     glBindVertexArray(Self.VAOMeshes[I]);
