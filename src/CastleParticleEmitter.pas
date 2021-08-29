@@ -20,10 +20,10 @@ uses
   PropEdits, CastlePropEdits,
   {$endif}
   fpjson, jsonparser,
-  CastleTransform, CastleSceneCore, CastleComponentSerialize, CastleColors, CastleBoxes,
+  CastleTransform, CastleScene, CastleComponentSerialize, CastleColors, CastleBoxes,
   CastleVectors, CastleRenderContext, Generics.Collections, CastleGLImages, CastleLog,
   CastleUtils, CastleApplicationProperties, CastleGLShaders, CastleClassUtils,
-  X3DNodes;
+  X3DNodes, CastleShapes, CastleGLUtils;
 
 type
   TCastleParticleBlendMode = (
@@ -77,10 +77,12 @@ type
   TCastleParticleMesh = packed record
     Vertex: TVector3;
     Texcoord: TVector2;
+    Normal: TVector3;
   end;
 
   TCastleParticleEffect = class(TCastleComponent)
   private
+    FMesh,
     FTexture: String;
     FSourceType: TCastleParticleSourceType;
     FBlendFuncSource,
@@ -165,6 +167,7 @@ type
     function GetFinishColorForPersistent: TVector4;
     procedure SetFinishColorVarianceForPersistent(const AValue: TVector4);
     function GetFinishColorVarianceForPersistent: TVector4;
+    procedure SetMesh(const AValue: String);
     procedure SetTexture(const AValue: String);
     procedure SetMaxParticle(const AValue: Integer);
     procedure SetDuration(const AValue: Single);
@@ -195,6 +198,7 @@ type
     property FinishColorVariance: TVector4 read FFinishColorVariance write FFinishColorVariance;
     property BBox: TBox3D read FBBox write FBBox;
   published
+    property Mesh: String read FMesh write SetMesh;
     property Texture: String read FTexture write SetTexture;
     property SourceType: TCastleParticleSourceType read FSourceType write FSourceType default pstBox;
     property BlendFuncSource: TCastleParticleBlendMode read FBlendFuncSource write FBlendFuncSource default pbmOne;
@@ -241,10 +245,11 @@ type
     VAOs,
     VAOMeshes,
     VBOs: array[0..1] of GLuint;
-    VBOMesh: GLuint;
+    VBOMesh, VBOMeshIndices: GLuint;
     CurrentBuffer: GLuint;
     Particles: packed array of TCastleParticle;
     ParticleMesh: packed array of TCastleParticleMesh;
+    ParticleMeshIndices: packed array of GLuint;
 
     FStartEmitting: Boolean;
     FEffect: TCastleParticleEffect;
@@ -264,6 +269,7 @@ type
     FIsNeedRefresh: Boolean;
     FDistanceCulling: Single;
     FIsDrawn: Boolean;
+    FAllowsWriteToDepthBuffer: Boolean;
     { If true, the particle still perform update even when being culled }
     FAllowsUpdateWhenCulled: Boolean;
     { If true, this instance can be used in multiple transform nodes }
@@ -272,8 +278,10 @@ type
     FBurst: Boolean;
     { If true, smooth texture }
     FSmoothTexture: Boolean;
+    FEnableFog,
     FTimePlaying: Boolean;
     FTimePlayingSpeed: Single;
+    procedure InternalLoadMesh;
     procedure InternalRefreshEffect;
     procedure SetStartEmitting(V: Boolean);
     procedure SetBurst(V: Boolean);
@@ -296,8 +304,10 @@ type
     { If true, the emitter will start emitting }
     property StartEmitting: Boolean read FStartEmitting write SetStartEmitting default False;
     property DistanceCulling: Single read FDistanceCulling write FDistanceCulling default 0;
+    property AllowsWriteToDepthBuffer: Boolean read FAllowsWriteToDepthBuffer write FAllowsWriteToDepthBuffer default False;
     property AllowsUpdateWhenCulled: Boolean read FAllowsUpdateWhenCulled write FAllowsUpdateWhenCulled default True;
     property AllowsInstancing: Boolean read FAllowsInstancing write FAllowsInstancing default False;
+    property EnableFog: Boolean read FEnableFog write FEnableFog default False;
     property SmoothTexture: Boolean read FSmoothTexture write SetSmoothTexture default True;
     property Burst: Boolean read FBurst write SetBurst default False;
     property TimePlaying: Boolean read FTimePlaying write FTimePlaying default True;
@@ -712,6 +722,7 @@ const
 
 'out vec2 fragTexCoord;'nl
 'out vec4 fragColor;'nl
+'out float fragFogCoord;'nl
 
 'uniform mat4 vOrMvMatrix;'nl
 'uniform mat4 pMatrix;'nl
@@ -746,7 +757,9 @@ const
 '    vec3 center = vec3(vOrMvMatrix * vec4(inPosition.xyz, 1.0)).xyz;'nl
 '    mat3 m = createRotate(vec3(inRotationXY.x, inRotationXY.z, inSizeRotation.z));'nl
 '    vec3 p = m * (inVertex * vec3(scaleX, scaleY, scaleZ) * vec3(inSizeRotation.x));'nl
-'    gl_Position = pMatrix * (vec4(center + p, 1.0));'nl
+'    vec4 p2 = vOrMvMatrix * vec4(p, 1.0);'nl
+'    fragFogCoord = abs(p2.z/ p2.w);'nl
+'    gl_Position = pMatrix * p2;'nl
 '  } else'nl
 '    gl_Position = vec4(-1.0, -1.0, -1.0, 1.0);'nl // Discard this vertex by making it outside of clip plane
 '}';
@@ -756,14 +769,98 @@ const
 'precision lowp float;'nl
 'in vec2 fragTexCoord;'nl
 'in vec4 fragColor;'nl
+'in float fragFogCoord;'nl
 
 'out vec4 outColor;'nl
 
 'uniform sampler2D baseColor;'nl
+'uniform int fogEnable;'nl
+'uniform float fogEnd;'nl
+'uniform vec3 fogColor;'nl
 
 'void main() {'nl
 '  outColor = texture(baseColor, fragTexCoord) * fragColor;'nl
 '  outColor.rgb *= outColor.a;'nl
+'  if (fogEnable == 1) {'nl
+'    float fogFactor = (fogEnd - fragFogCoord) / fogEnd;'nl
+'    outColor.rgb = mix(fogColor, outColor.rgb, clamp(fogFactor, 0.0, 1.0));'nl
+'  }'nl
+'}';
+
+  VertexShaderSourceMesh: String =
+'#version 330'nl
+'layout(location = 0) in vec4 inPosition;'nl
+'layout(location = 1) in vec2 inTimeToLive;'nl
+'layout(location = 2) in vec4 inSizeRotation;'nl
+'layout(location = 3) in vec4 inColor;'nl
+'layout(location = 9) in vec4 inRotationXY;'nl
+'layout(location = 13) in vec3 inVertex;'nl
+'layout(location = 14) in vec2 inTexcoord;'nl
+
+'out vec2 fragTexCoord;'nl
+'out vec4 fragColor;'nl
+'out float fragFogCoord;'nl
+
+'uniform mat4 vOrMvMatrix;'nl
+'uniform mat4 pMatrix;'nl
+'uniform float scaleX;'nl
+'uniform float scaleY;'nl
+'uniform float scaleZ;'nl
+
+'mat3 createRotate(vec3 p) {'nl
+'  float cr = cos(p.x);'nl
+'  float sr = sin(p.x);'nl
+'  float cp = cos(p.y);'nl
+'  float sp = sin(p.y);'nl
+'  float cy = cos(p.z);'nl
+'  float sy = sin(p.z);'nl
+'  return mat3('nl
+'    cp * cy,'nl
+'    cp * sy,'nl
+'    - sp,'nl
+'    sr * sp * cy - cr * sy,'nl
+'    sr * sp * sy + cr * cy,'nl
+'    sr * cp,'nl
+'    cr * sp * cy + sr * sy,'nl
+'    cr * sp * sy - sr * cy,'nl
+'    cr * cp'nl
+'  );'nl
+'}'nl
+
+'void main() {'nl
+'  if (inTimeToLive.x > 0.0) {'nl
+'    fragTexCoord = inTexcoord;'nl
+'    fragColor = inColor;'nl
+'    mat3 m = createRotate(vec3(inRotationXY.x, inRotationXY.z, inSizeRotation.z));'nl
+'    vec3 p = m * (inVertex * vec3(scaleX, scaleY, scaleZ) * vec3(inSizeRotation.x)) + inPosition.xyz;'nl
+'    vec4 p2 = vOrMvMatrix * vec4(p, 1.0);'nl
+'    fragFogCoord = abs(p2.z/ p2.w);'nl
+'    gl_Position = pMatrix * p2;'nl
+'  } else'nl
+'    gl_Position = vec4(-1.0, -1.0, -1.0, 1.0);'nl // Discard this vertex by making it outside of clip plane
+'}';
+
+  FragmentShaderSourceMesh: String =
+'#version 330'nl
+'precision lowp float;'nl
+'in vec2 fragTexCoord;'nl
+'in vec4 fragColor;'nl
+'in float fragFogCoord;'nl
+
+'out vec4 outColor;'nl
+
+'uniform sampler2D baseColor;'nl
+'uniform int fogEnable;'nl
+'uniform float fogEnd;'nl
+'uniform vec3 fogColor;'nl
+
+'void main() {'nl
+'  outColor = texture(baseColor, fragTexCoord) * fragColor;'nl
+'  outColor.rgb *= outColor.a;'nl
+'  if (fogEnable == 1) {'nl
+'    float fogFactor = (fogEnd - fragFogCoord) / fogEnd;'nl
+'    outColor.rgb = mix(fogColor, outColor.rgb, clamp(fogFactor, 0.0, 1.0));'nl
+'  }'nl
 '}';
 
   Varyings: array[0..9] of PChar = (
@@ -795,6 +892,7 @@ var
   TransformFeedbackProgramSingleInstance: TGLSLProgram = nil;
   TransformFeedbackProgramMultipleInstances: TGLSLProgram = nil;
   RenderProgram: TGLSLProgram = nil;
+  RenderProgramMesh: TGLSLProgram = nil;
   RenderProgramQuad: TGLSLProgram = nil;
 
 { Call when OpenGL context is closed }
@@ -805,6 +903,7 @@ begin
     FreeAndNil(TransformFeedbackProgramSingleInstance);
     FreeAndNil(TransformFeedbackProgramMultipleInstances);
     FreeAndNil(RenderProgramQuad);
+    FreeAndNil(RenderProgramMesh);
   end;
 end;
 
@@ -966,6 +1065,12 @@ end;
 function TCastleParticleEffect.GetFinishColorVarianceForPersistent: TVector4;
 begin
   Result := Self.FFinishColorVariance;
+end;
+
+procedure TCastleParticleEffect.SetMesh(const AValue: String);
+begin
+  Self.FMesh := AValue;
+  Self.IsNeedRefresh := True;
 end;
 
 procedure TCastleParticleEffect.SetTexture(const AValue: String);
@@ -1275,13 +1380,9 @@ begin
     if ((not Self.FAllowsUpdateWhenCulled) and Self.FIsDrawn) or Self.FAllowsUpdateWhenCulled then
     begin
       if Self.AllowsInstancing then
-      begin
-        TransformFeedbackProgram := TransformFeedbackProgramMultipleInstances;
-      end else
-      begin
+        TransformFeedbackProgram := TransformFeedbackProgramMultipleInstances
+      else
         TransformFeedbackProgram := TransformFeedbackProgramSingleInstance;
-      end;
-      RenderProgram := RenderProgramQuad;
       glEnable(GL_RASTERIZER_DISCARD);
       TransformFeedbackProgram.Enable;
       if Self.TimePlaying then
@@ -1377,6 +1478,8 @@ var
   RenderCameraPosition: TVector3;
   RelativeBBox: TBox3D;
   M: TMatrix4;
+  IndicesCount: Integer;
+  Fog: TFogFunctionality;
 begin
   inherited;
   Self.FIsUpdated := False;
@@ -1384,7 +1487,10 @@ begin
     Exit;
   if not Self.FIsGLContextInitialized then
     Exit;
-  if (not Self.Visible) or Params.InShadow or (not Params.Transparent) or (Params.StencilTest > 0) then
+  if (not Self.Visible) or Params.InShadow or (Params.StencilTest > 0) then
+    Exit;
+  if ((not Params.Transparent) and (Self.FAllowsWriteToDepthBuffer))
+    or ((Params.Transparent) and (not Self.FAllowsWriteToDepthBuffer)) then
     Exit;
   if (not Self.FStartEmitting) and (Self.FCountdownTillRemove <= 0) then
     Exit;
@@ -1415,14 +1521,23 @@ begin
 
   // Draw particles
   if Self.AllowsInstancing then
-  begin
-    TransformFeedbackProgram := TransformFeedbackProgramMultipleInstances;
-  end else
-  begin
+    TransformFeedbackProgram := TransformFeedbackProgramMultipleInstances
+  else
     TransformFeedbackProgram := TransformFeedbackProgramSingleInstance;
-  end;
-  RenderProgram := RenderProgramQuad;
-  glDepthMask(GL_FALSE);
+  if Self.FEffect.Mesh = '' then
+    RenderProgram := RenderProgramQuad
+  else
+    RenderProgram := RenderProgramMesh;
+  if not Self.FAllowsWriteToDepthBuffer then
+    glDepthMask(GL_FALSE)
+  else
+    glDepthMask(GL_TRUE);
+  // Get global fog
+  if Self.FEnableFog and (Params.GlobalFog <> nil) then
+    Fog := (Params.GlobalFog as TFogNode).Functionality(TFogFunctionality) as TFogFunctionality
+  else
+    Fog := nil;
+  //
   glEnable(GL_DEPTH_TEST);
   glEnable(GL_BLEND);
   glBlendFunc(CastleParticleBlendValues[Self.FEffect.BlendFuncSource], CastleParticleBlendValues[Self.FEffect.BlendFuncDestination]);
@@ -1430,6 +1545,16 @@ begin
   RenderProgram.Uniform('scaleX').SetValue(Vector3(Params.Transform^[0,0], Params.Transform^[0,1], Params.Transform^[0,2]).Length);
   RenderProgram.Uniform('scaleY').SetValue(Vector3(Params.Transform^[1,0], Params.Transform^[1,1], Params.Transform^[1,2]).Length);
   RenderProgram.Uniform('scaleZ').SetValue(Vector3(Params.Transform^[2,0], Params.Transform^[2,1], Params.Transform^[2,2]).Length);
+  if (Fog <> nil) then
+  begin
+    // TODO: More type of fog
+    RenderProgram.Uniform('fogEnable').SetValue(1);
+    RenderProgram.Uniform('fogEnd').SetValue(Fog.VisibilityRange);
+    RenderProgram.Uniform('fogColor').SetValue(Fog.Color);
+  end else
+  begin
+    RenderProgram.Uniform('fogEnable').SetValue(0);
+  end;
   if Self.AllowsInstancing then
   begin
     M := Params.RenderingCamera.Matrix * Params.Transform^;
@@ -1442,7 +1567,11 @@ begin
   glBindVertexArray(Self.VAOMeshes[CurrentBuffer]);
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, Self.Texture);
-  glDrawArraysInstanced(GL_TRIANGLES, 0, 6, Self.FEffect.MaxParticles);
+  IndicesCount := Length(Self.ParticleMeshIndices);
+  if IndicesCount = 0 then
+    glDrawArraysInstanced(GL_TRIANGLES, 0, Length(Self.ParticleMesh), Self.FEffect.MaxParticles)
+  else
+    glDrawElementsInstanced(GL_TRIANGLES, IndicesCount, GL_UNSIGNED_INT, nil, Self.FEffect.MaxParticles);
   glBindTexture(GL_TEXTURE_2D, 0);
   glBindVertexArray(0);
   // Render boundingbox in editor
@@ -1495,7 +1624,8 @@ begin
   glDisable(GL_BLEND);
   // Which pass is this?
   glDisable(GL_DEPTH_TEST);
-  glDepthMask(GL_TRUE);
+  if not Self.FAllowsWriteToDepthBuffer then
+    glDepthMask(GL_TRUE);
 end;
 
 procedure TCastleParticleEmitter.LoadEffect(const AEffect: TCastleParticleEffect);
@@ -1565,12 +1695,18 @@ begin
     RenderProgramQuad.AttachFragmentShader(FragmentShaderSourceQuad);
     RenderProgramQuad.Link;
 
+    RenderProgramMesh := TGLSLProgram.Create;
+    RenderProgramMesh.AttachVertexShader(VertexShaderSourceMesh);
+    RenderProgramMesh.AttachFragmentShader(FragmentShaderSourceMesh);
+    RenderProgramMesh.Link;
+
     ApplicationProperties.OnGLContextClose.Add(@FreeGLContext);
   end;
 
   glGenBuffers(2, @Self.VBOs);
   glGenVertexArrays(2, @Self.VAOs);
   glGenBuffers(1, @Self.VBOMesh);
+  glGenBuffers(1, @Self.VBOMeshIndices);
   glGenVertexArrays(2, @Self.VAOMeshes);
   Self.FIsGLContextInitialized := True;
 end;
@@ -1580,6 +1716,7 @@ begin
   if Self.FIsGLContextInitialized then
   begin
     glDeleteBuffers(1, @Self.VBOMesh);
+    glDeleteBuffers(1, @Self.VBOMeshIndices);
     glDeleteVertexArrays(2, @Self.VAOMeshes);
     glDeleteBuffers(2, @Self.VBOs);
     glDeleteVertexArrays(2, @Self.VAOs);
@@ -1587,6 +1724,75 @@ begin
     Self.FIsGLContextInitialized := False;
   end;
   inherited;
+end;
+
+procedure TCastleParticleEmitter.InternalLoadMesh;
+var
+  I: Integer;
+  Scene: TCastleScene;
+  ShapeList: TShapeList;
+  Shape: TShape;
+  ShapeNode: TShapeNode;
+  IndexedTriangleSetNode: TIndexedTriangleSetNode;
+  CoordNode: TCoordinateNode;
+  TexcoordNode: TTextureCoordinateNode;
+  VertexList, NormalList: TVector3List;
+  TexcoordList: TVector2List;
+  IndexList: TLongIntList;
+begin
+  SetLength(Self.ParticleMeshIndices, 0);
+  // Load built-in mesh if Mesh is empty
+  if (Self.FEffect.Mesh = '') or (not URIFileExists(Self.FEffect.Mesh)) then
+  begin
+    SetLength(Self.ParticleMesh, Length(BuiltInVertexArray));
+    // Generate built-in mesh
+    for I := 0 to High(BuiltInVertexArray) do
+    begin
+      Self.ParticleMesh[I].Vertex := BuiltInVertexArray[I];
+      Self.ParticleMesh[I].Texcoord := BuiltInTexcoordArray[I];
+    end;
+  end else
+  begin
+    Scene := TCastleScene.Create(nil);
+    Scene.URL := Self.FEffect.Mesh;
+    try
+      // We only care the first shape
+      ShapeList := Scene.Shapes.TraverseList(True);
+      if ShapeList.Count = 0 then
+        raise Exception.Create('No mesh found in this model');
+      Shape := ShapeList.Items[0];
+      ShapeNode := Shape.Node as TShapeNode;
+      //
+      IndexedTriangleSetNode := ShapeNode.FindNode(TIndexedTriangleSetNode, False) as TIndexedTriangleSetNode;
+      if IndexedTriangleSetNode = nil then
+        raise Exception.Create('The mesh doesn''t contain indices');
+      CoordNode := ShapeNode.FindNode(TCoordinateNode, False) as TCoordinateNode;
+      if CoordNode = nil then
+        raise Exception.Create('The mesh doesn''t contain vertices');
+      TexcoordNode := ShapeNode.FindNode(TTextureCoordinateNode, False) as TTextureCoordinateNode;
+      if TexcoordNode = nil then
+        raise Exception.Create('The mesh doesn''t contain texcoords');
+      VertexList := CoordNode.FdPoint.Items;
+      TexcoordList := TexcoordNode.FdPoint.Items;
+      NormalList := Shape.NormalsSmooth(False, True);
+      IndexList := IndexedTriangleSetNode.FdIndex.Items;
+      if (VertexList.Count <> TexcoordList.Count) or (VertexList.Count <> NormalList.Count) then
+        raise Exception.Create('Invalid mesh data');
+      //
+      SetLength(Self.ParticleMesh, VertexList.Count);
+      for I := 0 to VertexList.Count - 1 do
+      begin
+        Self.ParticleMesh[I].Vertex := VertexList[I];
+        Self.ParticleMesh[I].Texcoord := TexcoordList[I];
+        Self.ParticleMesh[I].Normal := NormalList[I];
+      end;
+      SetLength(Self.ParticleMeshIndices, IndexList.Count);
+      for I := 0 to IndexList.Count - 1 do
+        Self.ParticleMeshIndices[I] := IndexList[I];
+    finally
+      FreeAndNil(Scene);
+    end;
+  end;
 end;
 
 procedure TCastleParticleEmitter.InternalRefreshEffect;
@@ -1603,13 +1809,7 @@ begin
   Self.FParticleCount := Self.FEffect.MaxParticles;
   Self.FCountdownTillRemove := Self.FEffect.ParticleLifeSpan + Self.FEffect.ParticleLifeSpanVariance;
   SetLength(Self.Particles, Self.FEffect.MaxParticles);
-  SetLength(Self.ParticleMesh, Length(BuiltInVertexArray));
-  // Generate built-in mesh
-  for I := 0 to High(BuiltInVertexArray) do
-  begin
-    Self.ParticleMesh[I].Vertex := BuiltInVertexArray[I];
-    Self.ParticleMesh[I].Texcoord := BuiltInTexcoordArray[I];
-  end;
+  Self.InternalLoadMesh;
 
   if Self.FEffect.ParticleLifeSpan = 0 then
     Self.FEffect.ParticleLifeSpan := 0.001;
@@ -1645,7 +1845,12 @@ begin
 
   // Drawing VAO
   glBindBuffer(GL_ARRAY_BUFFER, Self.VBOMesh);
-  glBufferData(GL_ARRAY_BUFFER, 6* SizeOf(TCastleParticleMesh), @Self.ParticleMesh[0], GL_STATIC_DRAW);
+  glBufferData(GL_ARRAY_BUFFER, Length(Self.ParticleMesh) * SizeOf(TCastleParticleMesh), @Self.ParticleMesh[0], GL_STATIC_DRAW);
+  if Length(Self.ParticleMeshIndices) > 0 then
+  begin
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Self.VBOMeshIndices);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, Length(Self.ParticleMeshIndices) * SizeOf(GLuint), @Self.ParticleMeshIndices[0], GL_STATIC_DRAW);
+  end;
   Self.CurrentBuffer := 0;
   for I := 0 to 1 do
   begin
@@ -1703,6 +1908,11 @@ begin
     glVertexAttribPointer(13, 3, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticleMesh), Pointer(0));
     glEnableVertexAttribArray(14);
     glVertexAttribPointer(14, 2, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticleMesh), Pointer(12));
+    glEnableVertexAttribArray(15);
+    glVertexAttribPointer(15, 3, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticleMesh), Pointer(20));
+
+    if Length(Self.ParticleMeshIndices) > 0 then
+      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Self.VBOMeshIndices);
 
     glBindVertexArray(0);
   end;
@@ -1752,6 +1962,8 @@ initialization
   {$ifdef CASTLE_DESIGN_MODE}
   RegisterPropertyEditor(TypeInfo(AnsiString), TCastleParticleEffect,
     'Texture', TImageURLPropertyEditor);
+  RegisterPropertyEditor(TypeInfo(AnsiString), TCastleParticleEffect,
+    'Mesh', TSceneURLPropertyEditor);
   {$endif}
   RegisterSerializableComponent(TCastleParticleEmitter, 'Particle Emitter (GPU)');
   RegisterSerializableComponent(TCastleParticleEffect, 'Particle Effect');
