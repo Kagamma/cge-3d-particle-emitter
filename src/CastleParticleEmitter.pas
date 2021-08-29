@@ -741,12 +741,12 @@ const
 
 'void main() {'nl
 '  if (inTimeToLive.x > 0.0) {'nl
-'    vec4 center = vOrMvMatrix * vec4(inPosition.xyz, 1.0);'nl
 '    fragTexCoord = inTexcoord;'nl
 '    fragColor = inColor;'nl
+'    vec3 center = vec3(vOrMvMatrix * vec4(inPosition.xyz, 1.0)).xyz;'nl
 '    mat3 m = createRotate(vec3(inRotationXY.x, inRotationXY.z, inSizeRotation.z));'nl
 '    vec3 p = m * (inVertex * vec3(scaleX, scaleY, scaleZ) * vec3(inSizeRotation.x));'nl
-'    gl_Position = pMatrix * (vec4(vec3(center.x, center.y, center.z) + p, center.w));'nl
+'    gl_Position = pMatrix * (vec4(center + p, 1.0));'nl
 '  } else'nl
 '    gl_Position = vec4(-1.0, -1.0, -1.0, 1.0);'nl // Discard this vertex by making it outside of clip plane
 '}';
