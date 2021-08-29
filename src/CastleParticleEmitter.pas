@@ -726,17 +726,17 @@ const
 '  float sp = sin(p.y);'nl
 '  float cy = cos(p.z);'nl
 '  float sy = sin(p.z);'nl
-'  mat3 m;'nl
-'  m[0][0] = cp * cy;'nl
-'  m[0][1] = cp * sy;'nl
-'  m[0][2] = - sp;'nl
-'  m[1][0] = sr * sp * cy - cr * sy;'nl
-'  m[1][1] = sr * sp * sy + cr * cy;'nl
-'  m[1][2] = sr * cp;'nl
-'  m[2][0] = cr * sp * cy + sr * sy;'nl
-'  m[2][1] = cr * sp * sy - sr * cy;'nl
-'  m[2][2] = cr * cp;'nl
-'  return m;'nl
+'  return mat3('nl
+'    cp * cy,'nl
+'    cp * sy,'nl
+'    - sp,'nl
+'    sr * sp * cy - cr * sy,'nl
+'    sr * sp * sy + cr * cy,'nl
+'    sr * cp,'nl
+'    cr * sp * cy + sr * sy,'nl
+'    cr * sp * sy - sr * cy,'nl
+'    cr * cp'nl
+'  );'nl
 '}'nl
 
 'void main() {'nl
