@@ -72,6 +72,12 @@ type
     Translate: TVector3;
   end;
 
+  PCastleParticleMesh = ^TCastleParticleMesh;
+  TCastleParticleMesh = packed record
+    Vertex: TVector3;
+    Texcoord: TVector2;
+  end;
+
   TCastleParticleEffect = class(TCastleComponent)
   private
     FTexture: String;
@@ -216,9 +222,12 @@ type
     Texture: GLuint;
 
     VAOs,
+    VAOMeshes,
     VBOs: array[0..1] of GLuint;
+    VBOMesh: GLuint;
     CurrentBuffer: GLuint;
     Particles: packed array of TCastleParticle;
+    ParticleMesh: packed array of TCastleParticleMesh;
 
     FStartEmitting: Boolean;
     FEffect: TCastleParticleEffect;
@@ -658,20 +667,31 @@ const
 'layout(location = 1) in vec2 inTimeToLive;'nl
 'layout(location = 2) in vec4 inSizeRotation;'nl
 'layout(location = 3) in vec4 inColor;'nl
+'layout(location = 13) in vec3 inVertex;'nl
+'layout(location = 14) in vec2 inTexcoord;'nl
 
-'out float geomTimeToLive;'nl
-'out vec2 geomSize;'nl
-'out vec2 geomRotation;'nl
-'out vec4 geomColor;'nl
+'out vec2 fragTexCoord;'nl
+'out vec4 fragColor;'nl
 
 'uniform mat4 mvMatrix;'nl
+'uniform mat4 pMatrix;'nl
+'uniform float scaleX;'nl
+'uniform float scaleY;'nl
 
 'void main() {'nl
-'  gl_Position = mvMatrix * vec4(inPosition.xyz, 1.0);'nl
-'  geomTimeToLive = inTimeToLive.x;'nl
-'  geomSize = inSizeRotation.xy;'nl
-'  geomRotation = inSizeRotation.zw;'nl
-'  geomColor = inColor;'nl
+'  if (inTimeToLive.x > 0.0) {'nl
+'    vec4 p = mvMatrix * vec4(inPosition.xyz, 1.0);'nl
+'    fragTexCoord = inTexcoord;'nl
+'    fragColor = inColor;'nl
+'    float s = sin(inSizeRotation.z);'nl
+'    float c = cos(inSizeRotation.z);'nl
+'    float sx = inVertex.x * inSizeRotation.x * scaleX;'nl
+'    float sy = inVertex.y * inSizeRotation.x * scaleY;'nl
+'    float rx = c * sx - s * sy;'nl
+'    float ry = s * sx + c * sy;'nl
+'    gl_Position = pMatrix * vec4(p.x + rx, p.y + ry, p.zw);'nl
+'  } else'nl
+'    gl_Position = vec4(-1.0, -1.0, -1.0, 1.0);'nl // Discard this vertex by making it outside of clip plane
 '}';
 
   VertexShaderSourceSingleInstance: String =
@@ -680,64 +700,31 @@ const
 'layout(location = 1) in vec2 inTimeToLive;'nl
 'layout(location = 2) in vec4 inSizeRotation;'nl
 'layout(location = 3) in vec4 inColor;'nl
-
-'out float geomTimeToLive;'nl
-'out vec2 geomSize;'nl
-'out vec2 geomRotation;'nl
-'out vec4 geomColor;'nl
-
-'uniform mat4 vMatrix;'nl
-
-'void main() {'nl
-'  gl_Position = vMatrix * vec4(inPosition.xyz, 1.0);'nl
-'  geomTimeToLive = inTimeToLive.x;'nl
-'  geomSize = inSizeRotation.xy;'nl
-'  geomRotation = inSizeRotation.zw;'nl
-'  geomColor = inColor;'nl
-'}';
-
-  GeometryShaderSource: String =
-'#version 330'nl
-'layout(points) in;'nl
-'layout(triangle_strip, max_vertices = 4) out;'nl
-
-'in float geomTimeToLive[];'nl
-'in vec2 geomSize[];'nl
-'in vec2 geomRotation[];'nl
-'in vec4 geomColor[];'nl
+'layout(location = 13) in vec3 inVertex;'nl
+'layout(location = 14) in vec2 inTexcoord;'nl
 
 'out vec2 fragTexCoord;'nl
 'out vec4 fragColor;'nl
 
+'uniform mat4 vMatrix;'nl
 'uniform mat4 pMatrix;'nl
 'uniform float scaleX;'nl
 'uniform float scaleY;'nl
 
 'void main() {'nl
-'  if (geomTimeToLive[0] > 0.0) {'nl
-'    fragColor = geomColor[0];'nl
-
-'    float s = sin(geomRotation[0].x);'nl
-'    float c = cos(geomRotation[0].x);'nl
-'    float sadd = (c + s) * geomSize[0].x * 0.5;'nl
-'    float ssub = (c - s) * geomSize[0].x * 0.5;'nl
-'    vec4 p = gl_in[0].gl_Position;'nl
-
-'    gl_Position = pMatrix * vec4(p.x - ssub * scaleX, p.y - sadd * scaleY, p.zw);'nl
-'    fragTexCoord = vec2(0.0, 1.0);'nl
-'    EmitVertex();'nl
-'    gl_Position = pMatrix * vec4(p.x - sadd * scaleX, p.y + ssub * scaleY, p.zw);'nl
-'    fragTexCoord = vec2(0.0, 0.0);'nl
-'    EmitVertex();'nl
-'    gl_Position = pMatrix * vec4(p.x + sadd * scaleX, p.y - ssub * scaleY, p.zw);'nl
-'    fragTexCoord = vec2(1.0, 1.0);'nl
-'    EmitVertex();'nl
-'    gl_Position = pMatrix * vec4(p.x + ssub * scaleX, p.y + sadd * scaleY, p.zw);'nl
-'    fragTexCoord = vec2(1.0, 0.0);'nl
-'    EmitVertex();'nl
-
-'    EndPrimitive();'nl
-'  }'nl
+'  if (inTimeToLive.x > 0.0) {'nl
+'    vec4 p = vMatrix * vec4(inPosition.xyz, 1.0);'nl
+'    fragTexCoord = inTexcoord;'nl
+'    fragColor = inColor;'nl
+'    float s = sin(inSizeRotation.z);'nl
+'    float c = cos(inSizeRotation.z);'nl
+'    float sx = inVertex.x * inSizeRotation.x * scaleX;'nl
+'    float sy = inVertex.y * inSizeRotation.x * scaleY;'nl
+'    float rx = c * sx - s * sy;'nl
+'    float ry = s * sx + c * sy;'nl
+'    gl_Position = pMatrix * vec4(p.x + rx, p.y + ry, p.zw);'nl
+'  } else'nl
+'    gl_Position = vec4(-1.0, -1.0, -1.0, 1.0);'nl // Discard this vertex by making it outside of clip plane
 '}';
 
   FragmentShaderSource: String =
@@ -765,6 +752,16 @@ const
     'outVelocity',
     'outDirection',
     'outTranslate'
+  );
+
+  // Built-in particle vertices & texcoords
+  BuiltInVertexArray: packed array[0..5] of TVector3 = (
+    (Data: (-0.5, -0.5, 0)), (Data: (0.5, -0.5, 0)), (Data: (0.5, 0.5, 0)),
+    (Data: (-0.5, -0.5, 0)), (Data: (0.5, 0.5, 0)), (Data: (-0.5, 0.5, 0))
+  );
+  BuiltInTexcoordArray: packed array[0..5] of TVector2 = (
+    (Data: (0, 0)), (Data: (1, 0)), (Data: (1, 1)),
+    (Data: (0, 0)), (Data: (1, 1)), (Data: (0, 1))
   );
 
 var
@@ -1356,10 +1353,10 @@ begin
     RenderProgram.Uniform('vMatrix').SetValue(Params.RenderingCamera.Matrix);
   end;
   RenderProgram.Uniform('pMatrix').SetValue(RenderContext.ProjectionMatrix);
-  glBindVertexArray(Self.VAOs[CurrentBuffer]);
+  glBindVertexArray(Self.VAOMeshes[CurrentBuffer]);
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, Self.Texture);
-  glDrawArrays(GL_POINTS, 0, Self.FEffect.MaxParticles);
+  glDrawArraysInstanced(GL_TRIANGLES, 0, 6, Self.FEffect.MaxParticles);
   glBindTexture(GL_TEXTURE_2D, 0);
   glBindVertexArray(0);
   // Render boundingbox in editor
@@ -1460,8 +1457,8 @@ begin
     // Check maximum number of vertex attributes
     glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, @V);
     WritelnLog('GL_MAX_VERTEX_ATTRIBS: ' + IntToStr(V));
-    if V < Length(Varyings) then
-      raise Exception.Create(Format('TCastleParticleEmitter requires GL_MAX_VERTEX_ATTRIBS at least %d', [Length(Varyings)]));
+    if V < 16 then
+      raise Exception.Create('TCastleParticleEmitter requires GL_MAX_VERTEX_ATTRIBS at least 16');
     IsCheckedForUsable := True;
   end;
 
@@ -1479,13 +1476,11 @@ begin
 
     RenderProgramSingleInstance := TGLSLProgram.Create;
     RenderProgramSingleInstance.AttachVertexShader(VertexShaderSourceSingleInstance);
-    RenderProgramSingleInstance.AttachGeometryShader(GeometryShaderSource);
     RenderProgramSingleInstance.AttachFragmentShader(FragmentShaderSource);
     RenderProgramSingleInstance.Link;
 
     RenderProgramMultipleInstances := TGLSLProgram.Create;
     RenderProgramMultipleInstances.AttachVertexShader(VertexShaderSourceMultipleInstances);
-    RenderProgramMultipleInstances.AttachGeometryShader(GeometryShaderSource);
     RenderProgramMultipleInstances.AttachFragmentShader(FragmentShaderSource);
     RenderProgramMultipleInstances.Link;
     ApplicationProperties.OnGLContextClose.Add(@FreeGLContext);
@@ -1493,6 +1488,8 @@ begin
 
   glGenBuffers(2, @Self.VBOs);
   glGenVertexArrays(2, @Self.VAOs);
+  glGenBuffers(1, @Self.VBOMesh);
+  glGenVertexArrays(2, @Self.VAOMeshes);
   Self.FIsGLContextInitialized := True;
 end;
 
@@ -1500,6 +1497,8 @@ procedure TCastleParticleEmitter.GLContextClose;
 begin
   if Self.FIsGLContextInitialized then
   begin
+    glDeleteBuffers(1, @Self.VBOMesh);
+    glDeleteVertexArrays(2, @Self.VAOMeshes);
     glDeleteBuffers(2, @Self.VBOs);
     glDeleteVertexArrays(2, @Self.VAOs);
     glFreeTexture(Self.Texture);
@@ -1522,6 +1521,13 @@ begin
   Self.FParticleCount := Self.FEffect.MaxParticles;
   Self.FCountdownTillRemove := Self.FEffect.ParticleLifeSpan + Self.FEffect.ParticleLifeSpanVariance;
   SetLength(Self.Particles, Self.FEffect.MaxParticles);
+  SetLength(Self.ParticleMesh, Length(BuiltInVertexArray));
+  // Generate built-in mesh
+  for I := 0 to High(BuiltInVertexArray) do
+  begin
+    Self.ParticleMesh[I].Vertex := BuiltInVertexArray[I];
+    Self.ParticleMesh[I].Texcoord := BuiltInTexcoordArray[I];
+  end;
 
   if Self.FEffect.ParticleLifeSpan = 0 then
     Self.FEffect.ParticleLifeSpan := 0.001;
@@ -1556,9 +1562,12 @@ begin
   end;
 
   // Drawing VAO
+  glBindBuffer(GL_ARRAY_BUFFER, Self.VBOMesh);
+  glBufferData(GL_ARRAY_BUFFER, 6* SizeOf(TCastleParticleMesh), @Self.ParticleMesh[0], GL_STATIC_DRAW);
   Self.CurrentBuffer := 0;
   for I := 0 to 1 do
   begin
+    // Transform & feedback VAO
     glBindVertexArray(Self.VAOs[I]);
 
     glBindBuffer(GL_ARRAY_BUFFER, Self.VBOs[I]);
@@ -1582,6 +1591,31 @@ begin
     glVertexAttribPointer(7, 3, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), Pointer(100));
     glEnableVertexAttribArray(8);
     glVertexAttribPointer(8, 3, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), Pointer(112));
+
+    // Instancing VAO
+    glBindVertexArray(Self.VAOMeshes[I]);
+
+    glBindBuffer(GL_ARRAY_BUFFER, Self.VBOs[I]);
+
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), Pointer(0));
+    glVertexAttribDivisor(0, 1);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), Pointer(16));
+    glVertexAttribDivisor(1, 1);
+    glEnableVertexAttribArray(2);
+    glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), Pointer(24));
+    glVertexAttribDivisor(2, 1);
+    glEnableVertexAttribArray(3);
+    glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), Pointer(40));
+    glVertexAttribDivisor(3, 1);
+
+    glBindBuffer(GL_ARRAY_BUFFER, Self.VBOMesh);
+
+    glEnableVertexAttribArray(13);
+    glVertexAttribPointer(13, 3, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticleMesh), Pointer(0));
+    glEnableVertexAttribArray(14);
+    glVertexAttribPointer(14, 2, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticleMesh), Pointer(12));
 
     glBindVertexArray(0);
   end;
