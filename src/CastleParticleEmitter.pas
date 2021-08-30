@@ -23,7 +23,7 @@ uses
   CastleTransform, CastleScene, CastleComponentSerialize, CastleColors, CastleBoxes,
   CastleVectors, CastleRenderContext, Generics.Collections, CastleGLImages, CastleLog,
   CastleUtils, CastleApplicationProperties, CastleGLShaders, CastleClassUtils,
-  X3DNodes, CastleShapes, CastleGLUtils;
+  X3DNodes, CastleShapes, CastleGLUtils, CastleViewport, CastleImages, CastleRectangles;
 
 type
   TCastleParticleBlendMode = (
@@ -80,6 +80,23 @@ type
     Normal: TVector3;
   end;
 
+  TCastleParticleViewport = class(TCastleViewport)
+  strict private
+    FImage: TDrawableImage;
+    FPreviousScreenTextureUnit: Integer;
+    FVisible: Boolean;
+  protected
+    procedure RenderFromViewEverything(const RenderingCamera: TRenderingCamera); override;
+    procedure ReconstructBuffer;
+    function PropertySections(const PropertyName: String): TPropertySections; override;
+  public
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+    property Image: TDrawableImage read FImage;
+  published
+    property Visible: Boolean read FVisible write FVisible default True;
+  end;
+
   TCastleParticleEffect = class(TCastleComponent)
   private
     FMesh,
@@ -134,6 +151,7 @@ type
     FRadial,
     FRadialVariance: Single;
     FEnableMiddleProperties: Boolean;
+    FViewport: TCastleParticleViewport;
     FBBox: TBox3D;
     procedure SetBoundingBoxMinForPersistent(const AValue: TVector3);
     function GetBoundingBoxMinForPersistent: TVector3;
@@ -167,6 +185,7 @@ type
     function GetFinishColorForPersistent: TVector4;
     procedure SetFinishColorVarianceForPersistent(const AValue: TVector4);
     function GetFinishColorVarianceForPersistent: TVector4;
+    procedure SetViewport(const AValue: TCastleParticleViewport);
     procedure SetMesh(const AValue: String);
     procedure SetTexture(const AValue: String);
     procedure SetMaxParticle(const AValue: Integer);
@@ -174,6 +193,7 @@ type
     procedure SetMiddleAnchor(const AValue: Single);
   protected
     function PropertySections(const PropertyName: String): TPropertySections; override;
+    procedure Notification(AComponent: TComponent; Operation: TOperation); override;
   public
     IsColliable: Boolean;
     IsNeedRefresh: Boolean;
@@ -220,6 +240,7 @@ type
     property Radial: Single read FRadial write FRadial;
     property RadialVariance: Single read FRadialVariance write FRadialVariance;
     property EnableMiddleProperties: Boolean read FEnableMiddleProperties write FEnableMiddleProperties default True;
+    property Viewport: TCastleParticleViewport read FViewport write SetViewport;
     property BoundingBoxMinPersistent: TCastleVector3Persistent read FBoundingBoxMinPersistent;
     property BoundingBoxMaxPersistent: TCastleVector3Persistent read FBoundingBoxMaxPersistent;
     property RotationStartPersistent: TCastleVector3Persistent read FRotationStartPersistent write FRotationStartPersistent;
@@ -905,6 +926,74 @@ begin
   end;
 end;
 
+procedure TCastleParticleViewport.RenderFromViewEverything(const RenderingCamera: TRenderingCamera);
+begin
+  Self.ReconstructBuffer;
+  // Bind previous color buffer to FPreviousScreenTextureUnit
+  glActiveTexture(GL_TEXTURE0 + Self.FPreviousScreenTextureUnit);
+  glBindTexture(GL_TEXTURE_2D, Self.FImage.Texture);
+  //
+  Self.FImage.RenderToImageBegin;
+  inherited;
+  Self.FImage.RenderToImageEnd;
+  // Final result
+  if Self.Visible then
+    Self.FImage.Draw(0, 0);
+end;
+
+function TCastleParticleViewport.PropertySections(const PropertyName: String): TPropertySections;
+begin
+  case PropertyName of
+    'Visible':
+      Result := [psBasic];
+    else
+      Result := inherited PropertySections(PropertyName);
+  end;
+end;
+
+constructor TCastleParticleViewport.Create(AOwner: TComponent);
+var
+  I: Integer;
+begin
+  inherited;
+  Self.FImage := nil;
+  Self.Visible := True;
+end;
+
+destructor TCastleParticleViewport.Destroy;
+begin
+  FreeAndNil(Self.FImage);
+  inherited;
+end;
+
+procedure TCastleParticleViewport.ReconstructBuffer;
+var
+  SR: TRectangle;
+begin
+  SR := Self.RenderRect.Round;
+  // Reconstruct the buffers when width/height change
+  if (Self.FImage = nil) or (SR.Width <> Self.FImage.Width) or (SR.Height <> Self.FImage.Height) then
+  begin
+    if Self.FImage <> nil then
+    begin
+      FreeAndNil(Self.FImage);
+    end;
+    Self.FImage := TDrawableImage.Create(TRGBAlphaImage.Create(SR.Width, SR.Height), True, True);
+    Self.FImage.RepeatS := True;
+    Self.FImage.RepeatT := True;
+  end;
+end;
+
+procedure TCastleParticleEffect.Notification(AComponent: TComponent; Operation: TOperation);
+begin
+  inherited;
+  if (Operation = opRemove) and (AComponent = Self.FViewport) then
+  begin
+    Self.FViewport := nil;
+    Self.IsNeedRefresh := True;
+  end;
+end;
+
 procedure TCastleParticleEffect.SetBoundingBoxMinForPersistent(const AValue: TVector3);
 begin
   Self.FBBox := Box3D(AValue, Self.FBBox.Data[1]);
@@ -1063,6 +1152,12 @@ end;
 function TCastleParticleEffect.GetFinishColorVarianceForPersistent: TVector4;
 begin
   Result := Self.FFinishColorVariance;
+end;
+
+procedure TCastleParticleEffect.SetViewport(const AValue: TCastleParticleViewport);
+begin
+  Self.FViewport := AValue;
+  Self.IsNeedRefresh := True;
 end;
 
 procedure TCastleParticleEffect.SetMesh(const AValue: String);
@@ -1564,7 +1659,10 @@ begin
   RenderProgram.Uniform('pMatrix').SetValue(RenderContext.ProjectionMatrix);
   glBindVertexArray(Self.VAOMeshes[CurrentBuffer]);
   glActiveTexture(GL_TEXTURE0);
-  glBindTexture(GL_TEXTURE_2D, Self.Texture);
+  if Self.FEffect.Viewport = nil then
+    glBindTexture(GL_TEXTURE_2D, Self.Texture)
+  else
+    glBindTexture(GL_TEXTURE_2D, Self.FEffect.Viewport.Image.Texture);
   IndicesCount := Length(Self.ParticleMeshIndices);
   if IndicesCount = 0 then
     glDrawArraysInstanced(GL_TRIANGLES, 0, Length(Self.ParticleMesh), Self.FEffect.MaxParticles)
@@ -1802,7 +1900,7 @@ begin
   if Self.FEffect = nil then
     Exit;
   // Only process if texture exists
-  if not URIFileExists(Self.FEffect.Texture) then
+  if (not URIFileExists(Self.FEffect.Texture)) and (Self.Effect.Viewport = nil) then
     Exit;
 
   Self.FEmissionTime := Self.FEffect.Duration;
@@ -1815,18 +1913,21 @@ begin
     Self.FEffect.ParticleLifeSpan := 0.001;
 
   glFreeTexture(Self.Texture);
-  if Self.FSmoothTexture then
-    Self.Texture := LoadGLTexture(
-      Self.FEffect.Texture,
-      TextureFilter(minLinear, magLinear),
-      Texture2DClampToEdge
-    )
-  else
-    Self.Texture := LoadGLTexture(
-      Self.FEffect.Texture,
-      TextureFilter(minNearest, magNearest),
-      Texture2DClampToEdge
-    );
+  if Self.FEffect.Viewport = nil then
+  begin
+    if Self.FSmoothTexture then
+      Self.Texture := LoadGLTexture(
+        Self.FEffect.Texture,
+        TextureFilter(minLinear, magLinear),
+        Texture2DClampToEdge
+      )
+    else
+      Self.Texture := LoadGLTexture(
+        Self.FEffect.Texture,
+        TextureFilter(minNearest, magNearest),
+        Texture2DClampToEdge
+      );
+  end;
 
   // Generate initial lifecycle
   for I := 0 to Self.FEffect.MaxParticles - 1 do
@@ -1967,5 +2068,6 @@ initialization
   {$endif}
   RegisterSerializableComponent(TCastleParticleEmitter, 'Particle Emitter (GPU)');
   RegisterSerializableComponent(TCastleParticleEffect, 'Particle Effect');
+  RegisterSerializableComponent(TCastleParticleViewport, 'Viewport (Particle)');
 
 end.
