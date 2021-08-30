@@ -1602,8 +1602,7 @@ begin
     Exit;
   if (not Self.Visible) or Params.InShadow or (Params.StencilTest > 0) then
     Exit;
-  if ((not Params.Transparent) and (Self.FAllowsWriteToDepthBuffer))
-    or ((Params.Transparent) and (not Self.FAllowsWriteToDepthBuffer)) then
+  if not Params.Transparent then
     Exit;
   if (not Self.FStartEmitting) and (Self.FCountdownTillRemove <= 0) then
     Exit;
