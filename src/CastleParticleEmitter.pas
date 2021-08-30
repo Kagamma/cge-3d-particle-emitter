@@ -17,7 +17,7 @@ uses
   GL, GLExt,
   {$endif}
   {$ifdef CASTLE_DESIGN_MODE}
-  PropEdits, CastlePropEdits,
+  PropEdits, CastlePropEdits, CastleDebugTransform,
   {$endif}
   fpjson, jsonparser,
   CastleTransform, CastleScene, CastleComponentSerialize, CastleColors, CastleBoxes,
@@ -302,6 +302,9 @@ type
     FEnableFog,
     FTimePlaying: Boolean;
     FTimePlayingSpeed: Single;
+    {$ifdef CASTLE_DESIGN_MODE}
+    FDebugBox: TDebugBox;
+    {$endif}
     procedure InternalLoadMesh;
     procedure InternalRefreshEffect;
     procedure SetStartEmitting(V: Boolean);
@@ -952,8 +955,6 @@ begin
 end;
 
 constructor TCastleParticleViewport.Create(AOwner: TComponent);
-var
-  I: Integer;
 begin
   inherited;
   Self.FImage := nil;
@@ -1419,6 +1420,11 @@ begin
 end;
 
 constructor TCastleParticleEmitter.Create(AOwner: TComponent);
+{$ifdef CASTLE_DESIGN_MODE}
+var
+  DebugScene: TCastleScene;
+  MainRoot: TX3DRootNode;
+{$endif}
 begin
   inherited;
   Self.FIsUpdated := False;
@@ -1433,6 +1439,16 @@ begin
   Self.FSmoothTexture := True;
   FTimePlaying := true;
   FTimePlayingSpeed := 1.0;
+  {$ifdef CASTLE_DESIGN_MODE}
+  DebugScene := TCastleScene.Create(Self);
+  DebugScene.SetTransient;
+  Self.FDebugBox := TDebugBox.Create(Self);
+  Self.FDebugBox.Color := Vector4(0, 1, 0, 0.5);
+  MainRoot := TX3DRootNode.Create;
+  MainRoot.AddChildren(Self.FDebugBox.Root);
+  DebugScene.Load(MainRoot, True);
+  Self.Add(DebugScene);
+  {$endif}
 end;
 
 destructor TCastleParticleEmitter.Destroy;
@@ -1676,50 +1692,7 @@ begin
   glBindVertexArray(0);
   // Render boundingbox in editor
   {$ifdef CASTLE_DESIGN_MODE}
-  if CastleDesignMode and (not Self.FEffect.BBox.IsEmptyOrZero) then
-  begin
-    // OpenGL FFP is enough for visualizing bounding box
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    BoundingBoxMin := Self.FEffect.BBox.Data[0];
-    BoundingBoxMax := Self.FEffect.BBox.Data[1];
-    RenderProgram.Disable;
-    glUseProgram(0);
-    if not Self.AllowsInstancing then
-      M := Params.RenderingCamera.Matrix * Params.Transform^;
-    glMatrixMode(GL_MODELVIEW);
-    glLoadMatrixf(@M);
-    glMatrixMode(GL_PROJECTION);
-    glLoadMatrixf(@RenderContext.ProjectionMatrix);
-    glBegin(GL_LINES);
-      glColor4f(0, 1, 0, 0.5);
-      glVertex3f(BoundingBoxMin.X, BoundingBoxMin.Y, BoundingBoxMin.Z);
-      glVertex3f(BoundingBoxMax.X, BoundingBoxMin.Y, BoundingBoxMin.Z);
-      glVertex3f(BoundingBoxMax.X, BoundingBoxMin.Y, BoundingBoxMin.Z);
-      glVertex3f(BoundingBoxMax.X, BoundingBoxMin.Y, BoundingBoxMax.Z);
-      glVertex3f(BoundingBoxMax.X, BoundingBoxMin.Y, BoundingBoxMax.Z);
-      glVertex3f(BoundingBoxMin.X, BoundingBoxMin.Y, BoundingBoxMax.Z);
-      glVertex3f(BoundingBoxMin.X, BoundingBoxMin.Y, BoundingBoxMax.Z);
-      glVertex3f(BoundingBoxMin.X, BoundingBoxMin.Y, BoundingBoxMin.Z);
-
-      glVertex3f(BoundingBoxMin.X, BoundingBoxMax.Y, BoundingBoxMin.Z);
-      glVertex3f(BoundingBoxMax.X, BoundingBoxMax.Y, BoundingBoxMin.Z);
-      glVertex3f(BoundingBoxMax.X, BoundingBoxMax.Y, BoundingBoxMin.Z);
-      glVertex3f(BoundingBoxMax.X, BoundingBoxMax.Y, BoundingBoxMax.Z);
-      glVertex3f(BoundingBoxMax.X, BoundingBoxMax.Y, BoundingBoxMax.Z);
-      glVertex3f(BoundingBoxMin.X, BoundingBoxMax.Y, BoundingBoxMax.Z);
-      glVertex3f(BoundingBoxMin.X, BoundingBoxMax.Y, BoundingBoxMax.Z);
-      glVertex3f(BoundingBoxMin.X, BoundingBoxMax.Y, BoundingBoxMin.Z);
-
-      glVertex3f(BoundingBoxMin.X, BoundingBoxMin.Y, BoundingBoxMin.Z);
-      glVertex3f(BoundingBoxMin.X, BoundingBoxMax.Y, BoundingBoxMin.Z);
-      glVertex3f(BoundingBoxMax.X, BoundingBoxMin.Y, BoundingBoxMin.Z);
-      glVertex3f(BoundingBoxMax.X, BoundingBoxMax.Y, BoundingBoxMin.Z);
-      glVertex3f(BoundingBoxMax.X, BoundingBoxMin.Y, BoundingBoxMax.Z);
-      glVertex3f(BoundingBoxMax.X, BoundingBoxMax.Y, BoundingBoxMax.Z);
-      glVertex3f(BoundingBoxMin.X, BoundingBoxMin.Y, BoundingBoxMax.Z);
-      glVertex3f(BoundingBoxMin.X, BoundingBoxMax.Y, BoundingBoxMax.Z);
-    glEnd();
-  end;
+  Self.FDebugBox.Box := Self.FEffect.BBox;
   {$endif}
   glDisable(GL_BLEND);
   // Which pass is this?
