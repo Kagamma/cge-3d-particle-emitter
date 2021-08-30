@@ -1,0 +1,309 @@
+{
+  "$$ClassName" : "TCastleUserInterface",
+  "FullSize" : true,
+  "Name" : "Group1",
+  "$NonVisualComponents" : [
+    {
+      "$$ClassName" : "TCastleParticleEffect",
+      "BlendFuncDestination" : "pbmOneMinusSrcAlpha",
+      "DirectionVariance" : 5.0000000000000000E-001,
+      "EnableMiddleProperties" : false,
+      "FinishColorPersistent" : {
+        "$$ClassName" : "TCastleColorPersistent",
+        "Alpha" : 0.0000000000000000E+000,
+        "Blue" : 1.0000000000000000E+000,
+        "Green" : 1.0000000000000000E+000,
+        "Red" : 1.0000000000000000E+000
+      },
+      "FinishParticleSize" : 3.0000001192092896E-001,
+      "FinishParticleSizeVariance" : 1.0000000149011612E-001,
+      "Mesh" : "castle-data:/cube.gltf",
+      "Name" : "MeshParticleEffect",
+      "ParticleLifeSpan" : 4.0000000000000000E+000,
+      "RotationEndPersistent" : {
+        "$$ClassName" : "TCastleVector3Persistent",
+        "X" : 3.1400001049041748E+000,
+        "Y" : 6.2800002098083496E+000
+      },
+      "RotationStartPersistent" : {
+        "$$ClassName" : "TCastleVector3Persistent",
+        "X" : 3.1400001049041748E+000
+      },
+      "SourcePositionVariancePersistent" : {
+        "$$ClassName" : "TCastleVector3Persistent",
+        "X" : 3.0000000000000000E+000,
+        "Y" : 0.0000000000000000E+000,
+        "Z" : 3.0000000000000000E+000
+      },
+      "Speed" : 2.5000000000000000E+000,
+      "SpeedVariance" : 5.0000000000000000E-001,
+      "StartColorPersistent" : {
+        "$$ClassName" : "TCastleColorPersistent",
+        "Blue" : 1.0000000000000000E+000,
+        "Green" : 1.0000000000000000E+000
+      },
+      "StartParticleSize" : 3.0000001192092896E-001,
+      "StartParticleSizeVariance" : 1.0000000149011612E-001,
+      "Texture" : "castle-data:/transparent.png"
+    },
+    {
+      "$$ClassName" : "TCastleParticleEffect",
+      "BlendFuncDestination" : "pbmZero",
+      "DirectionVariance" : 5.0000000000000000E-001,
+      "EnableMiddleProperties" : false,
+      "FinishColorPersistent" : {
+        "$$ClassName" : "TCastleColorPersistent",
+        "Alpha" : 0.0000000000000000E+000,
+        "Blue" : 1.0000000000000000E+000,
+        "Green" : 1.0000000000000000E+000,
+        "Red" : 1.0000000000000000E+000
+      },
+      "FinishParticleSize" : 3.0000001192092896E-001,
+      "FinishParticleSizeVariance" : 1.0000000149011612E-001,
+      "Mesh" : "castle-data:/cube.gltf",
+      "Name" : "MeshParticleEffect2",
+      "ParticleLifeSpan" : 4.0000000000000000E+000,
+      "RotationEndPersistent" : {
+        "$$ClassName" : "TCastleVector3Persistent",
+        "X" : 3.1400001049041748E+000,
+        "Y" : 6.2800002098083496E+000
+      },
+      "RotationStartPersistent" : {
+        "$$ClassName" : "TCastleVector3Persistent",
+        "X" : 3.1400001049041748E+000
+      },
+      "SourcePositionVariancePersistent" : {
+        "$$ClassName" : "TCastleVector3Persistent",
+        "X" : 3.0000000000000000E+000,
+        "Y" : 0.0000000000000000E+000,
+        "Z" : 3.0000000000000000E+000
+      },
+      "Speed" : 2.5000000000000000E+000,
+      "SpeedVariance" : 5.0000000000000000E-001,
+      "StartColorPersistent" : {
+        "$$ClassName" : "TCastleColorPersistent",
+        "Blue" : 1.0000000000000000E+000,
+        "Green" : 1.0000000000000000E+000
+      },
+      "StartParticleSize" : 3.0000001192092896E-001,
+      "StartParticleSizeVariance" : 1.0000000149011612E-001,
+      "Texture" : "castle-data:/transparent.png",
+      "Viewport" : "RenderToTextureViewport"
+    },
+    {
+      "$$ClassName" : "TCastleParticleEffect",
+      "DirectionPersistent" : {
+        "$$ClassName" : "TCastleVector3Persistent",
+        "X" : 1.0529475659132004E-001,
+        "Y" : -9.9444109201431274E-001
+      },
+      "DirectionVariance" : 0.0000000000000000E+000,
+      "EnableMiddleProperties" : false,
+      "FinishColorPersistent" : {
+        "$$ClassName" : "TCastleColorPersistent",
+        "Alpha" : 0.0000000000000000E+000,
+        "Blue" : 1.0000000000000000E+000,
+        "Green" : 9.0196080505847931E-002,
+        "Red" : 6.6666670143604279E-002
+      },
+      "FinishParticleSize" : 1.0000000000000000E+002,
+      "MiddleColorPersistent" : {
+        "$$ClassName" : "TCastleColorPersistent",
+        "Alpha" : 1.0000000000000000E+000,
+        "Blue" : 1.0000000000000000E+000,
+        "Green" : 1.0000000000000000E+000
+      },
+      "MiddleColorVariancePersistent" : {
+        "$$ClassName" : "TCastleColorPersistent",
+        "Alpha" : 1.0000000000000000E+000
+      },
+      "MiddleParticleSize" : 6.0000000000000000E+001,
+      "Name" : "RenderToTextureEffect",
+      "ParticleLifeSpan" : 2.0000000000000000E+000,
+      "ParticleLifeSpanVariance" : 1.0000000149011612E-001,
+      "SourcePositionVariancePersistent" : {
+        "$$ClassName" : "TCastleVector3Persistent",
+        "X" : 2.5600000000000000E+002,
+        "Y" : 1.0000000000000000E+000,
+        "Z" : 0.0000000000000000E+000
+      },
+      "Speed" : 2.2400000000000000E+002,
+      "SpeedVariance" : 3.2000000000000000E+001,
+      "StartColorPersistent" : {
+        "$$ClassName" : "TCastleColorPersistent",
+        "Blue" : 1.0980392247438431E-001,
+        "Green" : 1.0980392247438431E-001
+      },
+      "StartParticleSize" : 1.0000000000000000E+002,
+      "Texture" : "castle-data:/texture.png"
+    }
+  ],
+  "$Children" : [
+    {
+      "$$ClassName" : "TCastleViewport",
+      "Camera" : {
+        "$$ClassName" : "TCastleCamera",
+        "InitialDirectionPersistent" : {
+          "$$ClassName" : "TCastleVector3Persistent",
+          "X" : -1.9566379487514496E-001,
+          "Y" : -9.2363886535167694E-002,
+          "Z" : -9.7631174325942993E-001
+        },
+        "InitialPositionPersistent" : {
+          "$$ClassName" : "TCastleVector3Persistent",
+          "X" : 5.9336247444152832E+000,
+          "Y" : 7.1790289878845215E+000,
+          "Z" : 1.6063056945800781E+001
+        },
+        "InitialUpPersistent" : {
+          "$$ClassName" : "TCastleVector3Persistent",
+          "X" : -6.0383807867765427E-002,
+          "Y" : 9.9480038881301880E-001,
+          "Z" : -8.2011416554450989E-002
+        },
+        "Name" : "Camera",
+        "Orthographic" : {
+          "$$ClassName" : "TCastleOrthographic",
+          "Name" : "Orthographic"
+        },
+        "Perspective" : {
+          "$$ClassName" : "TCastlePerspective",
+          "Name" : "Perspective"
+        }
+      },
+      "FullSize" : true,
+      "Items" : {
+        "$$ClassName" : "TCastleRootTransform",
+        "MainScene" : "Fog",
+        "Name" : "Items",
+        "PhysicsProperties" : {
+          "$$ClassName" : "TPhysicsProperties",
+          "Name" : "PhysicsProperties"
+        },
+        "TranslationPersistent" : {
+          "$$ClassName" : "TCastleVector3Persistent",
+          "Y" : 4.4702863693237305E-001
+        },
+        "UseHeadlight" : "hlOn",
+        "$Children" : [
+          {
+            "$$ClassName" : "TCastleScene",
+            "ExposeTransforms" : [
+            ],
+            "Name" : "Fog",
+            "RenderOptions" : {
+              "$$ClassName" : "TCastleScene.TSceneRenderOptions",
+              "Name" : "RenderOptions"
+            },
+            "URL" : "castle-data:/fog.x3dv"
+          },
+          {
+            "$$ClassName" : "TCastleParticleEmitter",
+            "AllowsWriteToDepthBuffer" : true,
+            "Effect" : "MeshParticleEffect",
+            "EnableFog" : true,
+            "Name" : "MeshParticleEmitter",
+            "RotationPersistent" : {
+              "$$ClassName" : "TCastleVector4Persistent",
+              "W" : 6.1719343066215515E-002,
+              "Z" : -9.9993562698364258E-001
+            },
+            "StartEmitting" : true,
+            "TranslationPersistent" : {
+              "$$ClassName" : "TCastleVector3Persistent",
+              "X" : -1.8245328664779663E+000,
+              "Y" : 2.4096722602844238E+000,
+              "Z" : 4.6365361213684082E+000
+            }
+          },
+          {
+            "$$ClassName" : "TCastleParticleEmitter",
+            "AllowsWriteToDepthBuffer" : true,
+            "Effect" : "MeshParticleEffect2",
+            "EnableFog" : true,
+            "Name" : "MeshParticleEmitter2",
+            "RotationPersistent" : {
+              "$$ClassName" : "TCastleVector4Persistent",
+              "W" : 6.1719343066215515E-002,
+              "Z" : -9.9993562698364258E-001
+            },
+            "StartEmitting" : true,
+            "TranslationPersistent" : {
+              "$$ClassName" : "TCastleVector3Persistent",
+              "X" : 7.8064761161804199E+000,
+              "Y" : 2.6576330661773682E+000,
+              "Z" : 4.6365361213684082E+000
+            }
+          }
+        ]
+      },
+      "Name" : "Viewport",
+      "Navigation" : "ExamineNavigation1",
+      "$Children" : [
+        {
+          "$$ClassName" : "TCastleExamineNavigation",
+          "Name" : "ExamineNavigation1"
+        },
+        {
+          "$$ClassName" : "TCastleParticleViewport",
+          "BackgroundColorPersistent" : {
+            "$$ClassName" : "TCastleColorPersistent",
+            "Blue" : 0.0000000000000000E+000,
+            "Green" : 0.0000000000000000E+000,
+            "Red" : 0.0000000000000000E+000
+          },
+          "Camera" : {
+            "$$ClassName" : "TCastleCamera",
+            "Name" : "Camera",
+            "Orthographic" : {
+              "$$ClassName" : "TCastleOrthographic",
+              "Name" : "Orthographic",
+              "OriginPersistent" : {
+                "$$ClassName" : "TCastleVector2Persistent",
+                "X" : 5.0000000000000000E-001,
+                "Y" : 5.0000000000000000E-001
+              }
+            },
+            "Perspective" : {
+              "$$ClassName" : "TCastlePerspective",
+              "Name" : "Perspective"
+            },
+            "ProjectionFar" : 1.0000000000000000E+003,
+            "ProjectionType" : "ptOrthographic"
+          },
+          "Height" : 5.1200000000000000E+002,
+          "Items" : {
+            "$$ClassName" : "TCastleRootTransform",
+            "Name" : "Items",
+            "PhysicsProperties" : {
+              "$$ClassName" : "TPhysicsProperties",
+              "Name" : "PhysicsProperties"
+            },
+            "$Children" : [
+              {
+                "$$ClassName" : "TCastleParticleEmitter",
+                "Effect" : "RenderToTextureEffect",
+                "Name" : "RenderToTextureEmitter",
+                "StartEmitting" : true,
+                "TranslationPersistent" : {
+                  "$$ClassName" : "TCastleVector3Persistent",
+                  "Y" : 2.4829876708984375E+002
+                }
+              }
+            ]
+          },
+          "Name" : "RenderToTextureViewport",
+          "Navigation" : "Navigation2D2",
+          "Visible" : false,
+          "Width" : 5.1200000000000000E+002,
+          "$Children" : [
+            {
+              "$$ClassName" : "TCastle2DNavigation",
+              "Name" : "Navigation2D2"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
