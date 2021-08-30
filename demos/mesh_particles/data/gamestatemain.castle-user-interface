@@ -20,14 +20,9 @@
       "Mesh" : "castle-data:/cube.gltf",
       "Name" : "MeshParticleEffect",
       "ParticleLifeSpan" : 4.0000000000000000E+000,
-      "RotationEndPersistent" : {
+      "RotationSpeedPersistent" : {
         "$$ClassName" : "TCastleVector3Persistent",
-        "X" : 3.1400001049041748E+000,
-        "Y" : 6.2800002098083496E+000
-      },
-      "RotationStartPersistent" : {
-        "$$ClassName" : "TCastleVector3Persistent",
-        "X" : 3.1400001049041748E+000
+        "Y" : 1.5000000000000000E+000
       },
       "SourcePositionVariancePersistent" : {
         "$$ClassName" : "TCastleVector3Persistent",
@@ -63,14 +58,9 @@
       "Mesh" : "castle-data:/cube.gltf",
       "Name" : "MeshParticleEffect2",
       "ParticleLifeSpan" : 4.0000000000000000E+000,
-      "RotationEndPersistent" : {
+      "RotationVariancePersistent" : {
         "$$ClassName" : "TCastleVector3Persistent",
-        "X" : 3.1400001049041748E+000,
-        "Y" : 6.2800002098083496E+000
-      },
-      "RotationStartPersistent" : {
-        "$$ClassName" : "TCastleVector3Persistent",
-        "X" : 3.1400001049041748E+000
+        "Y" : 3.1400001049041748E+000
       },
       "SourcePositionVariancePersistent" : {
         "$$ClassName" : "TCastleVector3Persistent",
@@ -94,8 +84,8 @@
       "$$ClassName" : "TCastleParticleEffect",
       "DirectionPersistent" : {
         "$$ClassName" : "TCastleVector3Persistent",
-        "X" : 1.0529475659132004E-001,
-        "Y" : -9.9444109201431274E-001
+        "X" : 1.0360445082187653E-001,
+        "Y" : -9.9461859464645386E-001
       },
       "DirectionVariance" : 0.0000000000000000E+000,
       "EnableMiddleProperties" : false,
@@ -145,9 +135,9 @@
         "$$ClassName" : "TCastleCamera",
         "InitialDirectionPersistent" : {
           "$$ClassName" : "TCastleVector3Persistent",
-          "X" : -1.9566379487514496E-001,
-          "Y" : -9.2363886535167694E-002,
-          "Z" : -9.7631174325942993E-001
+          "X" : -1.8349876999855042E-001,
+          "Y" : -9.1934017837047577E-002,
+          "Z" : -9.7871154546737671E-001
         },
         "InitialPositionPersistent" : {
           "$$ClassName" : "TCastleVector3Persistent",
@@ -157,9 +147,9 @@
         },
         "InitialUpPersistent" : {
           "$$ClassName" : "TCastleVector3Persistent",
-          "X" : -6.0383807867765427E-002,
-          "Y" : 9.9480038881301880E-001,
-          "Z" : -8.2011416554450989E-002
+          "X" : -6.0083210468292236E-002,
+          "Y" : 9.9480468034744263E-001,
+          "Z" : -8.2180693745613098E-002
         },
         "Name" : "Camera",
         "Orthographic" : {
@@ -200,25 +190,6 @@
           {
             "$$ClassName" : "TCastleParticleEmitter",
             "AllowsWriteToDepthBuffer" : true,
-            "Effect" : "MeshParticleEffect",
-            "EnableFog" : true,
-            "Name" : "MeshParticleEmitter",
-            "RotationPersistent" : {
-              "$$ClassName" : "TCastleVector4Persistent",
-              "W" : 6.1719343066215515E-002,
-              "Z" : -9.9993562698364258E-001
-            },
-            "StartEmitting" : true,
-            "TranslationPersistent" : {
-              "$$ClassName" : "TCastleVector3Persistent",
-              "X" : -1.8245328664779663E+000,
-              "Y" : 2.4096722602844238E+000,
-              "Z" : 4.6365361213684082E+000
-            }
-          },
-          {
-            "$$ClassName" : "TCastleParticleEmitter",
-            "AllowsWriteToDepthBuffer" : true,
             "Effect" : "MeshParticleEffect2",
             "EnableFog" : true,
             "Name" : "MeshParticleEmitter2",
@@ -232,6 +203,25 @@
               "$$ClassName" : "TCastleVector3Persistent",
               "X" : 7.8064761161804199E+000,
               "Y" : 2.6576330661773682E+000,
+              "Z" : 4.6365361213684082E+000
+            }
+          },
+          {
+            "$$ClassName" : "TCastleParticleEmitter",
+            "AllowsWriteToDepthBuffer" : true,
+            "Effect" : "MeshParticleEffect",
+            "EnableFog" : true,
+            "Name" : "MeshParticleEmitter",
+            "RotationPersistent" : {
+              "$$ClassName" : "TCastleVector4Persistent",
+              "W" : 6.1719343066215515E-002,
+              "Z" : -9.9993562698364258E-001
+            },
+            "StartEmitting" : true,
+            "TranslationPersistent" : {
+              "$$ClassName" : "TCastleVector3Persistent",
+              "X" : -1.8245328664779663E+000,
+              "Y" : 2.4096722602844238E+000,
               "Z" : 4.6365361213684082E+000
             }
           }
