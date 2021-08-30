@@ -14,5 +14,3 @@ Due to emitter uses direct OpenGL calls instead of CGE's own renderer, only a fe
 - AllowsUpdateWhenCulled = False will stop update particle if emitter's boundingbox is outside of view frustum.
 
 License: MIT.
-
-The editor source code is licensed under GNU v2 due to some of its code is borrowed from view3dscene.
