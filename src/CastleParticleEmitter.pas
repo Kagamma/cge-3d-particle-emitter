@@ -1158,6 +1158,10 @@ procedure TCastleParticleEffect.SetViewport(const AValue: TCastleParticleViewpor
 begin
   Self.FViewport := AValue;
   Self.IsNeedRefresh := True;
+  if AValue <> nil then
+  begin
+    AValue.FreeNotification(Self);
+  end;
 end;
 
 procedure TCastleParticleEffect.SetMesh(const AValue: String);
