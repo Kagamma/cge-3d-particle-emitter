@@ -60,6 +60,7 @@ type
   TCastleParticle = packed record
     Position: TVector4;
     TimeToLive: TVector2;
+    Life, AnchorCount,
     Size,
     SizeDelta,
     Rotation,
@@ -100,6 +101,33 @@ type
     property TextureHeight: Integer read FTextureWidth write FTextureWidth default 256;
   end;
 
+  TCastleParticleEffectAnchorItem = class(TCollectionItem)
+  strict private
+    FTimeNormalized,
+    FParticleSize,
+    FParticleSizeVariance: Single;
+    FColor,
+    FColorVariance: TVector4;
+    FColorPersistent,
+    FColorVariancePersistent: TCastleColorPersistent;
+    procedure SetColorForPersistent(const AValue: TVector4);
+    function GetColorForPersistent: TVector4;
+    procedure SetColorVarianceForPersistent(const AValue: TVector4);
+    function GetColorVarianceForPersistent: TVector4;
+    procedure SetTimeNormalized(const AValue: Single);
+  public
+    constructor Create(AClass: TCollection); override;
+    destructor Destroy; override;
+    property Color: TVector4 read FColor write FColor;
+    property ColorVariance: TVector4 read FColorVariance write FColorVariance;
+  published
+    property TimeNormalized: Single read FTimeNormalized write SetTimeNormalized default 1;
+    property ParticleSize: Single read FParticleSize write FParticleSize default 1;
+    property ParticleSizeVariance: Single read FParticleSizeVariance write FParticleSizeVariance;
+    property ColorPersistent: TCastleColorPersistent read FColorPersistent;
+    property ColorVariancePersistent: TCastleColorPersistent read FColorVariancePersistent;
+  end;
+
   TCastleParticleEffect = class(TCastleComponent)
   private
     FMesh,
@@ -110,13 +138,8 @@ type
     FMaxParticles: Integer;
     FParticleLifeSpan,
     FParticleLifeSpanVariance,
-    FStartParticleSize,
-    FStartParticleSizeVariance,
-    FMiddleParticleSize,
-    FMiddleParticleSizeVariance,
-    FFinishParticleSize,
-    FFinishParticleSizeVariance,
-    FMiddleAnchor,
+    FParticleSize,
+    FParticleSizeVariance,
     FSpeed,
     FSpeedVariance,
     FDuration: Single;
@@ -129,12 +152,8 @@ type
     FSourcePositionVariance,
     FDirection,
     FGravity: TVector3;
-    FStartColor,
-    FStartColorVariance,
-    FMiddleColor,
-    FMiddleColorVariance,
-    FFinishColor,
-    FFinishColorVariance: TVector4;
+    FColor,
+    FColorVariance: TVector4;
     FBoundingBoxMinPersistent,
     FBoundingBoxMaxPersistent,
     FRotationPersistent,
@@ -145,17 +164,13 @@ type
     FSourcePositionVariancePersistent,
     FDirectionPersistent,
     FGravityPersistent: TCastleVector3Persistent;
-    FStartColorPersistent,
-    FStartColorVariancePersistent,
-    FMiddleColorPersistent,
-    FMiddleColorVariancePersistent,
-    FFinishColorPersistent,
-    FFinishColorVariancePersistent: TCastleColorPersistent;
+    FColorPersistent,
+    FColorVariancePersistent: TCastleColorPersistent;
     FRadial,
     FRadialVariance: Single;
-    FEnableMiddleProperties: Boolean;
     FViewport: TCastleParticleViewport;
     FBBox: TBox3D;
+    FAnchors: TCollection;
     procedure SetBoundingBoxMinForPersistent(const AValue: TVector3);
     function GetBoundingBoxMinForPersistent: TVector3;
     procedure SetBoundingBoxMaxForPersistent(const AValue: TVector3);
@@ -176,24 +191,15 @@ type
     function GetDirectionForPersistent: TVector3;
     procedure SetGravityForPersistent(const AValue: TVector3);
     function GetGravityForPersistent: TVector3;
-    procedure SetStartColorForPersistent(const AValue: TVector4);
-    function GetStartColorForPersistent: TVector4;
-    procedure SetStartColorVarianceForPersistent(const AValue: TVector4);
-    function GetStartColorVarianceForPersistent: TVector4;
-    procedure SetMiddleColorForPersistent(const AValue: TVector4);
-    function GetMiddleColorForPersistent: TVector4;
-    procedure SetMiddleColorVarianceForPersistent(const AValue: TVector4);
-    function GetMiddleColorVarianceForPersistent: TVector4;
-    procedure SetFinishColorForPersistent(const AValue: TVector4);
-    function GetFinishColorForPersistent: TVector4;
-    procedure SetFinishColorVarianceForPersistent(const AValue: TVector4);
-    function GetFinishColorVarianceForPersistent: TVector4;
+    procedure SetColorForPersistent(const AValue: TVector4);
+    function GetColorForPersistent: TVector4;
+    procedure SetColorVarianceForPersistent(const AValue: TVector4);
+    function GetColorVarianceForPersistent: TVector4;
     procedure SetViewport(const AValue: TCastleParticleViewport);
     procedure SetMesh(const AValue: String);
     procedure SetTexture(const AValue: String);
     procedure SetMaxParticle(const AValue: Integer);
     procedure SetDuration(const AValue: Single);
-    procedure SetMiddleAnchor(const AValue: Single);
   protected
     function PropertySections(const PropertyName: String): TPropertySections; override;
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
@@ -213,12 +219,8 @@ type
     property SourcePositionVariance: TVector3 read FSourcePositionVariance write FSourcePositionVariance;
     property Direction: TVector3 read FDirection write FDirection;
     property Gravity: TVector3 read FGravity write FGravity;
-    property StartColor: TVector4 read FStartColor write FStartColor;
-    property StartColorVariance: TVector4 read FStartColorVariance write FStartColorVariance;
-    property MiddleColor: TVector4 read FMiddleColor write FMiddleColor;
-    property MiddleColorVariance: TVector4 read FMiddleColorVariance write FMiddleColorVariance;
-    property FinishColor: TVector4 read FFinishColor write FFinishColor;
-    property FinishColorVariance: TVector4 read FFinishColorVariance write FFinishColorVariance;
+    property Color: TVector4 read FColor write FColor;
+    property ColorVariance: TVector4 read FColorVariance write FColorVariance;
     property BBox: TBox3D read FBBox write FBBox;
   published
     property Mesh: String read FMesh write SetMesh;
@@ -229,20 +231,14 @@ type
     property MaxParticles: Integer read FMaxParticles write SetMaxParticle default 100;
     property ParticleLifeSpan: Single read FParticleLifeSpan write FParticleLifeSpan default 1;
     property ParticleLifeSpanVariance: Single read FParticleLifeSpanVariance write FParticleLifeSpanVariance default 0.5;
-    property StartParticleSize: Single read FStartParticleSize write FStartParticleSize default 1;
-    property StartParticleSizeVariance: Single read FStartParticleSizeVariance write FStartParticleSizeVariance;
-    property MiddleParticleSize: Single read FMiddleParticleSize write FMiddleParticleSize default 0.6;
-    property MiddleParticleSizeVariance: Single read FMiddleParticleSizeVariance write FMiddleParticleSizeVariance;
-    property FinishParticleSize: Single read FFinishParticleSize write FFinishParticleSize default 0.1;
-    property FinishParticleSizeVariance: Single read FFinishParticleSizeVariance write FFinishParticleSizeVariance;
-    property MiddleAnchor: Single read FMiddleAnchor write SetMiddleAnchor default 0.5;
+    property ParticleSize: Single read FParticleSize write FParticleSize default 1;
+    property ParticleSizeVariance: Single read FParticleSizeVariance write FParticleSizeVariance;
     property Speed: Single read FSpeed write FSpeed default 3;
     property SpeedVariance: Single read FSpeedVariance write FSpeedVariance default 1;
     property Duration: Single read FDuration write SetDuration default -1;
     property DirectionVariance: Single read FDirectionVariance write FDirectionVariance default 0.4;
     property Radial: Single read FRadial write FRadial;
     property RadialVariance: Single read FRadialVariance write FRadialVariance;
-    property EnableMiddleProperties: Boolean read FEnableMiddleProperties write FEnableMiddleProperties default True;
     property Viewport: TCastleParticleViewport read FViewport write SetViewport;
     property BoundingBoxMinPersistent: TCastleVector3Persistent read FBoundingBoxMinPersistent;
     property BoundingBoxMaxPersistent: TCastleVector3Persistent read FBoundingBoxMaxPersistent;
@@ -254,12 +250,9 @@ type
     property SourcePositionVariancePersistent: TCastleVector3Persistent read FSourcePositionVariancePersistent;
     property DirectionPersistent: TCastleVector3Persistent read FDirectionPersistent;
     property GravityPersistent: TCastleVector3Persistent read FGravityPersistent;
-    property StartColorPersistent: TCastleColorPersistent read FStartColorPersistent;
-    property StartColorVariancePersistent: TCastleColorPersistent read FStartColorVariancePersistent;
-    property MiddleColorPersistent: TCastleColorPersistent read FMiddleColorPersistent;
-    property MiddleColorVariancePersistent: TCastleColorPersistent read FMiddleColorVariancePersistent;
-    property FinishColorPersistent: TCastleColorPersistent read FFinishColorPersistent;
-    property FinishColorVariancePersistent: TCastleColorPersistent read FFinishColorVariancePersistent;
+    property ColorPersistent: TCastleColorPersistent read FColorPersistent;
+    property ColorVariancePersistent: TCastleColorPersistent read FColorVariancePersistent;
+    property Anchors: TCollection read FAnchors;
   end;
 
   TCastleParticleEmitter = class(TCastleTransform)
@@ -305,6 +298,11 @@ type
     FEnableFog,
     FTimePlaying: Boolean;
     FTimePlayingSpeed: Single;
+    FColorList,
+    FColorVarianceList: TVector4List;
+    FAnchorList,
+    FSizeList,
+    FSizeVarianceList: TSingleList;
     {$ifdef CASTLE_DESIGN_MODE}
     FDebugBox: TDebugBox;
     {$endif}
@@ -352,7 +350,7 @@ const
   TransformVertexShaderSourceMultipleInstances: String =
 '#version 330'nl
 'layout(location = 0) in vec4 inPosition;'nl
-'layout(location = 1) in vec2 inTimeToLive;'nl
+'layout(location = 1) in vec4 inTimeToLive;'nl
 'layout(location = 2) in vec4 inSizeRotation;'nl
 'layout(location = 3) in vec4 inColor;'nl
 'layout(location = 4) in vec4 inColorDelta;'nl
@@ -363,7 +361,7 @@ const
 'layout(location = 9) in vec4 inRotationXY;'nl
 
 'out vec4 outPosition;'nl
-'out vec2 outTimeToLive;'nl
+'out vec4 outTimeToLive;'nl
 'out vec4 outSizeRotation;'nl
 'out vec4 outColor;'nl
 'out vec4 outColorDelta;'nl
@@ -377,12 +375,10 @@ const
 '  int sourceType;'nl
 '  float particleLifeSpan;'nl
 '  float particleLifeSpanVariance;'nl
-'  float startParticleSize;'nl
-'  float startParticleSizeVariance;'nl
-'  float middleParticleSize;'nl
-'  float middleParticleSizeVariance;'nl
-'  float finishParticleSize;'nl
-'  float finishParticleSizeVariance;'nl
+'  float ParticleSize;'nl
+'  float ParticleSizeVariance;'nl
+'  float anchorParticleSize[5];'nl
+'  float anchorParticleSizeVariance[5];'nl
 '  float maxRadius;'nl
 '  float maxRadiusVariance;'nl
 '  float minRadius;'nl
@@ -397,18 +393,17 @@ const
 '  float speedVariance;'nl
 '  float radial;'nl
 '  float radialVariance;'nl
-'  float middleAnchor;'nl
+'  float anchor[5];'nl
 '  vec3 sourcePosition;'nl
 '  vec3 sourcePositionVariance;'nl
 '  vec3 gravity;'nl
 '  vec3 direction;'nl
 '  float directionVariance;'nl
-'  vec4 startColor;'nl
-'  vec4 startColorVariance;'nl
-'  vec4 middleColor;'nl
-'  vec4 middleColorVariance;'nl
-'  vec4 finishColor;'nl
-'  vec4 finishColorVariance;'nl
+'  vec4 Color;'nl
+'  vec4 ColorVariance;'nl
+'  vec4 anchorColor[5];'nl
+'  vec4 anchorColorVariance[5];'nl
+'  int anchorCount;'nl
 '  int maxParticles;'nl
 '  int isColliable;'nl
 '};'nl
@@ -453,10 +448,13 @@ const
 '}'nl
 
 'void emitParticle() {'nl
-'  outTimeToLive.x = effect.particleLifeSpan + effect.particleLifeSpanVariance * (rnd() * 2.0 - 1.0);'nl
-'  outTimeToLive.y = outTimeToLive.x - outTimeToLive.x * effect.middleAnchor;'nl
+'  outTimeToLive.z = effect.particleLifeSpan + effect.particleLifeSpanVariance * (rnd() * 2.0 - 1.0);'nl // Life
+'  outTimeToLive.x = outTimeToLive.z;'nl
+'  outTimeToLive.y = outTimeToLive.z * (effect.anchorCount > 1 ? effect.anchor[1] : 0.99);'nl
+'  outTimeToLive.w = 1;'nl // current anchor
 '  float invLifeSpan = 1.0 / outTimeToLive.x;'nl
-'  float invTimeRemaining = 1.0 / (outTimeToLive.x - outTimeToLive.y);'nl
+'  float invTimeRemaining = 1.0 / outTimeToLive.y;'nl
+'  outTimeToLive.y = outTimeToLive.z - outTimeToLive.y;'nl
 '  vec3 vrpos = vec3(rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0);'nl
 '  if (effect.sourceType == 1) {'nl
 '    vrpos = vec3(rnd(), rnd(), rnd()) * normalize(vrpos);'nl
@@ -477,9 +475,6 @@ const
 '  }'nl
 '  outTranslate = vec3(0.0);'nl // Do nothing
 '  outStartPos = vec3(0.0);'nl // Do nothing
-'  outColor = effect.startColor + effect.startColorVariance * vec4(rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0);'nl
-'  vec4 middleColor = effect.middleColor + effect.middleColorVariance * vec4(rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0);'nl
-'  outColorDelta = (middleColor - outColor) * invTimeRemaining;'nl
 '  outDirection = effect.direction;'nl
 '  vec3 cd = normalize(cross(outDirection, outDirection.zxy));'nl
 '  float angle = effect.directionVariance * (rnd() * 2.0 - 1.0);'nl
@@ -491,8 +486,11 @@ const
 '    effect.speed + effect.speedVariance * (rnd() * 2.0 - 1.0));'nl
 '  outVelocity = vec4(vrdir * vspeed, effect.radial + effect.radialVariance * (rnd() * 2.0 - 1.0));'nl
 
-'  float startSize = max(0.0001, effect.startParticleSize + effect.startParticleSizeVariance * (rnd() * 2.0 - 1.0));'nl
-'  float finishSize = max(0.0001, effect.middleParticleSize + effect.middleParticleSizeVariance * (rnd() * 2.0 - 1.0));'nl
+'  outColor = effect.anchorColor[0] + effect.anchorColorVariance[0] * vec4(rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0);'nl
+'  vec4 middleColor = effect.anchorCount == 1 ? outColor : effect.anchorColor[1] + effect.anchorColorVariance[1] * vec4(rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0);'nl
+'  outColorDelta = (middleColor - outColor) * invTimeRemaining;'nl
+'  float startSize = max(0.0001, effect.anchorParticleSize[0] + effect.anchorParticleSizeVariance[0] * (rnd() * 2.0 - 1.0));'nl
+'  float finishSize = effect.anchorCount == 1 ? startSize : max(0.0001, effect.anchorParticleSize[1] + effect.anchorParticleSizeVariance[1] * (rnd() * 2.0 - 1.0));'nl
 '  outSizeRotation.xy = vec2(startSize, (finishSize - startSize) * invTimeRemaining);'nl
 
 '  outSizeRotation.z = effect.rotation.z + effect.rotationVariance.z * (rnd() * 2.0 - 1.0);'nl
@@ -516,11 +514,21 @@ const
 '  }'nl
 '  outColor += outColorDelta * deltaTime;'nl
 '  if ((outTimeToLive.x >= outTimeToLive.y) && (outTimeToLive.x - deltaTime < outTimeToLive.y)) {'nl
-'    float invTimeRemaining = 1.0 / outTimeToLive.y;'nl
-'    vec4 finishColor = effect.finishColor + effect.finishColorVariance * vec4(rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0);'nl
-'    outColorDelta = (finishColor - outColor) * invTimeRemaining;'nl
-'    float finishSize = max(0.0001, effect.finishParticleSize + effect.finishParticleSizeVariance * (rnd() * 2.0 - 1.0));'nl
-'    outSizeRotation.xy = vec2(outSizeRotation.x, (finishSize - outSizeRotation.x) * invTimeRemaining);'nl
+'    int a = int(outTimeToLive.w) + 1;'nl
+'    outTimeToLive.w = a;'nl // current anchor
+'    if (a < effect.anchorCount) {'nl
+'      outTimeToLive.y = outTimeToLive.z * effect.anchor[a];'nl
+'      float invTimeRemaining = 1.0 / (outTimeToLive.y - outTimeToLive.z * effect.anchor[a - 1]);'nl
+'      outTimeToLive.y = outTimeToLive.z - outTimeToLive.y;'nl
+'      vec4 finishColor = effect.anchorColor[a] + effect.anchorColorVariance[a] * vec4(rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0);'nl
+'      outColorDelta = (finishColor - outColor) * invTimeRemaining;'nl
+'      float finishSize = max(0.0001, effect.anchorParticleSize[a] + effect.anchorParticleSizeVariance[a] * (rnd() * 2.0 - 1.0));'nl
+'      outSizeRotation.y = (finishSize - outSizeRotation.x) * invTimeRemaining;'nl
+'    } else {'nl
+'      outColorDelta = vec4(0.0);'nl
+'      outSizeRotation.y = 0.0;'nl
+'      outTimeToLive.y = outTimeToLive.z;'nl
+'    }'nl
 '  }'nl
 '  outTimeToLive.x = max(0.0, outTimeToLive.x - deltaTime);'nl
 '  outVelocity.xyz = rotate(outVelocity.xyz, outVelocity.w * deltaTime, outDirection) + effect.gravity * deltaTime;'nl
@@ -539,7 +547,7 @@ const
   TransformVertexShaderSourceSingleInstance: String =
 '#version 330'nl
 'layout(location = 0) in vec4 inPosition;'nl
-'layout(location = 1) in vec2 inTimeToLive;'nl
+'layout(location = 1) in vec4 inTimeToLive;'nl
 'layout(location = 2) in vec4 inSizeRotation;'nl
 'layout(location = 3) in vec4 inColor;'nl
 'layout(location = 4) in vec4 inColorDelta;'nl
@@ -550,7 +558,7 @@ const
 'layout(location = 9) in vec4 inRotationXY;'nl
 
 'out vec4 outPosition;'nl
-'out vec2 outTimeToLive;'nl
+'out vec4 outTimeToLive;'nl
 'out vec4 outSizeRotation;'nl
 'out vec4 outColor;'nl
 'out vec4 outColorDelta;'nl
@@ -564,12 +572,10 @@ const
 '  int sourceType;'nl
 '  float particleLifeSpan;'nl
 '  float particleLifeSpanVariance;'nl
-'  float startParticleSize;'nl
-'  float startParticleSizeVariance;'nl
-'  float middleParticleSize;'nl
-'  float middleParticleSizeVariance;'nl
-'  float finishParticleSize;'nl
-'  float finishParticleSizeVariance;'nl
+'  float ParticleSize;'nl
+'  float ParticleSizeVariance;'nl
+'  float anchorParticleSize[5];'nl
+'  float anchorParticleSizeVariance[5];'nl
 '  float maxRadius;'nl
 '  float maxRadiusVariance;'nl
 '  float minRadius;'nl
@@ -584,18 +590,17 @@ const
 '  float speedVariance;'nl
 '  float radial;'nl
 '  float radialVariance;'nl
-'  float middleAnchor;'nl
+'  float anchor[5];'nl
 '  vec3 sourcePosition;'nl
 '  vec3 sourcePositionVariance;'nl
 '  vec3 gravity;'nl
 '  vec3 direction;'nl
 '  float directionVariance;'nl
-'  vec4 startColor;'nl
-'  vec4 startColorVariance;'nl
-'  vec4 middleColor;'nl
-'  vec4 middleColorVariance;'nl
-'  vec4 finishColor;'nl
-'  vec4 finishColorVariance;'nl
+'  vec4 Color;'nl
+'  vec4 ColorVariance;'nl
+'  vec4 anchorColor[5];'nl
+'  vec4 anchorColorVariance[5];'nl
+'  int anchorCount;'nl
 '  int maxParticles;'nl
 '  int isColliable;'nl
 '};'nl
@@ -642,10 +647,13 @@ const
 
 'void emitParticle() {'nl
 '  mat3 rMatrix = mat3(mMatrix);'nl
-'  outTimeToLive.x = effect.particleLifeSpan + effect.particleLifeSpanVariance * (rnd() * 2.0 - 1.0);'nl
-'  outTimeToLive.y = outTimeToLive.x - outTimeToLive.x * effect.middleAnchor;'nl
+'  outTimeToLive.z = effect.particleLifeSpan + effect.particleLifeSpanVariance * (rnd() * 2.0 - 1.0);'nl // Life
+'  outTimeToLive.x = outTimeToLive.z;'nl
+'  outTimeToLive.y = outTimeToLive.z * (effect.anchorCount > 1 ? effect.anchor[1] : 0.99);'nl
+'  outTimeToLive.w = 1;'nl // current anchor
 '  float invLifeSpan = 1.0 / outTimeToLive.x;'nl
-'  float invTimeRemaining = 1.0 / (outTimeToLive.x - outTimeToLive.y);'nl
+'  float invTimeRemaining = 1.0 / outTimeToLive.y;'nl
+'  outTimeToLive.y = outTimeToLive.z - outTimeToLive.y;'nl
 '  vec3 scale = vec3('nl
 '    length(vec3(mMatrix[0][0], mMatrix[0][1], mMatrix[0][2])),'nl
 '    length(vec3(mMatrix[1][0], mMatrix[1][1], mMatrix[1][2])),'nl
@@ -671,9 +679,6 @@ const
 '  }'nl
 '  outTranslate = vec3(mMatrix[3][0], mMatrix[3][1], mMatrix[3][2]);'nl
 '  outPosition.xyz = outTranslate + outStartPos;'nl
-'  outColor = effect.startColor + effect.startColorVariance * vec4(rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0);'nl
-'  vec4 middleColor = effect.middleColor + effect.middleColorVariance * vec4(rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0);'nl
-'  outColorDelta = (middleColor - outColor) * invTimeRemaining;'nl
 '  outDirection = rMatrix * effect.direction;'nl
 '  vec3 cd = normalize(cross(outDirection, outDirection.zxy));'nl
 '  float angle = effect.directionVariance * (rnd() * 2.0 - 1.0);'nl
@@ -685,8 +690,11 @@ const
 '    effect.speed + effect.speedVariance * (rnd() * 2.0 - 1.0));'nl
 '  outVelocity = vec4(vrdir * vspeed, effect.radial + effect.radialVariance * (rnd() * 2.0 - 1.0));'nl
 
-'  float startSize = max(0.0001, effect.startParticleSize + effect.startParticleSizeVariance * (rnd() * 2.0 - 1.0));'nl
-'  float finishSize = max(0.0001, effect.middleParticleSize + effect.middleParticleSizeVariance * (rnd() * 2.0 - 1.0));'nl
+'  outColor = effect.anchorColor[0] + effect.anchorColorVariance[0] * vec4(rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0);'nl
+'  vec4 middleColor = effect.anchorCount == 1 ? outColor : effect.anchorColor[1] + effect.anchorColorVariance[1] * vec4(rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0);'nl
+'  outColorDelta = (middleColor - outColor) * invTimeRemaining;'nl
+'  float startSize = max(0.0001, effect.anchorParticleSize[0] + effect.anchorParticleSizeVariance[0] * (rnd() * 2.0 - 1.0));'nl
+'  float finishSize = effect.anchorCount == 1 ? startSize : max(0.0001, effect.anchorParticleSize[1] + effect.anchorParticleSizeVariance[1] * (rnd() * 2.0 - 1.0));'nl
 '  outSizeRotation.xy = vec2(startSize, (finishSize - startSize) * invTimeRemaining);'nl
 
 '  outSizeRotation.z = effect.rotation.z + effect.rotationVariance.z * (rnd() * 2.0 - 1.0);'nl
@@ -710,11 +718,21 @@ const
 '  }'nl
 '  outColor += outColorDelta * deltaTime;'nl
 '  if ((outTimeToLive.x >= outTimeToLive.y) && (outTimeToLive.x - deltaTime < outTimeToLive.y)) {'nl
-'    float invTimeRemaining = 1.0 / outTimeToLive.y;'nl
-'    vec4 finishColor = effect.finishColor + effect.finishColorVariance * vec4(rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0);'nl
-'    outColorDelta = (finishColor - outColor) * invTimeRemaining;'nl
-'    float finishSize = max(0.0001, effect.finishParticleSize + effect.finishParticleSizeVariance * (rnd() * 2.0 - 1.0));'nl
-'    outSizeRotation.xy = vec2(outSizeRotation.x, (finishSize - outSizeRotation.x) * invTimeRemaining);'nl
+'    int a = int(outTimeToLive.w) + 1;'nl
+'    outTimeToLive.w = a;'nl // current anchor
+'    if (a < effect.anchorCount) {'nl
+'      outTimeToLive.y = outTimeToLive.z * effect.anchor[a];'nl
+'      float invTimeRemaining = 1.0 / (outTimeToLive.y - outTimeToLive.z * effect.anchor[a - 1]);'nl
+'      outTimeToLive.y = outTimeToLive.z - outTimeToLive.y;'nl
+'      vec4 finishColor = effect.anchorColor[a] + effect.anchorColorVariance[a] * vec4(rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0);'nl
+'      outColorDelta = (finishColor - outColor) * invTimeRemaining;'nl
+'      float finishSize = max(0.0001, effect.anchorParticleSize[a] + effect.anchorParticleSizeVariance[a] * (rnd() * 2.0 - 1.0));'nl
+'      outSizeRotation.y = (finishSize - outSizeRotation.x) * invTimeRemaining;'nl
+'    } else {'nl
+'      outColorDelta = vec4(0.0);'nl
+'      outSizeRotation.y = 0.0;'nl
+'      outTimeToLive.y = outTimeToLive.z;'nl
+'    }'nl
 '  }'nl
 '  outTimeToLive.x = max(0.0, outTimeToLive.x - deltaTime);'nl
 '  outVelocity.xyz = rotate(outVelocity.xyz, outVelocity.w * deltaTime, outDirection) + effect.gravity * deltaTime;'nl
@@ -734,7 +752,7 @@ const
   VertexShaderSourceQuad: String =
 '#version 330'nl
 'layout(location = 0) in vec4 inPosition;'nl
-'layout(location = 1) in vec2 inTimeToLive;'nl
+'layout(location = 1) in vec4 inTimeToLive;'nl
 'layout(location = 2) in vec4 inSizeRotation;'nl
 'layout(location = 3) in vec4 inColor;'nl
 'layout(location = 9) in vec4 inRotationXY;'nl
@@ -810,7 +828,7 @@ const
   VertexShaderSourceMesh: String =
 '#version 330'nl
 'layout(location = 0) in vec4 inPosition;'nl
-'layout(location = 1) in vec2 inTimeToLive;'nl
+'layout(location = 1) in vec4 inTimeToLive;'nl
 'layout(location = 2) in vec4 inSizeRotation;'nl
 'layout(location = 3) in vec4 inColor;'nl
 'layout(location = 9) in vec4 inRotationXY;'nl
@@ -926,6 +944,22 @@ begin
   end;
 end;
 
+function CreateVec3Persistent(const G: TGetVector3Event; const S: TSetVector3Event; const ADefaultValue: TVector3): TCastleVector3Persistent;
+begin
+  Result := TCastleVector3Persistent.Create;
+  Result.InternalGetValue := G;
+  Result.InternalSetValue := S;
+  Result.InternalDefaultValue := ADefaultValue;
+end;
+
+function CreateColorPersistent(const G: TGetVector4Event; const S: TSetVector4Event; const ADefaultValue: TVector4): TCastleColorPersistent;
+begin
+  Result := TCastleColorPersistent.Create;
+  Result.InternalGetValue := G;
+  Result.InternalSetValue := S;
+  Result.InternalDefaultValue := ADefaultValue;
+end;
+
 procedure TCastleParticleViewport.RenderFromViewEverything(const RenderingCamera: TRenderingCamera);
 var
   SR: TRectangle;
@@ -994,6 +1028,60 @@ begin
     Self.IsNeedRefresh := True;
   end;
 end;
+
+// ---------------------------------
+
+procedure TCastleParticleEffectAnchorItem.SetColorForPersistent(const AValue: TVector4);
+begin
+  Self.FColor := AValue;
+end;
+
+function TCastleParticleEffectAnchorItem.GetColorForPersistent: TVector4;
+begin
+  Result := Self.FColor;
+end;
+
+procedure TCastleParticleEffectAnchorItem.SetColorVarianceForPersistent(const AValue: TVector4);
+begin
+  Self.FColorVariance := AValue;
+end;
+
+function TCastleParticleEffectAnchorItem.GetColorVarianceForPersistent: TVector4;
+begin
+  Result := Self.FColorVariance;
+end;
+
+procedure TCastleParticleEffectAnchorItem.SetTimeNormalized(const AValue: Single);
+begin
+  Self.FTimeNormalized := Min(1, Max(0, AValue));
+end;
+
+constructor TCastleParticleEffectAnchorItem.Create(AClass: TCollection);
+begin
+  inherited;
+  Self.FColor := Vector4(1, 1, 1, 1);
+  Self.FParticleSize := 1;
+  Self.FColorPersistent := CreateColorPersistent(
+    @Self.GetColorForPersistent,
+    @Self.SetColorForPersistent,
+    Self.FColor
+  );
+  Self.FColorVariancePersistent := CreateColorPersistent(
+    @Self.GetColorVarianceForPersistent,
+    @Self.SetColorVarianceForPersistent,
+    Self.FColorVariance
+  );
+  Self.FTimeNormalized := 1;
+end;
+
+destructor TCastleParticleEffectAnchorItem.Destroy;
+begin
+  FreeAndNil(Self.FColorPersistent);
+  FreeAndNil(Self.FColorVariancePersistent);
+  inherited;
+end;
+
+// ---------------------------------
 
 procedure TCastleParticleEffect.SetBoundingBoxMinForPersistent(const AValue: TVector3);
 begin
@@ -1095,64 +1183,24 @@ begin
   Result := Self.FGravity;
 end;
 
-procedure TCastleParticleEffect.SetStartColorForPersistent(const AValue: TVector4);
+procedure TCastleParticleEffect.SetColorForPersistent(const AValue: TVector4);
 begin
-  Self.FStartColor := AValue;
+  Self.FColor := AValue;
 end;
 
-function TCastleParticleEffect.GetStartColorForPersistent: TVector4;
+function TCastleParticleEffect.GetColorForPersistent: TVector4;
 begin
-  Result := Self.FStartColor;
+  Result := Self.FColor;
 end;
 
-procedure TCastleParticleEffect.SetStartColorVarianceForPersistent(const AValue: TVector4);
+procedure TCastleParticleEffect.SetColorVarianceForPersistent(const AValue: TVector4);
 begin
-  Self.FStartColorVariance := AValue;
+  Self.FColorVariance := AValue;
 end;
 
-function TCastleParticleEffect.GetStartColorVarianceForPersistent: TVector4;
+function TCastleParticleEffect.GetColorVarianceForPersistent: TVector4;
 begin
-  Result := Self.FStartColorVariance;
-end;
-
-procedure TCastleParticleEffect.SetMiddleColorForPersistent(const AValue: TVector4);
-begin
-  Self.FMiddleColor := AValue;
-end;
-
-function TCastleParticleEffect.GetMiddleColorForPersistent: TVector4;
-begin
-  Result := Self.FMiddleColor;
-end;
-
-procedure TCastleParticleEffect.SetMiddleColorVarianceForPersistent(const AValue: TVector4);
-begin
-  Self.FMiddleColorVariance := AValue;
-end;
-
-function TCastleParticleEffect.GetMiddleColorVarianceForPersistent: TVector4;
-begin
-  Result := Self.FMiddleColorVariance;
-end;
-
-procedure TCastleParticleEffect.SetFinishColorForPersistent(const AValue: TVector4);
-begin
-  Self.FFinishColor := AValue;
-end;
-
-function TCastleParticleEffect.GetFinishColorForPersistent: TVector4;
-begin
-  Result := Self.FFinishColor;
-end;
-
-procedure TCastleParticleEffect.SetFinishColorVarianceForPersistent(const AValue: TVector4);
-begin
-  Self.FFinishColorVariance := AValue;
-end;
-
-function TCastleParticleEffect.GetFinishColorVarianceForPersistent: TVector4;
-begin
-  Result := Self.FFinishColorVariance;
+  Result := Self.FColorVariance;
 end;
 
 procedure TCastleParticleEffect.SetViewport(const AValue: TCastleParticleViewport);
@@ -1189,11 +1237,6 @@ begin
   Self.IsNeedRefresh := True;
 end;
 
-procedure TCastleParticleEffect.SetMiddleAnchor(const AValue: Single);
-begin
-  Self.FMiddleAnchor := Max(0, Min(1, AValue));
-end;
-
 function TCastleParticleEffect.PropertySections(const PropertyName: String): TPropertySections;
 begin
   case PropertyName of
@@ -1205,20 +1248,6 @@ begin
 end;
 
 constructor TCastleParticleEffect.Create(AOwner: TComponent);
-  function CreateVec3Persistent(const G: TGetVector3Event; const S: TSetVector3Event; const ADefaultValue: TVector3): TCastleVector3Persistent;
-  begin
-    Result := TCastleVector3Persistent.Create;
-    Result.InternalGetValue := G;
-    Result.InternalSetValue := S;
-    Result.InternalDefaultValue := ADefaultValue;
-  end;
-  function CreateColorPersistent(const G: TGetVector4Event; const S: TSetVector4Event; const ADefaultValue: TVector4): TCastleColorPersistent;
-  begin
-    Result := TCastleColorPersistent.Create;
-    Result.InternalGetValue := G;
-    Result.InternalSetValue := S;
-    Result.InternalDefaultValue := ADefaultValue;
-  end;
 begin
   inherited;
   Self.BBox := TBox3D.Empty;
@@ -1227,13 +1256,8 @@ begin
   Self.FDuration := -1;
   Self.FParticleLifeSpan := 1;
   Self.FParticleLifeSpanVariance := 0.5;
-  Self.FMiddleAnchor := 0.5;
-  Self.FStartColor := Vector4(1, 0, 0, 1);
-  Self.FMiddleColor := Vector4(1, 0.5, 0, 0.5);
-  Self.FFinishColor := Vector4(0.3, 0.3, 0.3, 0.3);
-  Self.FStartParticleSize := 1;
-  Self.FMiddleParticleSize := 0.6;
-  Self.FFinishParticleSize := 0.1;
+  Self.FColor := Vector4(1, 1, 1, 1);
+  Self.FParticleSize := 1;
   Self.FSourcePositionVariance := Vector3(0.02, 0.02, 0.02);
   Self.FDirection := Vector3(0, 1, 0);
   Self.FDirectionVariance := 0.4;
@@ -1242,7 +1266,6 @@ begin
   Self.FBlendFuncSource := pbmOne;
   Self.FBlendFuncDestination := pbmOne;
   Self.FSourceType := pstBox;
-  Self.FEnableMiddleProperties := True;
   //
   Self.FBoundingBoxMinPersistent := CreateVec3Persistent(
     @Self.GetBoundingBoxMinForPersistent,
@@ -1294,40 +1317,22 @@ begin
     @Self.SetGravityForPersistent,
     Self.FGravity
   );
-  Self.FStartColorPersistent := CreateColorPersistent(
-    @Self.GetStartColorForPersistent,
-    @Self.SetStartColorForPersistent,
-    Self.FStartColor
+  Self.FColorPersistent := CreateColorPersistent(
+    @Self.GetColorForPersistent,
+    @Self.SetColorForPersistent,
+    Self.FColor
   );
-  Self.FStartColorVariancePersistent := CreateColorPersistent(
-    @Self.GetStartColorVarianceForPersistent,
-    @Self.SetStartColorVarianceForPersistent,
-    Self.FStartColorVariance
+  Self.FColorVariancePersistent := CreateColorPersistent(
+    @Self.GetColorVarianceForPersistent,
+    @Self.SetColorVarianceForPersistent,
+    Self.FColorVariance
   );
-  Self.FMiddleColorPersistent := CreateColorPersistent(
-    @Self.GetMiddleColorForPersistent,
-    @Self.SetMiddleColorForPersistent,
-    Self.FMiddleColor
-  );
-  Self.FMiddleColorVariancePersistent := CreateColorPersistent(
-    @Self.GetMiddleColorVarianceForPersistent,
-    @Self.SetMiddleColorVarianceForPersistent,
-    Self.FMiddleColorVariance
-  );
-  Self.FFinishColorPersistent := CreateColorPersistent(
-    @Self.GetFinishColorForPersistent,
-    @Self.SetFinishColorForPersistent,
-    Self.FFinishColor
-  );
-  Self.FFinishColorVariancePersistent := CreateColorPersistent(
-    @Self.GetFinishColorVarianceForPersistent,
-    @Self.SetFinishColorVarianceForPersistent,
-    Self.FFinishColorVariance
-  );
+  Self.FAnchors := TCollection.Create(TCastleParticleEffectAnchorItem);
 end;
 
 destructor TCastleParticleEffect.Destroy;
 begin
+  FreeAndNil(Self.FAnchors);
   FreeAndNil(Self.FBoundingBoxMinPersistent);
   FreeAndNil(Self.FBoundingBoxMaxPersistent);
   FreeAndNil(Self.FRotationPersistent);
@@ -1338,12 +1343,8 @@ begin
   FreeAndNil(Self.FSourcePositionVariancePersistent);
   FreeAndNil(Self.FDirectionPersistent);
   FreeAndNil(Self.FGravityPersistent);
-  FreeAndNil(Self.FStartColorPersistent);
-  FreeAndNil(Self.FStartColorVariancePersistent);
-  FreeAndNil(Self.FMiddleColorPersistent);
-  FreeAndNil(Self.FMiddleColorVariancePersistent);
-  FreeAndNil(Self.FFinishColorPersistent);
-  FreeAndNil(Self.FFinishColorVariancePersistent);
+  FreeAndNil(Self.FColorPersistent);
+  FreeAndNil(Self.FColorVariancePersistent);
   inherited;
 end;
 
@@ -1400,6 +1401,8 @@ begin
   end;
 end;
 
+// ---------------------------------
+
 procedure TCastleParticleEmitter.SetStartEmitting(V: Boolean);
 begin
   Self.FStartEmitting := V;
@@ -1439,9 +1442,20 @@ begin
   Self.FSmoothTexture := True;
   FTimePlaying := true;
   FTimePlayingSpeed := 1.0;
+  Self.FColorList := TVector4List.Create;
+  Self.FColorVarianceList := TVector4List.Create;
+  Self.FSizeList := TSingleList.Create;
+  Self.FSizeVarianceList := TSingleList.Create;
+  Self.FAnchorList := TSingleList.Create;
+  Self.FColorList.Capacity := 5;
+  Self.FColorVarianceList.Capacity := 5;
+  Self.FSizeList.Capacity := 5;
+  Self.FSizeVarianceList.Capacity := 5;
+  Self.FAnchorList.Capacity := 5;
   {$ifdef CASTLE_DESIGN_MODE}
   DebugScene := TCastleScene.Create(Self);
   DebugScene.SetTransient;
+  DebugScene.Pickable := False;
   Self.FDebugBox := TDebugBox.Create(Self);
   Self.FDebugBox.Color := Vector4(0, 1, 0, 0.5);
   MainRoot := TX3DRootNode.Create;
@@ -1453,12 +1467,19 @@ end;
 
 destructor TCastleParticleEmitter.Destroy;
 begin
+  Self.FAnchorList.Free;
+  Self.FColorList.Free;
+  Self.FColorVarianceList.Free;
+  Self.FSizeList.Free;
+  Self.FSizeVarianceList.Free;
   inherited;
 end;
 
 procedure TCastleParticleEmitter.Update(const SecondsPassed: Single; var RemoveMe: TRemoveType);
 var
+  I: Integer;
   S: Single;
+  AnchorItem: TCastleParticleEffectAnchorItem;
 begin
   inherited;
   if (not Self.Exists) or (not Assigned(Self.FEffect)) then
@@ -1512,35 +1533,39 @@ begin
       TransformFeedbackProgram.Uniform('effect.sourcePosition').SetValue(Self.FEffect.SourcePosition);
       TransformFeedbackProgram.Uniform('effect.sourcePositionVariance').SetValue(Self.FEffect.SourcePositionVariance);
       TransformFeedbackProgram.Uniform('effect.maxParticles').SetValue(Self.FEffect.MaxParticles);
-      TransformFeedbackProgram.Uniform('effect.startColor').SetValue(Self.FEffect.StartColor);
-      TransformFeedbackProgram.Uniform('effect.startColorVariance').SetValue(Self.FEffect.StartColorVariance);
-      if Self.FEffect.EnableMiddleProperties then
+
+      // Build list of anchors
+      Self.FAnchorList.Count := 0;
+      Self.FColorList.Count := 0;
+      Self.FColorVarianceList.Count := 0;
+      Self.FSizeList.Count := 0;
+      Self.FSizeVarianceList.Count := 0;
+      Self.FAnchorList.Add(0);
+      Self.FSizeList.Add(Self.FEffect.ParticleSize);
+      Self.FSizeVarianceList.Add(Self.FEffect.ParticleSizeVariance);
+      Self.FColorList.Add(Self.FEffect.Color);
+      Self.FColorVarianceList.Add(Self.FEffect.ColorVariance);
+      for I := 0 to Self.FEffect.Anchors.Count - 1 do
       begin
-        if Self.FEffect.MiddleAnchor = 0 then
-          S := 0.01
-        else
-          S := Self.FEffect.MiddleAnchor;
-        TransformFeedbackProgram.Uniform('effect.middleAnchor').SetValue(S);
-        TransformFeedbackProgram.Uniform('effect.middleColor').SetValue(Self.FEffect.MiddleColor);
-        TransformFeedbackProgram.Uniform('effect.middleColorVariance').SetValue(Self.FEffect.MiddleColorVariance);
-        TransformFeedbackProgram.Uniform('effect.middleParticleSize').SetValue(Self.FEffect.MiddleParticleSize);
-        TransformFeedbackProgram.Uniform('effect.middleParticleSizeVariance').SetValue(Self.FEffect.MiddleParticleSizeVariance);
-      end else
-      begin
-        TransformFeedbackProgram.Uniform('effect.middleAnchor').SetValue(0.01);
-        TransformFeedbackProgram.Uniform('effect.middleColor').SetValue(Self.FEffect.StartColor);
-        TransformFeedbackProgram.Uniform('effect.middleColorVariance').SetValue(Self.FEffect.StartColorVariance);
-        TransformFeedbackProgram.Uniform('effect.middleParticleSize').SetValue(Self.FEffect.StartParticleSize);
-        TransformFeedbackProgram.Uniform('effect.middleParticleSizeVariance').SetValue(Self.FEffect.StartParticleSizeVariance);
+        // We limit number of anchors to 4 at the moment
+        if I >= 4 then Break;
+        AnchorItem := TCastleParticleEffectAnchorItem(Self.FEffect.Anchors.Items[I]);
+        Self.FAnchorList.Add(Min(0.99, Max(0.01, AnchorItem.TimeNormalized)));
+        Self.FSizeList.Add(AnchorItem.ParticleSize);
+        Self.FSizeVarianceList.Add(AnchorItem.ParticleSizeVariance);
+        Self.FColorList.Add(AnchorItem.Color);
+        Self.FColorVarianceList.Add(AnchorItem.ColorVariance);
       end;
-      TransformFeedbackProgram.Uniform('effect.finishColor').SetValue(Self.FEffect.FinishColor);
-      TransformFeedbackProgram.Uniform('effect.finishColorVariance').SetValue(Self.FEffect.FinishColorVariance);
+
+      TransformFeedbackProgram.Uniform('effect.anchorCount').SetValue(Self.FAnchorList.Count);
+      TransformFeedbackProgram.Uniform('effect.anchor').SetValue(Self.FAnchorList);
+      TransformFeedbackProgram.Uniform('effect.anchorColor').SetValue(Self.FColorList);
+      TransformFeedbackProgram.Uniform('effect.anchorColorVariance').SetValue(Self.FColorVarianceList);
+      TransformFeedbackProgram.Uniform('effect.anchorParticleSize').SetValue(Self.FSizeList);
+      TransformFeedbackProgram.Uniform('effect.anchorParticleSizeVariance').SetValue(Self.FSizeVarianceList);
+
       TransformFeedbackProgram.Uniform('effect.particleLifeSpan').SetValue(Self.FEffect.ParticleLifeSpan);
       TransformFeedbackProgram.Uniform('effect.particleLifeSpanVariance').SetValue(Self.FEffect.ParticleLifeSpanVariance);
-      TransformFeedbackProgram.Uniform('effect.startParticleSize').SetValue(Self.FEffect.StartParticleSize);
-      TransformFeedbackProgram.Uniform('effect.startParticleSizeVariance').SetValue(Self.FEffect.StartParticleSizeVariance);
-      TransformFeedbackProgram.Uniform('effect.finishParticleSize').SetValue(Self.FEffect.FinishParticleSize);
-      TransformFeedbackProgram.Uniform('effect.finishParticleSizeVariance').SetValue(Self.FEffect.FinishParticleSizeVariance);
       TransformFeedbackProgram.Uniform('effect.rotation').SetValue(Self.FEffect.Rotation);
       TransformFeedbackProgram.Uniform('effect.rotationVariance').SetValue(Self.FEffect.RotationVariance);
       TransformFeedbackProgram.Uniform('effect.rotationSpeed').SetValue(Self.FEffect.RotationSpeed);
@@ -1940,23 +1965,23 @@ begin
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), Pointer(0));
     glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), Pointer(16));
+    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), Pointer(16));
     glEnableVertexAttribArray(2);
-    glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), Pointer(24));
+    glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), Pointer(32));
     glEnableVertexAttribArray(3);
-    glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), Pointer(40));
+    glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), Pointer(48));
     glEnableVertexAttribArray(4);
-    glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), Pointer(56));
+    glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), Pointer(64));
     glEnableVertexAttribArray(5);
-    glVertexAttribPointer(5, 3, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), Pointer(72));
+    glVertexAttribPointer(5, 3, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), Pointer(80));
     glEnableVertexAttribArray(6);
-    glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), Pointer(84));
+    glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), Pointer(92));
     glEnableVertexAttribArray(7);
-    glVertexAttribPointer(7, 3, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), Pointer(100));
+    glVertexAttribPointer(7, 3, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), Pointer(108));
     glEnableVertexAttribArray(8);
-    glVertexAttribPointer(8, 3, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), Pointer(112));
+    glVertexAttribPointer(8, 3, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), Pointer(120));
     glEnableVertexAttribArray(9);
-    glVertexAttribPointer(9, 4, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), Pointer(124));
+    glVertexAttribPointer(9, 4, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), Pointer(132));
 
     // Instancing VAO
     glBindVertexArray(Self.VAOMeshes[I]);
@@ -1967,16 +1992,16 @@ begin
     glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), Pointer(0));
     glVertexAttribDivisor(0, 1);
     glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), Pointer(16));
+    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), Pointer(16));
     glVertexAttribDivisor(1, 1);
     glEnableVertexAttribArray(2);
-    glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), Pointer(24));
+    glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), Pointer(32));
     glVertexAttribDivisor(2, 1);
     glEnableVertexAttribArray(3);
-    glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), Pointer(40));
+    glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), Pointer(48));
     glVertexAttribDivisor(3, 1);
     glEnableVertexAttribArray(9);
-    glVertexAttribPointer(9, 4, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), Pointer(124));
+    glVertexAttribPointer(9, 4, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), Pointer(132));
     glVertexAttribDivisor(9, 1);
 
     glBindBuffer(GL_ARRAY_BUFFER, Self.VBOMesh);
