@@ -104,8 +104,8 @@ type
   TCastleParticleEffectAnchorItem = class(TCollectionItem)
   strict private
     FTimeNormalized,
-    FParticleSize,
-    FParticleSizeVariance: Single;
+    FSize,
+    FSizeVariance: Single;
     FColor,
     FColorVariance: TVector4;
     FColorPersistent,
@@ -122,8 +122,8 @@ type
     property ColorVariance: TVector4 read FColorVariance write FColorVariance;
   published
     property TimeNormalized: Single read FTimeNormalized write SetTimeNormalized default 1;
-    property ParticleSize: Single read FParticleSize write FParticleSize default 1;
-    property ParticleSizeVariance: Single read FParticleSizeVariance write FParticleSizeVariance;
+    property Size: Single read FSize write FSize default 1;
+    property SizeVariance: Single read FSizeVariance write FSizeVariance;
     property ColorPersistent: TCastleColorPersistent read FColorPersistent;
     property ColorVariancePersistent: TCastleColorPersistent read FColorVariancePersistent;
   end;
@@ -138,8 +138,8 @@ type
     FMaxParticles: Integer;
     FParticleLifeSpan,
     FParticleLifeSpanVariance,
-    FParticleSize,
-    FParticleSizeVariance,
+    FSize,
+    FSizeVariance,
     FSpeed,
     FSpeedVariance,
     FDuration: Single;
@@ -231,8 +231,8 @@ type
     property MaxParticles: Integer read FMaxParticles write SetMaxParticle default 100;
     property ParticleLifeSpan: Single read FParticleLifeSpan write FParticleLifeSpan default 1;
     property ParticleLifeSpanVariance: Single read FParticleLifeSpanVariance write FParticleLifeSpanVariance default 0.5;
-    property ParticleSize: Single read FParticleSize write FParticleSize default 1;
-    property ParticleSizeVariance: Single read FParticleSizeVariance write FParticleSizeVariance;
+    property Size: Single read FSize write FSize default 1;
+    property SizeVariance: Single read FSizeVariance write FSizeVariance;
     property Speed: Single read FSpeed write FSpeed default 3;
     property SpeedVariance: Single read FSpeedVariance write FSpeedVariance default 1;
     property Duration: Single read FDuration write SetDuration default -1;
@@ -384,10 +384,10 @@ const
 '  int sourceType;'nl
 '  float particleLifeSpan;'nl
 '  float particleLifeSpanVariance;'nl
-'  float ParticleSize;'nl
-'  float ParticleSizeVariance;'nl
-'  float anchorParticleSize[5];'nl
-'  float anchorParticleSizeVariance[5];'nl
+'  float Size;'nl
+'  float SizeVariance;'nl
+'  float anchorSize[5];'nl
+'  float anchorSizeVariance[5];'nl
 '  float maxRadius;'nl
 '  float maxRadiusVariance;'nl
 '  float minRadius;'nl
@@ -500,8 +500,8 @@ const
 '  outColor = effect.anchorColor[0] + effect.anchorColorVariance[0] * vec4(rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0);'nl
 '  vec4 middleColor = effect.anchorCount == 1 ? outColor : effect.anchorColor[1] + effect.anchorColorVariance[1] * vec4(rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0);'nl
 '  outColorDelta = (middleColor - outColor) * invTimeRemaining;'nl
-'  float startSize = max(0.0001, effect.anchorParticleSize[0] + effect.anchorParticleSizeVariance[0] * (rnd() * 2.0 - 1.0));'nl
-'  float finishSize = effect.anchorCount == 1 ? startSize : max(0.0001, effect.anchorParticleSize[1] + effect.anchorParticleSizeVariance[1] * (rnd() * 2.0 - 1.0));'nl
+'  float startSize = max(0.0001, effect.anchorSize[0] + effect.anchorSizeVariance[0] * (rnd() * 2.0 - 1.0));'nl
+'  float finishSize = effect.anchorCount == 1 ? startSize : max(0.0001, effect.anchorSize[1] + effect.anchorSizeVariance[1] * (rnd() * 2.0 - 1.0));'nl
 '  outSizeRotation.xy = vec2(startSize, (finishSize - startSize) * invTimeRemaining);'nl
 
 '  outSizeRotation.z = effect.rotation.z + effect.rotationVariance.z * (rnd() * 2.0 - 1.0);'nl
@@ -533,7 +533,7 @@ const
 '      outTimeToLive.y = outTimeToLive.z - outTimeToLive.y;'nl
 '      vec4 finishColor = effect.anchorColor[a] + effect.anchorColorVariance[a] * vec4(rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0);'nl
 '      outColorDelta = (finishColor - outColor) * invTimeRemaining;'nl
-'      float finishSize = max(0.0001, effect.anchorParticleSize[a] + effect.anchorParticleSizeVariance[a] * (rnd() * 2.0 - 1.0));'nl
+'      float finishSize = max(0.0001, effect.anchorSize[a] + effect.anchorSizeVariance[a] * (rnd() * 2.0 - 1.0));'nl
 '      outSizeRotation.y = (finishSize - outSizeRotation.x) * invTimeRemaining;'nl
 '    } else {'nl
 '      outColorDelta = vec4(0.0);'nl
@@ -587,10 +587,10 @@ const
 '  int sourceType;'nl
 '  float particleLifeSpan;'nl
 '  float particleLifeSpanVariance;'nl
-'  float ParticleSize;'nl
-'  float ParticleSizeVariance;'nl
-'  float anchorParticleSize[5];'nl
-'  float anchorParticleSizeVariance[5];'nl
+'  float Size;'nl
+'  float SizeVariance;'nl
+'  float anchorSize[5];'nl
+'  float anchorSizeVariance[5];'nl
 '  float maxRadius;'nl
 '  float maxRadiusVariance;'nl
 '  float minRadius;'nl
@@ -710,8 +710,8 @@ const
 '  outColor = effect.anchorColor[0] + effect.anchorColorVariance[0] * vec4(rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0);'nl
 '  vec4 middleColor = effect.anchorCount == 1 ? outColor : effect.anchorColor[1] + effect.anchorColorVariance[1] * vec4(rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0);'nl
 '  outColorDelta = (middleColor - outColor) * invTimeRemaining;'nl
-'  float startSize = max(0.0001, effect.anchorParticleSize[0] + effect.anchorParticleSizeVariance[0] * (rnd() * 2.0 - 1.0));'nl
-'  float finishSize = effect.anchorCount == 1 ? startSize : max(0.0001, effect.anchorParticleSize[1] + effect.anchorParticleSizeVariance[1] * (rnd() * 2.0 - 1.0));'nl
+'  float startSize = max(0.0001, effect.anchorSize[0] + effect.anchorSizeVariance[0] * (rnd() * 2.0 - 1.0));'nl
+'  float finishSize = effect.anchorCount == 1 ? startSize : max(0.0001, effect.anchorSize[1] + effect.anchorSizeVariance[1] * (rnd() * 2.0 - 1.0));'nl
 '  outSizeRotation.xy = vec2(startSize, (finishSize - startSize) * invTimeRemaining);'nl
 
 '  outSizeRotation.z = effect.rotation.z + effect.rotationVariance.z * (rnd() * 2.0 - 1.0);'nl
@@ -743,7 +743,7 @@ const
 '      outTimeToLive.y = outTimeToLive.z - outTimeToLive.y;'nl
 '      vec4 finishColor = effect.anchorColor[a] + effect.anchorColorVariance[a] * vec4(rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0);'nl
 '      outColorDelta = (finishColor - outColor) * invTimeRemaining;'nl
-'      float finishSize = max(0.0001, effect.anchorParticleSize[a] + effect.anchorParticleSizeVariance[a] * (rnd() * 2.0 - 1.0));'nl
+'      float finishSize = max(0.0001, effect.anchorSize[a] + effect.anchorSizeVariance[a] * (rnd() * 2.0 - 1.0));'nl
 '      outSizeRotation.y = (finishSize - outSizeRotation.x) * invTimeRemaining;'nl
 '    } else {'nl
 '      outColorDelta = vec4(0.0);'nl
@@ -1081,7 +1081,7 @@ constructor TCastleParticleEffectAnchorItem.Create(AClass: TCollection);
 begin
   inherited;
   Self.FColor := Vector4(1, 1, 1, 1);
-  Self.FParticleSize := 1;
+  Self.FSize := 1;
   Self.FColorPersistent := CreateColorPersistent(
     @Self.GetColorForPersistent,
     @Self.SetColorForPersistent,
@@ -1278,7 +1278,7 @@ begin
   Self.FParticleLifeSpan := 1;
   Self.FParticleLifeSpanVariance := 0.5;
   Self.FColor := Vector4(1, 1, 1, 1);
-  Self.FParticleSize := 1;
+  Self.FSize := 1;
   Self.FSourcePositionVariance := Vector3(0.02, 0.02, 0.02);
   Self.FDirection := Vector3(0, 1, 0);
   Self.FDirectionVariance := 0.4;
@@ -1564,8 +1564,8 @@ begin
       Self.FSizeList.Count := 0;
       Self.FSizeVarianceList.Count := 0;
       Self.FAnchorList.Add(0);
-      Self.FSizeList.Add(Self.FEffect.ParticleSize);
-      Self.FSizeVarianceList.Add(Self.FEffect.ParticleSizeVariance);
+      Self.FSizeList.Add(Self.FEffect.Size);
+      Self.FSizeVarianceList.Add(Self.FEffect.SizeVariance);
       Self.FColorList.Add(Self.FEffect.Color);
       Self.FColorVarianceList.Add(Self.FEffect.ColorVariance);
       for I := 0 to Self.FEffect.Anchors.Count - 1 do
@@ -1574,8 +1574,8 @@ begin
         if I >= 4 then Break;
         AnchorItem := TCastleParticleEffectAnchorItem(Self.FEffect.Anchors.Items[I]);
         Self.FAnchorList.Add(Min(0.99, Max(0.01, AnchorItem.TimeNormalized)));
-        Self.FSizeList.Add(AnchorItem.ParticleSize);
-        Self.FSizeVarianceList.Add(AnchorItem.ParticleSizeVariance);
+        Self.FSizeList.Add(AnchorItem.Size);
+        Self.FSizeVarianceList.Add(AnchorItem.SizeVariance);
         Self.FColorList.Add(AnchorItem.Color);
         Self.FColorVarianceList.Add(AnchorItem.ColorVariance);
       end;
@@ -1594,8 +1594,8 @@ begin
       TransformFeedbackProgram.Uniform('effect.anchor').SetValue(Self.FAnchorList);
       TransformFeedbackProgram.Uniform('effect.anchorColor').SetValue(Self.FColorList);
       TransformFeedbackProgram.Uniform('effect.anchorColorVariance').SetValue(Self.FColorVarianceList);
-      TransformFeedbackProgram.Uniform('effect.anchorParticleSize').SetValue(Self.FSizeList);
-      TransformFeedbackProgram.Uniform('effect.anchorParticleSizeVariance').SetValue(Self.FSizeVarianceList);
+      TransformFeedbackProgram.Uniform('effect.anchorSize').SetValue(Self.FSizeList);
+      TransformFeedbackProgram.Uniform('effect.anchorSizeVariance').SetValue(Self.FSizeVarianceList);
 
       TransformFeedbackProgram.Uniform('effect.attractorCount').SetValue(AttractorCount);
       TransformFeedbackProgram.Uniform('effect.attractor').SetValue(Attractor);

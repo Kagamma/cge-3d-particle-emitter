@@ -12,7 +12,7 @@
       "Mesh" : "castle-data:/cube.gltf",
       "Name" : "MeshParticleEffect",
       "ParticleLifeSpan" : 4.0000000000000000E+000,
-      "ParticleSize" : 5.0000000000000000E-001,
+      "Size" : 5.0000000000000000E-001,
       "RotationPersistent" : {
         "$$ClassName" : "TCastleVector3Persistent",
         "Z" : 3.1400001049041748E+000
@@ -40,7 +40,7 @@
       "Mesh" : "castle-data:/cube.gltf",
       "Name" : "MeshParticleEffect2",
       "ParticleLifeSpan" : 4.0000000000000000E+000,
-      "ParticleSize" : 5.0000000000000000E-001,
+      "Size" : 5.0000000000000000E-001,
       "RotationPersistent" : {
         "$$ClassName" : "TCastleVector3Persistent",
         "Z" : 3.1400001049041748E+000
@@ -70,7 +70,7 @@
             "Green" : 0.0000000000000000E+000,
             "Red" : 0.0000000000000000E+000
           },
-          "ParticleSize" : 2.0000000000000000E+001
+          "Size" : 2.0000000000000000E+001
         }
       ],
       "ColorPersistent" : {
@@ -87,7 +87,7 @@
       "Name" : "RenderToTextureEffect",
       "ParticleLifeSpan" : 2.0000000000000000E+000,
       "ParticleLifeSpanVariance" : 1.0000000149011612E-001,
-      "ParticleSize" : 6.0000000000000000E+001,
+      "Size" : 6.0000000000000000E+001,
       "SourcePositionVariancePersistent" : {
         "$$ClassName" : "TCastleVector3Persistent",
         "X" : 2.5600000000000000E+002,

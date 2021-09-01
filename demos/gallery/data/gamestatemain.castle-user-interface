@@ -105,12 +105,12 @@
                 "Anchors" : [
                   {
                     "$$ClassName" : "TCastleParticleEffectAnchorItem",
-                    "ParticleSize" : 5.0000000000000000E-001,
+                    "Size" : 5.0000000000000000E-001,
                     "TimeNormalized" : 2.0000000298023224E-001
                   },
                   {
                     "$$ClassName" : "TCastleParticleEffectAnchorItem",
-                    "ParticleSize" : 5.0000000000000000E-001,
+                    "Size" : 5.0000000000000000E-001,
                     "TimeNormalized" : 8.0000001192092896E-001
                   },
                   {
@@ -119,7 +119,7 @@
                       "$$ClassName" : "TCastleColorPersistent",
                       "Alpha" : 0.0000000000000000E+000
                     },
-                    "ParticleSize" : 5.0000000000000000E-001
+                    "Size" : 5.0000000000000000E-001
                   }
                 ],
                 "BlendFuncDestination" : "pbmOneMinusSrcAlpha",
@@ -131,7 +131,7 @@
                 "Mesh" : "castle-data:/cube.gltf",
                 "Name" : "MeshEffect",
                 "ParticleLifeSpan" : 5.0000000000000000E+000,
-                "ParticleSize" : 5.0000000000000000E-001,
+                "Size" : 5.0000000000000000E-001,
                 "RotationSpeedPersistent" : {
                   "$$ClassName" : "TCastleVector3Persistent",
                   "X" : 1.0000000000000000E+000,
@@ -195,7 +195,7 @@
                 "Name" : "RainEffect",
                 "ParticleLifeSpan" : 8.0000001192092896E-001,
                 "ParticleLifeSpanVariance" : 1.0000000149011612E-001,
-                "ParticleSize" : 3.0000001192092896E-001,
+                "Size" : 3.0000001192092896E-001,
                 "SourcePositionPersistent" : {
                   "$$ClassName" : "TCastleVector3Persistent",
                   "Y" : 4.0000000000000000E+000
@@ -249,7 +249,7 @@
                       "Green" : 0.0000000000000000E+000,
                       "Red" : 0.0000000000000000E+000
                     },
-                    "ParticleSize" : 4.0000000596046448E-001
+                    "Size" : 4.0000000596046448E-001
                   }
                 ],
                 "ColorPersistent" : {
@@ -266,7 +266,7 @@
                 "MaxParticles" : 300,
                 "Name" : "SpiralEffect",
                 "ParticleLifeSpanVariance" : 1.0000000149011612E-001,
-                "ParticleSize" : 4.0000000596046448E-001,
+                "Size" : 4.0000000596046448E-001,
                 "Radial" : 1.5000000000000000E+001,
                 "SourcePositionPersistent" : {
                   "$$ClassName" : "TCastleVector3Persistent",
@@ -397,7 +397,7 @@
                       "Blue" : 0.0000000000000000E+000,
                       "Red" : 0.0000000000000000E+000
                     },
-                    "ParticleSize" : 1.5000000000000000E+000,
+                    "Size" : 1.5000000000000000E+000,
                     "TimeNormalized" : 2.5000000000000000E-001
                   },
                   {
@@ -407,7 +407,7 @@
                       "Green" : 0.0000000000000000E+000,
                       "Red" : 0.0000000000000000E+000
                     },
-                    "ParticleSize" : 6.0000002384185791E-001,
+                    "Size" : 6.0000002384185791E-001,
                     "TimeNormalized" : 5.0000000000000000E-001
                   },
                   {
@@ -416,12 +416,12 @@
                       "$$ClassName" : "TCastleColorPersistent",
                       "Green" : 0.0000000000000000E+000
                     },
-                    "ParticleSize" : 3.0000000000000000E+000,
+                    "Size" : 3.0000000000000000E+000,
                     "TimeNormalized" : 7.5000000000000000E-001
                   },
                   {
                     "$$ClassName" : "TCastleParticleEffectAnchorItem",
-                    "ParticleSize" : 3.0000001192092896E-001
+                    "Size" : 3.0000001192092896E-001
                   }
                 ],
                 "ColorPersistent" : {
@@ -439,7 +439,7 @@
                 "Name" : "AnchorEffect",
                 "ParticleLifeSpan" : 4.0000000000000000E+000,
                 "ParticleLifeSpanVariance" : 1.0000000149011612E-001,
-                "ParticleSize" : 3.0000001192092896E-001,
+                "Size" : 3.0000001192092896E-001,
                 "SourcePositionPersistent" : {
                   "$$ClassName" : "TCastleVector3Persistent",
                   "X" : -2.0000000000000000E+000
@@ -490,7 +490,7 @@
                       "Green" : 8.6666667461395264E-001,
                       "Red" : 8.6666667461395264E-001
                     },
-                    "ParticleSize" : 3.0000001192092896E-001
+                    "Size" : 3.0000001192092896E-001
                   }
                 ],
                 "ColorPersistent" : {
@@ -507,7 +507,7 @@
                 "Name" : "FountainEffect",
                 "ParticleLifeSpan" : 2.0000000000000000E+000,
                 "ParticleLifeSpanVariance" : 2.0000000298023224E-001,
-                "ParticleSize" : 3.0000001192092896E-001,
+                "Size" : 3.0000001192092896E-001,
                 "Speed" : 6.0000000000000000E+000,
                 "Texture" : "castle-data:/default.png"
               }
@@ -551,7 +551,7 @@
                       "$$ClassName" : "TCastleColorPersistent",
                       "Alpha" : 0.0000000000000000E+000
                     },
-                    "ParticleSize" : 3.0000001192092896E-001
+                    "Size" : 3.0000001192092896E-001
                   }
                 ],
                 "DirectionVariance" : 2.0000000298023224E-001,
@@ -559,7 +559,7 @@
                 "Name" : "BoxEffect",
                 "ParticleLifeSpan" : 2.0000000000000000E+000,
                 "ParticleLifeSpanVariance" : 2.0000000298023224E-001,
-                "ParticleSize" : 3.0000001192092896E-001,
+                "Size" : 3.0000001192092896E-001,
                 "SourcePositionVariancePersistent" : {
                   "$$ClassName" : "TCastleVector3Persistent",
                   "X" : 2.0000000000000000E+000,
@@ -610,7 +610,7 @@
                       "$$ClassName" : "TCastleColorPersistent",
                       "Alpha" : 0.0000000000000000E+000
                     },
-                    "ParticleSize" : 3.0000001192092896E-001
+                    "Size" : 3.0000001192092896E-001
                   }
                 ],
                 "DirectionVariance" : 2.0000000298023224E-001,
@@ -618,7 +618,7 @@
                 "Name" : "SpheroidEffect",
                 "ParticleLifeSpan" : 2.0000000000000000E+000,
                 "ParticleLifeSpanVariance" : 2.0000000298023224E-001,
-                "ParticleSize" : 3.0000001192092896E-001,
+                "Size" : 3.0000001192092896E-001,
                 "SourcePositionVariancePersistent" : {
                   "$$ClassName" : "TCastleVector3Persistent",
                   "X" : 3.0000000000000000E+000,
@@ -910,7 +910,7 @@
                       "Blue" : 5.0000000000000000E-001,
                       "Green" : 5.0000000000000000E-001
                     },
-                    "ParticleSize" : 3.0000001192092896E-001,
+                    "Size" : 3.0000001192092896E-001,
                     "TimeNormalized" : 8.0000001192092896E-001
                   },
                   {
@@ -921,7 +921,7 @@
                       "Blue" : 5.0000000000000000E-001,
                       "Green" : 5.0000000000000000E-001
                     },
-                    "ParticleSize" : 3.0000001192092896E-001
+                    "Size" : 3.0000001192092896E-001
                   }
                 ],
                 "ColorPersistent" : {
