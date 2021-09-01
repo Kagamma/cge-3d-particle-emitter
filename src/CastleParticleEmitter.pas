@@ -1758,6 +1758,7 @@ begin
   if Self.FEffect.TextureViewport = nil then
     glBindTexture(GL_TEXTURE_2D, Self.Texture)
   else
+  if Self.FEffect.TextureViewport.Image <> nil then
     glBindTexture(GL_TEXTURE_2D, Self.FEffect.TextureViewport.Image.Texture);
   IndicesCount := Length(Self.ParticleMeshIndices);
   if IndicesCount = 0 then

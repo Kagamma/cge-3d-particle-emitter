@@ -9,10 +9,9 @@
       ],
       "BlendFuncDestination" : "pbmOneMinusSrcAlpha",
       "DirectionVariance" : 5.0000000000000000E-001,
+      "LifeSpan" : 4.0000000000000000E+000,
       "Mesh" : "castle-data:/cube.gltf",
       "Name" : "MeshParticleEffect",
-      "LifeSpan" : 4.0000000000000000E+000,
-      "Size" : 5.0000000000000000E-001,
       "RotationPersistent" : {
         "$$ClassName" : "TCastleVector3Persistent",
         "Z" : 3.1400001049041748E+000
@@ -21,6 +20,7 @@
         "$$ClassName" : "TCastleVector3Persistent",
         "Y" : 1.5000000000000000E+000
       },
+      "Size" : 5.0000000000000000E-001,
       "SourcePositionVariancePersistent" : {
         "$$ClassName" : "TCastleVector3Persistent",
         "X" : 3.0000000000000000E+000,
@@ -37,10 +37,9 @@
       ],
       "BlendFuncDestination" : "pbmZero",
       "DirectionVariance" : 5.0000000000000000E-001,
+      "LifeSpan" : 4.0000000000000000E+000,
       "Mesh" : "castle-data:/cube.gltf",
       "Name" : "MeshParticleEffect2",
-      "LifeSpan" : 4.0000000000000000E+000,
-      "Size" : 5.0000000000000000E-001,
       "RotationPersistent" : {
         "$$ClassName" : "TCastleVector3Persistent",
         "Z" : 3.1400001049041748E+000
@@ -49,6 +48,7 @@
         "$$ClassName" : "TCastleVector3Persistent",
         "Y" : 3.1400001049041748E+000
       },
+      "Size" : 5.0000000000000000E-001,
       "SourcePositionVariancePersistent" : {
         "$$ClassName" : "TCastleVector3Persistent",
         "X" : 3.0000000000000000E+000,
@@ -80,13 +80,13 @@
       },
       "DirectionPersistent" : {
         "$$ClassName" : "TCastleVector3Persistent",
-        "X" : 1.0252146422863007E-001,
-        "Y" : -9.9473077058792114E-001
+        "X" : 1.0095842182636261E-001,
+        "Y" : -9.9489068984985352E-001
       },
       "DirectionVariance" : 0.0000000000000000E+000,
-      "Name" : "RenderToTextureEffect",
       "LifeSpan" : 2.0000000000000000E+000,
       "LifeSpanVariance" : 1.0000000149011612E-001,
+      "Name" : "RenderToTextureEffect",
       "Size" : 6.0000000000000000E+001,
       "SourcePositionVariancePersistent" : {
         "$$ClassName" : "TCastleVector3Persistent",
@@ -106,9 +106,9 @@
         "$$ClassName" : "TCastleCamera",
         "InitialDirectionPersistent" : {
           "$$ClassName" : "TCastleVector3Persistent",
-          "X" : -1.7639118432998657E-001,
-          "Y" : -9.1685689985752106E-002,
-          "Z" : -9.8004072904586792E-001
+          "X" : -1.6692979633808136E-001,
+          "Y" : -9.1359689831733704E-002,
+          "Z" : -9.8172694444656372E-001
         },
         "InitialPositionPersistent" : {
           "$$ClassName" : "TCastleVector3Persistent",
@@ -118,9 +118,9 @@
         },
         "InitialUpPersistent" : {
           "$$ClassName" : "TCastleVector3Persistent",
-          "X" : -5.9883624315261841E-002,
-          "Y" : 9.9480777978897095E-001,
-          "Z" : -8.2289122045040131E-002
+          "X" : -5.9585865586996078E-002,
+          "Y" : 9.9481260776519775E-001,
+          "Z" : -8.2445651292800903E-002
         },
         "Name" : "Camera",
         "Orthographic" : {
@@ -255,7 +255,6 @@
           },
           "Name" : "RenderToTextureViewport",
           "Navigation" : "Navigation2D2",
-          "Visible" : false,
           "Width" : 5.1200000000000000E+002,
           "$Children" : [
             {
@@ -265,6 +264,25 @@
           ]
         }
       ]
+    },
+    {
+      "$$ClassName" : "TCastleLabel",
+      "Alignment" : "hpRight",
+      "ColorPersistent" : {
+        "$$ClassName" : "TCastleColorPersistent",
+        "Blue" : 1.0000000000000000E+000,
+        "Green" : 1.0000000000000000E+000,
+        "Red" : 1.0000000000000000E+000
+      },
+      "HorizontalAnchorParent" : "hpRight",
+      "HorizontalAnchorSelf" : "hpRight",
+      "Name" : "LabelFps",
+      "Text" : [
+        "LabelFps"
+      ],
+      "VerticalAnchorParent" : "vpTop",
+      "VerticalAnchorSelf" : "vpTop",
+      "WordWrap" : false
     }
   ]
 }
