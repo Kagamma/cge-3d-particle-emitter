@@ -136,8 +136,8 @@ type
     FBlendFuncSource,
     FBlendFuncDestination: TCastleParticleBlendMode;
     FMaxParticles: Integer;
-    FParticleLifeSpan,
-    FParticleLifeSpanVariance,
+    FLifeSpan,
+    FLifeSpanVariance,
     FSize,
     FSizeVariance,
     FSpeed,
@@ -229,8 +229,8 @@ type
     property BlendFuncSource: TCastleParticleBlendMode read FBlendFuncSource write FBlendFuncSource default pbmOne;
     property BlendFuncDestination: TCastleParticleBlendMode read FBlendFuncDestination write FBlendFuncDestination default pbmOne;
     property MaxParticles: Integer read FMaxParticles write SetMaxParticle default 100;
-    property ParticleLifeSpan: Single read FParticleLifeSpan write FParticleLifeSpan default 1;
-    property ParticleLifeSpanVariance: Single read FParticleLifeSpanVariance write FParticleLifeSpanVariance default 0.5;
+    property LifeSpan: Single read FLifeSpan write FLifeSpan default 1;
+    property LifeSpanVariance: Single read FLifeSpanVariance write FLifeSpanVariance default 0.5;
     property Size: Single read FSize write FSize default 1;
     property SizeVariance: Single read FSizeVariance write FSizeVariance;
     property Speed: Single read FSpeed write FSpeed default 3;
@@ -1278,8 +1278,8 @@ begin
   Self.FTexture := '';
   Self.FMaxParticles := 100;
   Self.FDuration := -1;
-  Self.FParticleLifeSpan := 1;
-  Self.FParticleLifeSpanVariance := 0.5;
+  Self.FLifeSpan := 1;
+  Self.FLifeSpanVariance := 0.5;
   Self.FColor := Vector4(1, 1, 1, 1);
   Self.FSize := 1;
   Self.FSourcePositionVariance := Vector3(0.02, 0.02, 0.02);
@@ -1431,7 +1431,7 @@ procedure TCastleParticleEmitter.SetStartEmitting(V: Boolean);
 begin
   Self.FStartEmitting := V;
   if V and Assigned(FEffect) then
-    Self.FCountdownTillRemove := Self.FEffect.ParticleLifeSpan + Self.FEffect.ParticleLifeSpanVariance;
+    Self.FCountdownTillRemove := Self.FEffect.LifeSpan + Self.FEffect.LifeSpanVariance;
 end;
 
 procedure TCastleParticleEmitter.SetBurst(V: Boolean);
@@ -1616,8 +1616,8 @@ begin
       TransformFeedbackProgram.Uniform('effect.anchorSize').SetValue(Self.FSizeList);
       TransformFeedbackProgram.Uniform('effect.anchorSizeVariance').SetValue(Self.FSizeVarianceList);
 
-      TransformFeedbackProgram.Uniform('effect.particleLifeSpan').SetValue(Self.FEffect.ParticleLifeSpan);
-      TransformFeedbackProgram.Uniform('effect.particleLifeSpanVariance').SetValue(Self.FEffect.ParticleLifeSpanVariance);
+      TransformFeedbackProgram.Uniform('effect.particleLifeSpan').SetValue(Self.FEffect.LifeSpan);
+      TransformFeedbackProgram.Uniform('effect.particleLifeSpanVariance').SetValue(Self.FEffect.LifeSpanVariance);
       TransformFeedbackProgram.Uniform('effect.rotation').SetValue(Self.FEffect.Rotation);
       TransformFeedbackProgram.Uniform('effect.rotationVariance').SetValue(Self.FEffect.RotationVariance);
       TransformFeedbackProgram.Uniform('effect.rotationSpeed').SetValue(Self.FEffect.RotationSpeed);
@@ -1971,12 +1971,12 @@ begin
 
   Self.FEmissionTime := Self.FEffect.Duration;
   Self.FParticleCount := Self.FEffect.MaxParticles;
-  Self.FCountdownTillRemove := Self.FEffect.ParticleLifeSpan + Self.FEffect.ParticleLifeSpanVariance;
+  Self.FCountdownTillRemove := Self.FEffect.LifeSpan + Self.FEffect.LifeSpanVariance;
   SetLength(Self.Particles, Self.FEffect.MaxParticles);
   Self.InternalLoadMesh;
 
-  if Self.FEffect.ParticleLifeSpan = 0 then
-    Self.FEffect.ParticleLifeSpan := 0.001;
+  if Self.FEffect.LifeSpan = 0 then
+    Self.FEffect.LifeSpan := 0.001;
 
   glFreeTexture(Self.Texture);
   if Self.FEffect.TextureViewport = nil then
@@ -2003,7 +2003,7 @@ begin
       if Self.FBurst then
         TimeToLive.X := 0.005
       else
-        TimeToLive.X := Random * (Self.FEffect.ParticleLifeSpan + Self.FEffect.ParticleLifeSpanVariance);
+        TimeToLive.X := Random * (Self.FEffect.LifeSpan + Self.FEffect.LifeSpanVariance);
       // Position.W is being used as random seed
       Position := Vector4(Random, Random, Random, Random);
       Direction := Vector3(1, 0, 0);

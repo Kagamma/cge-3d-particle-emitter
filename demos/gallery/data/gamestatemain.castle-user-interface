@@ -130,7 +130,7 @@
                 "MaxParticles" : 10,
                 "Mesh" : "castle-data:/cube.gltf",
                 "Name" : "MeshEffect",
-                "ParticleLifeSpan" : 5.0000000000000000E+000,
+                "LifeSpan" : 5.0000000000000000E+000,
                 "RotationSpeedPersistent" : {
                   "$$ClassName" : "TCastleVector3Persistent",
                   "X" : 1.0000000000000000E+000,
@@ -193,8 +193,8 @@
                 },
                 "DirectionVariance" : 0.0000000000000000E+000,
                 "Name" : "RainEffect",
-                "ParticleLifeSpan" : 8.0000001192092896E-001,
-                "ParticleLifeSpanVariance" : 1.0000000149011612E-001,
+                "LifeSpan" : 8.0000001192092896E-001,
+                "LifeSpanVariance" : 1.0000000149011612E-001,
                 "Size" : 3.0000001192092896E-001,
                 "SourcePositionPersistent" : {
                   "$$ClassName" : "TCastleVector3Persistent",
@@ -265,7 +265,7 @@
                 "DirectionVariance" : 0.0000000000000000E+000,
                 "MaxParticles" : 300,
                 "Name" : "SpiralEffect",
-                "ParticleLifeSpanVariance" : 1.0000000149011612E-001,
+                "LifeSpanVariance" : 1.0000000149011612E-001,
                 "Radial" : 1.5000000000000000E+001,
                 "Size" : 4.0000000596046448E-001,
                 "SourcePositionPersistent" : {
@@ -339,8 +339,8 @@
                 "DirectionVariance" : 0.0000000000000000E+000,
                 "MaxParticles" : 200,
                 "Name" : "OrbEffect",
-                "ParticleLifeSpan" : 1.3999999761581421E+000,
-                "ParticleLifeSpanVariance" : 1.0000000149011612E-001,
+                "LifeSpan" : 1.3999999761581421E+000,
+                "LifeSpanVariance" : 1.0000000149011612E-001,
                 "RadialVariance" : 6.0000000000000000E+000,
                 "SourcePositionPersistent" : {
                   "$$ClassName" : "TCastleVector3Persistent",
@@ -437,8 +437,8 @@
                 "DirectionVariance" : 0.0000000000000000E+000,
                 "MaxParticles" : 200,
                 "Name" : "AnchorEffect",
-                "ParticleLifeSpan" : 4.0000000000000000E+000,
-                "ParticleLifeSpanVariance" : 1.0000000149011612E-001,
+                "LifeSpan" : 4.0000000000000000E+000,
+                "LifeSpanVariance" : 1.0000000149011612E-001,
                 "Size" : 3.0000001192092896E-001,
                 "SourcePositionPersistent" : {
                   "$$ClassName" : "TCastleVector3Persistent",
@@ -505,8 +505,8 @@
                 },
                 "MaxParticles" : 200,
                 "Name" : "FountainEffect",
-                "ParticleLifeSpan" : 2.0000000000000000E+000,
-                "ParticleLifeSpanVariance" : 2.0000000298023224E-001,
+                "LifeSpan" : 2.0000000000000000E+000,
+                "LifeSpanVariance" : 2.0000000298023224E-001,
                 "Size" : 3.0000001192092896E-001,
                 "Speed" : 6.0000000000000000E+000,
                 "Texture" : "castle-data:/default.png"
@@ -557,8 +557,8 @@
                 "DirectionVariance" : 2.0000000298023224E-001,
                 "MaxParticles" : 500,
                 "Name" : "BoxEffect",
-                "ParticleLifeSpan" : 2.0000000000000000E+000,
-                "ParticleLifeSpanVariance" : 2.0000000298023224E-001,
+                "LifeSpan" : 2.0000000000000000E+000,
+                "LifeSpanVariance" : 2.0000000298023224E-001,
                 "Size" : 3.0000001192092896E-001,
                 "SourcePositionVariancePersistent" : {
                   "$$ClassName" : "TCastleVector3Persistent",
@@ -616,8 +616,8 @@
                 "DirectionVariance" : 2.0000000298023224E-001,
                 "MaxParticles" : 500,
                 "Name" : "SpheroidEffect",
-                "ParticleLifeSpan" : 2.0000000000000000E+000,
-                "ParticleLifeSpanVariance" : 2.0000000298023224E-001,
+                "LifeSpan" : 2.0000000000000000E+000,
+                "LifeSpanVariance" : 2.0000000298023224E-001,
                 "Size" : 3.0000001192092896E-001,
                 "SourcePositionVariancePersistent" : {
                   "$$ClassName" : "TCastleVector3Persistent",
@@ -696,8 +696,8 @@
                 },
                 "DirectionVariance" : 3.1400001049041748E+000,
                 "Name" : "BurstEffect",
-                "ParticleLifeSpan" : 1.5000000000000000E+000,
-                "ParticleLifeSpanVariance" : 0.0000000000000000E+000,
+                "LifeSpan" : 1.5000000000000000E+000,
+                "LifeSpanVariance" : 0.0000000000000000E+000,
                 "SourcePositionVariancePersistent" : {
                   "$$ClassName" : "TCastleVector3Persistent",
                   "X" : 9.9999997764825821E-003,
@@ -753,8 +753,8 @@
                 "DirectionVariance" : 2.0000000298023224E-001,
                 "MaxParticles" : 20,
                 "Name" : "RotationEffect",
-                "ParticleLifeSpan" : 3.0000000000000000E+000,
-                "ParticleLifeSpanVariance" : 2.0000000298023224E-001,
+                "LifeSpan" : 3.0000000000000000E+000,
+                "LifeSpanVariance" : 2.0000000298023224E-001,
                 "RotationSpeedVariancePersistent" : {
                   "$$ClassName" : "TCastleVector3Persistent",
                   "Z" : 3.1400001049041748E+000
@@ -948,8 +948,8 @@
                 "DirectionVariance" : 0.0000000000000000E+000,
                 "MaxParticles" : 200,
                 "Name" : "AttractorEffect1",
-                "ParticleLifeSpan" : 1.5000000000000000E+000,
-                "ParticleLifeSpanVariance" : 1.0000000149011612E-001,
+                "LifeSpan" : 1.5000000000000000E+000,
+                "LifeSpanVariance" : 1.0000000149011612E-001,
                 "SourcePositionVariancePersistent" : {
                   "$$ClassName" : "TCastleVector3Persistent",
                   "X" : 5.0000000000000000E+000,
