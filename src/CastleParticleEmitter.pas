@@ -1802,6 +1802,7 @@ function TCastleParticleEmitter.PropertySections(const PropertyName: String): TP
 begin
   case PropertyName of
     'Burst',
+    'Attractor',
     'AllowsInstancing',
     'StartEmitting',
     'Effect':
