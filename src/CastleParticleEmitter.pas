@@ -200,6 +200,8 @@ type
     procedure SetTexture(const AValue: String);
     procedure SetMaxParticle(const AValue: Integer);
     procedure SetDuration(const AValue: Single);
+    procedure SetLifeSpan(const AValue: Single);
+    procedure SetLifeSpanVariance(const AValue: Single);
   protected
     function PropertySections(const PropertyName: String): TPropertySections; override;
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
@@ -229,8 +231,8 @@ type
     property BlendFuncSource: TCastleParticleBlendMode read FBlendFuncSource write FBlendFuncSource default pbmOne;
     property BlendFuncDestination: TCastleParticleBlendMode read FBlendFuncDestination write FBlendFuncDestination default pbmOne;
     property MaxParticles: Integer read FMaxParticles write SetMaxParticle default 100;
-    property LifeSpan: Single read FLifeSpan write FLifeSpan default 1;
-    property LifeSpanVariance: Single read FLifeSpanVariance write FLifeSpanVariance default 0.5;
+    property LifeSpan: Single read FLifeSpan write SetLifeSpan default 1;
+    property LifeSpanVariance: Single read FLifeSpanVariance write SetLifeSpanVariance default 0.5;
     property Size: Single read FSize write FSize default 1;
     property SizeVariance: Single read FSizeVariance write FSizeVariance;
     property Speed: Single read FSpeed write FSpeed default 3;
@@ -1258,6 +1260,18 @@ end;
 procedure TCastleParticleEffect.SetDuration(const AValue: Single);
 begin
   Self.FDuration := AValue;
+  Self.IsNeedRefresh := True;
+end;
+
+procedure TCastleParticleEffect.SetLifeSpan(const AValue: Single);
+begin
+  Self.FLifeSpan := AValue;
+  Self.IsNeedRefresh := True;
+end;
+
+procedure TCastleParticleEffect.SetLifeSpanVariance(const AValue: Single);
+begin
+  Self.FLifeSpanVariance := AValue;
   Self.IsNeedRefresh := True;
 end;
 
