@@ -255,6 +255,15 @@ type
     property Anchors: TCollection read FAnchors;
   end;
 
+  TCastleParticleAttractor = class(TCastleTransform)
+  strict private
+    FAttraction: Single;
+  protected
+    function PropertySections(const PropertyName: String): TPropertySections; override;
+  published
+    property Attraction: Single read FAttraction write FAttraction;
+  end;
+
   TCastleParticleEmitter = class(TCastleTransform)
   strict private
     Texture: GLuint;
@@ -403,7 +412,9 @@ const
 '  vec4 ColorVariance;'nl
 '  vec4 anchorColor[5];'nl
 '  vec4 anchorColorVariance[5];'nl
+'  vec4 attractor;'nl
 '  int anchorCount;'nl
+'  int attractorCount;'nl
 '  int maxParticles;'nl
 '  int isColliable;'nl
 '};'nl
@@ -532,6 +543,10 @@ const
 '  }'nl
 '  outTimeToLive.x = max(0.0, outTimeToLive.x - deltaTime);'nl
 '  outVelocity.xyz = rotate(outVelocity.xyz, outVelocity.w * deltaTime, outDirection) + effect.gravity * deltaTime;'nl
+'  if (effect.attractorCount > 0) {'nl
+'    vec3 a = outPosition.xyz - effect.attractor.xyz;'nl
+'    outVelocity.xyz += a * effect.attractor.w;'nl
+'  }'nl
 '  outPosition.xyz = rotate(outPosition.xyz, outVelocity.w * deltaTime, outDirection) + outVelocity.xyz * deltaTime;'nl
 '  outSizeRotation.x += outSizeRotation.y * deltaTime;'nl
 '  outSizeRotation.z += outSizeRotation.w * deltaTime;'nl
@@ -600,7 +615,9 @@ const
 '  vec4 ColorVariance;'nl
 '  vec4 anchorColor[5];'nl
 '  vec4 anchorColorVariance[5];'nl
+'  vec4 attractor;'nl
 '  int anchorCount;'nl
+'  int attractorCount;'nl
 '  int maxParticles;'nl
 '  int isColliable;'nl
 '};'nl
@@ -736,6 +753,10 @@ const
 '  }'nl
 '  outTimeToLive.x = max(0.0, outTimeToLive.x - deltaTime);'nl
 '  outVelocity.xyz = rotate(outVelocity.xyz, outVelocity.w * deltaTime, outDirection) + effect.gravity * deltaTime;'nl
+'  if (effect.attractorCount > 0) {'nl
+'    vec3 a = outPosition.xyz - (effect.attractor.xyz + outTranslate);'nl
+'    outVelocity.xyz += a * effect.attractor.w;'nl
+'  }'nl
 '  outStartPos = rotate(outStartPos, outVelocity.w * deltaTime, outDirection) + outVelocity.xyz * deltaTime;'nl
 '  outPosition.xyz = outStartPos + outTranslate;'nl
 '  outSizeRotation.x += outSizeRotation.y * deltaTime;'nl
@@ -1480,6 +1501,8 @@ var
   I: Integer;
   S: Single;
   AnchorItem: TCastleParticleEffectAnchorItem;
+  AttractorCount: Integer = 0;
+  Attractor: TVector4;
 begin
   inherited;
   if (not Self.Exists) or (not Assigned(Self.FEffect)) then
@@ -1556,6 +1579,16 @@ begin
         Self.FColorList.Add(AnchorItem.Color);
         Self.FColorVarianceList.Add(AnchorItem.ColorVariance);
       end;
+      // Build list of attractors
+      for I := 0 to Self.Count - 1 do
+      begin
+        if Self.Items[I].Exists and Self.Items[I].Visible and (Self.Items[I] is TCastleParticleAttractor) then
+        begin
+          Attractor := Vector4(Self.Items[I].Translation, -TCastleParticleAttractor(Self.Items[I]).Attraction);
+          AttractorCount := 1;
+          Break;
+        end;
+      end;
 
       TransformFeedbackProgram.Uniform('effect.anchorCount').SetValue(Self.FAnchorList.Count);
       TransformFeedbackProgram.Uniform('effect.anchor').SetValue(Self.FAnchorList);
@@ -1563,6 +1596,9 @@ begin
       TransformFeedbackProgram.Uniform('effect.anchorColorVariance').SetValue(Self.FColorVarianceList);
       TransformFeedbackProgram.Uniform('effect.anchorParticleSize').SetValue(Self.FSizeList);
       TransformFeedbackProgram.Uniform('effect.anchorParticleSizeVariance').SetValue(Self.FSizeVarianceList);
+
+      TransformFeedbackProgram.Uniform('effect.attractorCount').SetValue(AttractorCount);
+      TransformFeedbackProgram.Uniform('effect.attractor').SetValue(Attractor);
 
       TransformFeedbackProgram.Uniform('effect.particleLifeSpan').SetValue(Self.FEffect.ParticleLifeSpan);
       TransformFeedbackProgram.Uniform('effect.particleLifeSpanVariance').SetValue(Self.FEffect.ParticleLifeSpanVariance);
@@ -2060,6 +2096,16 @@ begin
   end;
 end;
 
+function TCastleParticleAttractor.PropertySections(const PropertyName: String): TPropertySections;
+begin
+  case PropertyName of
+    'Attraction':
+      Result := [psBasic];
+    else
+      Result := inherited PropertySections(PropertyName);
+  end;
+end;
+
 initialization
   {$ifdef CASTLE_DESIGN_MODE}
   RegisterPropertyEditor(TypeInfo(AnsiString), TCastleParticleEffect,
@@ -2067,7 +2113,8 @@ initialization
   RegisterPropertyEditor(TypeInfo(AnsiString), TCastleParticleEffect,
     'Mesh', TSceneURLPropertyEditor);
   {$endif}
-  RegisterSerializableComponent(TCastleParticleEmitter, 'Particle Emitter (GPU)');
+  RegisterSerializableComponent(TCastleParticleEmitter, 'Particle Emitter');
+  RegisterSerializableComponent(TCastleParticleAttractor, 'Particle Attractor');
   RegisterSerializableComponent(TCastleParticleEffect, 'Particle Effect');
   RegisterSerializableComponent(TCastleParticleViewport, 'Viewport (Particle)');
 
