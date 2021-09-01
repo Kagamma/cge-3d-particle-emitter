@@ -105,10 +105,12 @@
                 "Anchors" : [
                   {
                     "$$ClassName" : "TCastleParticleEffectAnchorItem",
+                    "ParticleSize" : 5.0000000000000000E-001,
                     "TimeNormalized" : 2.0000000298023224E-001
                   },
                   {
                     "$$ClassName" : "TCastleParticleEffectAnchorItem",
+                    "ParticleSize" : 5.0000000000000000E-001,
                     "TimeNormalized" : 8.0000001192092896E-001
                   },
                   {
@@ -116,7 +118,8 @@
                     "ColorPersistent" : {
                       "$$ClassName" : "TCastleColorPersistent",
                       "Alpha" : 0.0000000000000000E+000
-                    }
+                    },
+                    "ParticleSize" : 5.0000000000000000E-001
                   }
                 ],
                 "BlendFuncDestination" : "pbmOneMinusSrcAlpha",
@@ -128,6 +131,7 @@
                 "Mesh" : "castle-data:/cube.gltf",
                 "Name" : "MeshEffect",
                 "ParticleLifeSpan" : 5.0000000000000000E+000,
+                "ParticleSize" : 5.0000000000000000E-001,
                 "RotationSpeedPersistent" : {
                   "$$ClassName" : "TCastleVector3Persistent",
                   "X" : 1.0000000000000000E+000,
@@ -184,8 +188,8 @@
                 ],
                 "DirectionPersistent" : {
                   "$$ClassName" : "TCastleVector3Persistent",
-                  "X" : 9.2118531465530396E-002,
-                  "Y" : -9.9574804306030273E-001
+                  "X" : 9.1733425855636597E-002,
+                  "Y" : -9.9578362703323364E-001
                 },
                 "DirectionVariance" : 0.0000000000000000E+000,
                 "Name" : "RainEffect",
@@ -255,8 +259,8 @@
                 },
                 "DirectionPersistent" : {
                   "$$ClassName" : "TCastleVector3Persistent",
-                  "Y" : 9.1225808858871460E-001,
-                  "Z" : 4.0961599349975586E-001
+                  "Y" : 9.2537659406661987E-001,
+                  "Z" : 3.7904906272888184E-001
                 },
                 "DirectionVariance" : 0.0000000000000000E+000,
                 "MaxParticles" : 300,
