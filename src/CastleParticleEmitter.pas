@@ -339,7 +339,7 @@ type
     property Effect: TCastleParticleEffect read FEffect write LoadEffect;
     property Attractor: TCastleParticleAttractor read FAttractor write SetAttractor;
     { If true, the emitter will start emitting }
-    property StartEmitting: Boolean read FStartEmitting write SetStartEmitting default False;
+    property StartEmitting: Boolean read FStartEmitting write SetStartEmitting default True;
     property DistanceCulling: Single read FDistanceCulling write FDistanceCulling default 0;
     property AllowsWriteToDepthBuffer: Boolean read FAllowsWriteToDepthBuffer write FAllowsWriteToDepthBuffer default False;
     property AllowsUpdateWhenCulled: Boolean read FAllowsUpdateWhenCulled write FAllowsUpdateWhenCulled default True;
@@ -1464,6 +1464,7 @@ begin
   Self.FAllowsInstancing := False;
   Self.FBurst := False;
   Self.FSmoothTexture := True;
+  Self.FStartEmitting := True;
   FTimePlaying := true;
   FTimePlayingSpeed := 1.0;
   Self.FColorList := TVector4List.Create;
