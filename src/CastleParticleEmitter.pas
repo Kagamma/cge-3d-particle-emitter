@@ -168,7 +168,7 @@ type
     FColorVariancePersistent: TCastleColorPersistent;
     FRadial,
     FRadialVariance: Single;
-    FViewport: TCastleParticleViewport;
+    FTextureViewport: TCastleParticleViewport;
     FBBox: TBox3D;
     FAnchors: TCollection;
     procedure SetBoundingBoxMinForPersistent(const AValue: TVector3);
@@ -195,7 +195,7 @@ type
     function GetColorForPersistent: TVector4;
     procedure SetColorVarianceForPersistent(const AValue: TVector4);
     function GetColorVarianceForPersistent: TVector4;
-    procedure SetViewport(const AValue: TCastleParticleViewport);
+    procedure SetTextureViewport(const AValue: TCastleParticleViewport);
     procedure SetMesh(const AValue: String);
     procedure SetTexture(const AValue: String);
     procedure SetMaxParticle(const AValue: Integer);
@@ -239,7 +239,7 @@ type
     property DirectionVariance: Single read FDirectionVariance write FDirectionVariance default 0.4;
     property Radial: Single read FRadial write FRadial;
     property RadialVariance: Single read FRadialVariance write FRadialVariance;
-    property Viewport: TCastleParticleViewport read FViewport write SetViewport;
+    property TextureViewport: TCastleParticleViewport read FTextureViewport write SetTextureViewport;
     property BoundingBoxMinPersistent: TCastleVector3Persistent read FBoundingBoxMinPersistent;
     property BoundingBoxMaxPersistent: TCastleVector3Persistent read FBoundingBoxMaxPersistent;
     property RotationPersistent: TCastleVector3Persistent read FRotationPersistent write FRotationPersistent;
@@ -1022,9 +1022,9 @@ end;
 procedure TCastleParticleEffect.Notification(AComponent: TComponent; Operation: TOperation);
 begin
   inherited;
-  if (Operation = opRemove) and (AComponent = Self.FViewport) then
+  if (Operation = opRemove) and (AComponent = Self.FTextureViewport) then
   begin
-    Self.FViewport := nil;
+    Self.FTextureViewport := nil;
     Self.IsNeedRefresh := True;
   end;
 end;
@@ -1203,9 +1203,9 @@ begin
   Result := Self.FColorVariance;
 end;
 
-procedure TCastleParticleEffect.SetViewport(const AValue: TCastleParticleViewport);
+procedure TCastleParticleEffect.SetTextureViewport(const AValue: TCastleParticleViewport);
 begin
-  Self.FViewport := AValue;
+  Self.FTextureViewport := AValue;
   Self.IsNeedRefresh := True;
   if AValue <> nil then
   begin
@@ -1703,10 +1703,10 @@ begin
   RenderProgram.Uniform('pMatrix').SetValue(RenderContext.ProjectionMatrix);
   glBindVertexArray(Self.VAOMeshes[CurrentBuffer]);
   glActiveTexture(GL_TEXTURE0);
-  if Self.FEffect.Viewport = nil then
+  if Self.FEffect.TextureViewport = nil then
     glBindTexture(GL_TEXTURE_2D, Self.Texture)
   else
-    glBindTexture(GL_TEXTURE_2D, Self.FEffect.Viewport.Image.Texture);
+    glBindTexture(GL_TEXTURE_2D, Self.FEffect.TextureViewport.Image.Texture);
   IndicesCount := Length(Self.ParticleMeshIndices);
   if IndicesCount = 0 then
     glDrawArraysInstanced(GL_TRIANGLES, 0, Length(Self.ParticleMesh), Self.FEffect.MaxParticles)
@@ -1901,7 +1901,7 @@ begin
   if Self.FEffect = nil then
     Exit;
   // Only process if texture exists
-  if (not URIFileExists(Self.FEffect.Texture)) and (Self.Effect.Viewport = nil) then
+  if (not URIFileExists(Self.FEffect.Texture)) and (Self.Effect.TextureViewport = nil) then
     Exit;
 
   Self.FEmissionTime := Self.FEffect.Duration;
@@ -1914,7 +1914,7 @@ begin
     Self.FEffect.ParticleLifeSpan := 0.001;
 
   glFreeTexture(Self.Texture);
-  if Self.FEffect.Viewport = nil then
+  if Self.FEffect.TextureViewport = nil then
   begin
     if Self.FSmoothTexture then
       Self.Texture := LoadGLTexture(
