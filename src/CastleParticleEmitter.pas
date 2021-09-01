@@ -312,6 +312,7 @@ type
     FAnchorList,
     FSizeList,
     FSizeVarianceList: TSingleList;
+    FAttractor: TCastleParticleAttractor;
     {$ifdef CASTLE_DESIGN_MODE}
     FDebugBox: TDebugBox;
     {$endif}
@@ -320,6 +321,7 @@ type
     procedure SetStartEmitting(V: Boolean);
     procedure SetBurst(V: Boolean);
     procedure SetSmoothTexture(V: Boolean);
+    procedure SetAttractor(const AValue: TCastleParticleAttractor);
   protected
     function PropertySections(const PropertyName: String): TPropertySections; override;
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
@@ -335,6 +337,7 @@ type
     function LocalBoundingBox: TBox3D; override;
   published
     property Effect: TCastleParticleEffect read FEffect write LoadEffect;
+    property Attractor: TCastleParticleAttractor read FAttractor write SetAttractor;
     { If true, the emitter will start emitting }
     property StartEmitting: Boolean read FStartEmitting write SetStartEmitting default False;
     property DistanceCulling: Single read FDistanceCulling write FDistanceCulling default 0;
@@ -754,7 +757,7 @@ const
 '  outTimeToLive.x = max(0.0, outTimeToLive.x - deltaTime);'nl
 '  outVelocity.xyz = rotate(outVelocity.xyz, outVelocity.w * deltaTime, outDirection) + effect.gravity * deltaTime;'nl
 '  if (effect.attractorCount > 0) {'nl
-'    vec3 a = outPosition.xyz - (effect.attractor.xyz + outTranslate);'nl
+'    vec3 a = outPosition.xyz - effect.attractor.xyz;'nl
 '    outVelocity.xyz += a * effect.attractor.w;'nl
 '  }'nl
 '  outStartPos = rotate(outStartPos, outVelocity.w * deltaTime, outDirection) + outVelocity.xyz * deltaTime;'nl
@@ -1502,7 +1505,8 @@ var
   S: Single;
   AnchorItem: TCastleParticleEffectAnchorItem;
   AttractorCount: Integer = 0;
-  Attractor: TVector4;
+  AttractorValue: TVector4;
+  M: TMatrix4;
 begin
   inherited;
   if (not Self.Exists) or (not Assigned(Self.FEffect)) then
@@ -1551,7 +1555,32 @@ begin
       else
         TransformFeedbackProgram.Uniform('emissionTime').SetValue(0);
       if not Self.AllowsInstancing then
+      begin
         TransformFeedbackProgram.Uniform('mMatrix').SetValue(Self.WorldTransform);
+        // World attractor
+        if Self.FAttractor <> nil then
+        begin
+          M := Self.FAttractor.WorldTransform;
+          AttractorValue := Vector4(Vector3(M[3,0], M[3,1], M[3,2]), -Self.FAttractor.Attraction);
+          TransformFeedbackProgram.Uniform('effect.attractorCount').SetValue(1);
+          TransformFeedbackProgram.Uniform('effect.attractor').SetValue(AttractorValue);
+        end else
+          TransformFeedbackProgram.Uniform('effect.attractorCount').SetValue(0);
+      end else
+      begin
+        // Local attractor
+        for I := 0 to Self.Count - 1 do
+        begin
+          if Self.Items[I].Exists and Self.Items[I].Visible and (Self.Items[I] is TCastleParticleAttractor) then
+          begin
+            AttractorValue := Vector4(Self.Items[I].Translation, -TCastleParticleAttractor(Self.Items[I]).Attraction);
+            AttractorCount := 1;
+            Break;
+          end;
+        end;
+        TransformFeedbackProgram.Uniform('effect.attractorCount').SetValue(AttractorCount);
+        TransformFeedbackProgram.Uniform('effect.attractor').SetValue(AttractorValue);
+      end;
       TransformFeedbackProgram.Uniform('effect.sourceType').SetValue(CastleParticleSourceValues[Self.FEffect.SourceType]);
       TransformFeedbackProgram.Uniform('effect.sourcePosition').SetValue(Self.FEffect.SourcePosition);
       TransformFeedbackProgram.Uniform('effect.sourcePositionVariance').SetValue(Self.FEffect.SourcePositionVariance);
@@ -1579,16 +1608,6 @@ begin
         Self.FColorList.Add(AnchorItem.Color);
         Self.FColorVarianceList.Add(AnchorItem.ColorVariance);
       end;
-      // Build list of attractors
-      for I := 0 to Self.Count - 1 do
-      begin
-        if Self.Items[I].Exists and Self.Items[I].Visible and (Self.Items[I] is TCastleParticleAttractor) then
-        begin
-          Attractor := Vector4(Self.Items[I].Translation, -TCastleParticleAttractor(Self.Items[I]).Attraction);
-          AttractorCount := 1;
-          Break;
-        end;
-      end;
 
       TransformFeedbackProgram.Uniform('effect.anchorCount').SetValue(Self.FAnchorList.Count);
       TransformFeedbackProgram.Uniform('effect.anchor').SetValue(Self.FAnchorList);
@@ -1596,9 +1615,6 @@ begin
       TransformFeedbackProgram.Uniform('effect.anchorColorVariance').SetValue(Self.FColorVarianceList);
       TransformFeedbackProgram.Uniform('effect.anchorSize').SetValue(Self.FSizeList);
       TransformFeedbackProgram.Uniform('effect.anchorSizeVariance').SetValue(Self.FSizeVarianceList);
-
-      TransformFeedbackProgram.Uniform('effect.attractorCount').SetValue(AttractorCount);
-      TransformFeedbackProgram.Uniform('effect.attractor').SetValue(Attractor);
 
       TransformFeedbackProgram.Uniform('effect.particleLifeSpan').SetValue(Self.FEffect.ParticleLifeSpan);
       TransformFeedbackProgram.Uniform('effect.particleLifeSpanVariance').SetValue(Self.FEffect.ParticleLifeSpanVariance);
@@ -1771,6 +1787,15 @@ begin
   RefreshEffect;
 end;
 
+procedure TCastleParticleEmitter.SetAttractor(const AValue: TCastleParticleAttractor);
+begin
+  Self.FAttractor := AValue;
+  if AValue <> nil then
+  begin
+    AValue.FreeNotification(Self);
+  end;
+end;
+
 function TCastleParticleEmitter.PropertySections(const PropertyName: String): TPropertySections;
 begin
   case PropertyName of
@@ -1787,9 +1812,13 @@ end;
 procedure TCastleParticleEmitter.Notification(AComponent: TComponent; Operation: TOperation);
 begin
   inherited;
-  if (Operation = opRemove) and (AComponent = Self.FEffect) then
+  if Operation = opRemove then
   begin
-    Self.LoadEffect(nil);
+    if AComponent = Self.FEffect then
+      Self.LoadEffect(nil)
+    else
+    if AComponent = Self.FAttractor then
+      Self.FAttractor := nil;
   end;
 end;
 
