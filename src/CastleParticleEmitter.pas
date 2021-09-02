@@ -494,7 +494,7 @@ const
 '  } else if (effect.sourceType == 3) {'nl
 '    outPosition.xyz = effect.sourcePosition + effect.sourcePositionVariance * normalize(vrpos);'nl
 '  } else if (effect.sourceType == 4) {'nl
-'    outPosition.xyz = effect.sourcePosition + effect.sourcePositionVariance * vec3(normalize(vrpos.xy), vrpos.z);'nl
+'    outPosition.xyz = effect.sourcePosition + effect.sourcePositionVariance * vec3(normalize(vrpos.xz), vrpos.y).xzy;'nl
 '  } else {'nl
 '    outPosition.xyz = effect.sourcePosition + effect.sourcePositionVariance * vrpos;'nl
 '  }'nl
@@ -708,7 +708,7 @@ const
 '  } else if (effect.sourceType == 3) {'nl
 '    outStartPos = rMatrix * (effect.sourcePosition + scale * effect.sourcePositionVariance * normalize(vrpos));'nl
 '  } else if (effect.sourceType == 4) {'nl
-'    outStartPos = rMatrix * (effect.sourcePosition + scale * effect.sourcePositionVariance * vec3(normalize(vrpos.xy), vrpos.z));'nl
+'    outStartPos = rMatrix * (effect.sourcePosition + scale * effect.sourcePositionVariance * vec3(normalize(vrpos.xz), vrpos.y).xzy);'nl
 '  } else {'nl
 '    outStartPos = rMatrix * (effect.sourcePosition + scale * effect.sourcePositionVariance * vrpos);'nl
 '  }'nl
