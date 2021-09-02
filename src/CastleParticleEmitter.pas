@@ -423,13 +423,13 @@ const
 '  vec4 ColorVariance;'nl
 '  vec4 anchorColor[5];'nl
 '  vec4 anchorColorVariance[5];'nl
-'  vec4 attractors[4];'nl
 '  int anchorCount;'nl
-'  int attractorCount;'nl
-'  int attractorType[4];'nl
 '  int maxParticles;'nl
 '  int isColliable;'nl
 '};'nl
+'uniform vec4 attractors[4];'nl
+'uniform int attractorCount;'nl
+'uniform int attractorType[4];'nl
 'uniform Effect effect;'nl
 'uniform float emissionTime;'nl
 'uniform float deltaTime;'nl
@@ -557,13 +557,13 @@ const
 '  }'nl
 '  outTimeToLive.x = max(0.0, outTimeToLive.x - deltaTime);'nl
 '  outVelocity.xyz = rotate(outVelocity.xyz, outVelocity.w * deltaTime, outDirection) + effect.gravity * deltaTime;'nl
-'  for (int i = 0; i < effect.attractorCount; i++) {'nl
-'    vec3 a = outPosition.xyz - effect.attractors[i].xyz;'nl
-'    if (effect.attractorType[i] == 1) {'nl
-'      float force = 6.674 * effect.attractors[i].w / length(a);'nl
+'  for (int i = 0; i < attractorCount; i++) {'nl
+'    vec3 a = outPosition.xyz - attractors[i].xyz;'nl
+'    if (attractorType[i] == 1) {'nl
+'      float force = 6.674 * attractors[i].w / length(a);'nl
 '      outVelocity.xyz += normalize(a) * force;'nl
 '    } else {'nl
-'      outVelocity.xyz += a * effect.attractors[i].w;'nl
+'      outVelocity.xyz += a * attractors[i].w;'nl
 '    }'nl
 '  }'nl
 '  outPosition.xyz = rotate(outPosition.xyz, outVelocity.w * deltaTime, outDirection) + outVelocity.xyz * deltaTime;'nl
@@ -630,13 +630,13 @@ const
 '  vec4 ColorVariance;'nl
 '  vec4 anchorColor[5];'nl
 '  vec4 anchorColorVariance[5];'nl
-'  vec4 attractors[4];'nl
 '  int anchorCount;'nl
-'  int attractorCount;'nl
-'  int attractorType[4];'nl
 '  int maxParticles;'nl
 '  int isColliable;'nl
 '};'nl
+'uniform vec4 attractors[4];'nl
+'uniform int attractorCount;'nl
+'uniform int attractorType[4];'nl
 'uniform Effect effect;'nl
 'uniform mat4 mMatrix;'nl
 'uniform float emissionTime;'nl
@@ -771,13 +771,13 @@ const
 '  }'nl
 '  outTimeToLive.x = max(0.0, outTimeToLive.x - deltaTime);'nl
 '  outVelocity.xyz = rotate(outVelocity.xyz, outVelocity.w * deltaTime, outDirection) + effect.gravity * deltaTime;'nl
-'  for (int i = 0; i < effect.attractorCount; i++) {'nl
-'    vec3 a = outPosition.xyz - (effect.attractors[i].xyz + outTranslate);'nl
-'    if (effect.attractorType[i] == 1) {'nl
-'      float force = 6.674 * effect.attractors[i].w / length(a);'nl
+'  for (int i = 0; i < attractorCount; i++) {'nl
+'    vec3 a = outPosition.xyz - (attractors[i].xyz + outTranslate);'nl
+'    if (attractorType[i] == 1) {'nl
+'      float force = 6.674 * attractors[i].w / length(a);'nl
 '      outVelocity.xyz += normalize(a) * force;'nl
 '    } else {'nl
-'      outVelocity.xyz += a * effect.attractors[i].w;'nl
+'      outVelocity.xyz += a * attractors[i].w;'nl
 '    }'nl
 '  }'nl
 '  outStartPos = rotate(outStartPos, outVelocity.w * deltaTime, outDirection) + outVelocity.xyz * deltaTime;'nl
@@ -1592,10 +1592,22 @@ begin
       begin
         TransformFeedbackProgram.Uniform('mMatrix').SetValue(Self.WorldTransform);
       end;
-      TransformFeedbackProgram.Uniform('effect.sourceType').SetValue(CastleParticleSourceValues[Self.FEffect.SourceType]);
-      TransformFeedbackProgram.Uniform('effect.sourcePosition').SetValue(Self.FEffect.SourcePosition);
-      TransformFeedbackProgram.Uniform('effect.sourcePositionVariance').SetValue(Self.FEffect.SourcePositionVariance);
-      TransformFeedbackProgram.Uniform('effect.maxParticles').SetValue(Self.FEffect.MaxParticles);
+
+      // Build list of attractor
+      Self.FAttractorList.Count := 0;
+      Self.FAttractorTypeList.Count := 0;
+      for I := 0 to Self.Count - 1 do
+      begin
+        if Self.FAttractorList.Count >= 4 then Break;
+        if Self.Items[I].Exists and Self.Items[I].Visible and (Self.Items[I] is TCastleParticleAttractor) then
+        begin
+          Self.FAttractorList.Add(Vector4(Self.Items[I].Translation, -TCastleParticleAttractor(Self.Items[I]).Attraction));
+          Self.FAttractorTypeList.Add(CastleParticleAttractorType[TCastleParticleAttractor(Self.Items[I]).AttactorType]);
+        end;
+      end;
+      TransformFeedbackProgram.Uniform('attractorCount').SetValue(Self.FAttractorList.Count);
+      TransformFeedbackProgram.Uniform('attractors').SetValue(Self.FAttractorList);
+      TransformFeedbackProgram.Uniform('attractorType').SetValue(Self.FAttractorTypeList);
 
       // Build list of anchors
       Self.FAnchorList.Count := 0;
@@ -1626,21 +1638,10 @@ begin
       TransformFeedbackProgram.Uniform('effect.anchorSize').SetValue(Self.FSizeList);
       TransformFeedbackProgram.Uniform('effect.anchorSizeVariance').SetValue(Self.FSizeVarianceList);
 
-      // Build list of attractor
-      Self.FAttractorList.Count := 0;
-      Self.FAttractorTypeList.Count := 0;
-      for I := 0 to Self.Count - 1 do
-      begin
-        if Self.FAttractorList.Count >= 4 then Break;
-        if Self.Items[I].Exists and Self.Items[I].Visible and (Self.Items[I] is TCastleParticleAttractor) then
-        begin
-          Self.FAttractorList.Add(Vector4(Self.Items[I].Translation, -TCastleParticleAttractor(Self.Items[I]).Attraction));
-          Self.FAttractorTypeList.Add(CastleParticleAttractorType[TCastleParticleAttractor(Self.Items[I]).AttactorType]);
-        end;
-      end;
-      TransformFeedbackProgram.Uniform('effect.attractorCount').SetValue(Self.FAttractorList.Count);
-      TransformFeedbackProgram.Uniform('effect.attractors').SetValue(Self.FAttractorList);
-      TransformFeedbackProgram.Uniform('effect.attractorType').SetValue(Self.FAttractorTypeList);
+      TransformFeedbackProgram.Uniform('effect.sourceType').SetValue(CastleParticleSourceValues[Self.FEffect.SourceType]);
+      TransformFeedbackProgram.Uniform('effect.sourcePosition').SetValue(Self.FEffect.SourcePosition);
+      TransformFeedbackProgram.Uniform('effect.sourcePositionVariance').SetValue(Self.FEffect.SourcePositionVariance);
+      TransformFeedbackProgram.Uniform('effect.maxParticles').SetValue(Self.FEffect.MaxParticles);
 
       TransformFeedbackProgram.Uniform('effect.particleLifeSpan').SetValue(Self.FEffect.LifeSpan);
       TransformFeedbackProgram.Uniform('effect.particleLifeSpanVariance').SetValue(Self.FEffect.LifeSpanVariance);
