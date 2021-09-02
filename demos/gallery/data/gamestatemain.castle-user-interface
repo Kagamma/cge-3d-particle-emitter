@@ -41,7 +41,6 @@
             "$$ClassName" : "TCastleParticleEmitter",
             "Effect" : "FireEffect",
             "Name" : "FireEmitter",
-            "StartEmitting" : true,
             "TranslationPersistent" : {
               "$$ClassName" : "TCastleVector3Persistent",
               "X" : 5.6556262969970703E+000,
@@ -93,11 +92,10 @@
             "$$ClassName" : "TCastleParticleEmitter",
             "Effect" : "MeshEffect",
             "Name" : "MeshEmitter",
-            "StartEmitting" : true,
             "TranslationPersistent" : {
               "$$ClassName" : "TCastleVector3Persistent",
               "X" : 4.8108062744140625E+001,
-              "Y" : 1.6926971435546875E+001
+              "Y" : 6.5881557464599609E+000
             },
             "$NonVisualComponents" : [
               {
@@ -177,7 +175,6 @@
             "$$ClassName" : "TCastleParticleEmitter",
             "Effect" : "RainEffect",
             "Name" : "RainEmitter",
-            "StartEmitting" : true,
             "TranslationPersistent" : {
               "$$ClassName" : "TCastleVector3Persistent",
               "X" : 1.4625875473022461E+001,
@@ -190,8 +187,8 @@
                 ],
                 "DirectionPersistent" : {
                   "$$ClassName" : "TCastleVector3Persistent",
-                  "X" : 9.0606309473514557E-002,
-                  "Y" : -9.9588686227798462E-001
+                  "X" : 8.9877441525459290E-002,
+                  "Y" : -9.9595290422439575E-001
                 },
                 "DirectionVariance" : 0.0000000000000000E+000,
                 "LifeSpan" : 8.0000001192092896E-001,
@@ -234,7 +231,6 @@
             "$$ClassName" : "TCastleParticleEmitter",
             "Effect" : "SpiralEffect",
             "Name" : "SpiralEmitter",
-            "StartEmitting" : true,
             "TranslationPersistent" : {
               "$$ClassName" : "TCastleVector3Persistent",
               "X" : 2.5094400405883789E+001,
@@ -261,8 +257,8 @@
                 },
                 "DirectionPersistent" : {
                   "$$ClassName" : "TCastleVector3Persistent",
-                  "Y" : 9.4847160577774048E-001,
-                  "Z" : 3.1686216592788696E-001
+                  "Y" : 9.5728147029876709E-001,
+                  "Z" : 2.8915748000144958E-001
                 },
                 "DirectionVariance" : 0.0000000000000000E+000,
                 "LifeSpanVariance" : 1.0000000149011612E-001,
@@ -308,7 +304,6 @@
             "$$ClassName" : "TCastleParticleEmitter",
             "Effect" : "OrbEffect",
             "Name" : "OrbEmitter",
-            "StartEmitting" : true,
             "TranslationPersistent" : {
               "$$ClassName" : "TCastleVector3Persistent",
               "X" : 3.7165756225585938E+001,
@@ -382,7 +377,6 @@
             "$$ClassName" : "TCastleParticleEmitter",
             "Effect" : "AnchorEffect",
             "Name" : "AnchorEmitter",
-            "StartEmitting" : true,
             "TranslationPersistent" : {
               "$$ClassName" : "TCastleVector3Persistent",
               "X" : 2.2242431640625000E+000,
@@ -474,7 +468,6 @@
             "$$ClassName" : "TCastleParticleEmitter",
             "Effect" : "FountainEffect",
             "Name" : "FountainEmitter",
-            "StartEmitting" : true,
             "TranslationPersistent" : {
               "$$ClassName" : "TCastleVector3Persistent",
               "X" : 1.5292763710021973E+001,
@@ -537,7 +530,6 @@
             "$$ClassName" : "TCastleParticleEmitter",
             "Effect" : "BoxEffect",
             "Name" : "BoxEmitter",
-            "StartEmitting" : true,
             "TranslationPersistent" : {
               "$$ClassName" : "TCastleVector3Persistent",
               "X" : 2.5504024505615234E+001,
@@ -596,7 +588,6 @@
             "$$ClassName" : "TCastleParticleEmitter",
             "Effect" : "SpheroidEffect",
             "Name" : "SpheroidEmitter",
-            "StartEmitting" : true,
             "TranslationPersistent" : {
               "$$ClassName" : "TCastleVector3Persistent",
               "X" : 3.7027584075927734E+001,
@@ -657,7 +648,6 @@
             "Burst" : true,
             "Effect" : "BurstEffect",
             "Name" : "BurstEmitter",
-            "StartEmitting" : true,
             "TranslationPersistent" : {
               "$$ClassName" : "TCastleVector3Persistent",
               "X" : 5.0814924240112305E+000,
@@ -736,7 +726,6 @@
             "$$ClassName" : "TCastleParticleEmitter",
             "Effect" : "RotationEffect",
             "Name" : "RotationEmitter",
-            "StartEmitting" : true,
             "TranslationPersistent" : {
               "$$ClassName" : "TCastleVector3Persistent",
               "X" : 1.4554594039916992E+001,
@@ -795,7 +784,6 @@
             "$$ClassName" : "TCastleParticleEmitter",
             "Effect" : "BBoxEffect",
             "Name" : "BBoxEmitter",
-            "StartEmitting" : true,
             "TranslationPersistent" : {
               "$$ClassName" : "TCastleVector3Persistent",
               "X" : 2.5052930831909180E+001,
@@ -862,7 +850,6 @@
             "AllowsInstancing" : true,
             "Effect" : "FireEffect",
             "Name" : "SingleInstanceEmitter",
-            "StartEmitting" : true,
             "TranslationPersistent" : {
               "$$ClassName" : "TCastleVector3Persistent",
               "X" : 3.6945571899414062E+001,
@@ -892,21 +879,9 @@
             ]
           },
           {
-            "$$ClassName" : "TCastleParticleAttractor",
-            "Attraction" : 3.0000001192092896E-001,
-            "Name" : "Attractor",
-            "TranslationPersistent" : {
-              "$$ClassName" : "TCastleVector3Persistent",
-              "X" : 4.7969245910644531E+001,
-              "Y" : 2.7458433151245117E+001
-            }
-          },
-          {
             "$$ClassName" : "TCastleParticleEmitter",
-            "Attractor" : "Attractor",
             "Effect" : "AttractorEffect1",
             "Name" : "AttractorEmitter",
-            "StartEmitting" : true,
             "TranslationPersistent" : {
               "$$ClassName" : "TCastleVector3Persistent",
               "X" : 4.7868957519531250E+001,
@@ -979,6 +954,93 @@
                   "$$ClassName" : "TCastleVector3Persistent",
                   "X" : 3.6529827117919922E-001,
                   "Y" : -3.8445682525634766E+000
+                }
+              },
+              {
+                "$$ClassName" : "TCastleParticleAttractor",
+                "Attraction" : 3.0000001192092896E-001,
+                "Name" : "Attractor",
+                "TranslationPersistent" : {
+                  "$$ClassName" : "TCastleVector3Persistent",
+                  "Y" : -1.8673629760742187E+000
+                }
+              }
+            ]
+          },
+          {
+            "$$ClassName" : "TCastleParticleEmitter",
+            "Burst" : true,
+            "Effect" : "GravityEffect",
+            "Name" : "GravityEmitter",
+            "TranslationPersistent" : {
+              "$$ClassName" : "TCastleVector3Persistent",
+              "X" : 4.7868957519531250E+001,
+              "Y" : 1.8843418121337891E+001
+            },
+            "$NonVisualComponents" : [
+              {
+                "$$ClassName" : "TCastleParticleEffect",
+                "Anchors" : [
+                ],
+                "ColorPersistent" : {
+                  "$$ClassName" : "TCastleColorPersistent",
+                  "Blue" : 5.0000000000000000E-001,
+                  "Green" : 5.0000000000000000E-001
+                },
+                "ColorVariancePersistent" : {
+                  "$$ClassName" : "TCastleColorPersistent",
+                  "Blue" : 2.0000000298023224E-001,
+                  "Green" : 2.0000000298023224E-001
+                },
+                "DirectionVariance" : 0.0000000000000000E+000,
+                "LifeSpan" : 1.0000000000000000E+005,
+                "LifeSpanVariance" : 0.0000000000000000E+000,
+                "MaxParticles" : 1000,
+                "Name" : "GravityEffect",
+                "Size" : 3.0000001192092896E-001,
+                "SourcePositionPersistent" : {
+                  "$$ClassName" : "TCastleVector3Persistent",
+                  "X" : 2.0000000000000000E+000
+                },
+                "SourcePositionVariancePersistent" : {
+                  "$$ClassName" : "TCastleVector3Persistent",
+                  "X" : 1.0000000000000000E+000,
+                  "Y" : 1.0000000000000000E+000,
+                  "Z" : 1.0000000000000000E+000
+                },
+                "Speed" : 5.0000000000000000E+000,
+                "SpeedVariance" : 1.0000000149011612E-001,
+                "Texture" : "castle-data:/default.png"
+              }
+            ],
+            "$Children" : [
+              {
+                "$$ClassName" : "TCastleText",
+                "Alignment" : "hpMiddle",
+                "Name" : "Text15",
+                "RenderOptions" : {
+                  "$$ClassName" : "TCastleScene.TSceneRenderOptions",
+                  "Name" : "RenderOptions"
+                },
+                "Text" : [
+                  "Attractor",
+                  "Gravity Point"
+                ],
+                "TranslationPersistent" : {
+                  "$$ClassName" : "TCastleVector3Persistent",
+                  "X" : 3.6529827117919922E-001,
+                  "Y" : -4.6188411712646484E+000
+                }
+              },
+              {
+                "$$ClassName" : "TCastleParticleAttractor",
+                "AttactorType" : "patGravityPoint",
+                "Attraction" : 5.0000000745058060E-002,
+                "Name" : "Gravity1",
+                "TranslationPersistent" : {
+                  "$$ClassName" : "TCastleVector3Persistent",
+                  "X" : 4.5547485351562500E-002,
+                  "Y" : -3.1881713867187500E-001
                 }
               }
             ]
