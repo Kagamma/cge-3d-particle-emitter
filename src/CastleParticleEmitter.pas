@@ -43,7 +43,8 @@ type
     pstBox,
     pstSpheroid,
     pstBoxSurface,
-    pstSpheroidSurface
+    pstSpheroidSurface,
+    pstCylinderSurface
   );
 
   TCastleParticleAttractorType = (
@@ -56,7 +57,7 @@ const
     0, 1, 768, 769, 770, 771, 772, 773, 774, 775
   );
   CastleParticleSourceValues: array [TCastleParticleSourceType] of Integer = (
-    0, 1, 2, 3
+    0, 1, 2, 3, 4
   );
   CastleParticleAttractorType: array [TCastleParticleAttractorType] of Integer = (
     0, 1
@@ -287,7 +288,7 @@ type
     CurrentBuffer: GLuint;
     Particles: packed array of TCastleParticle;
     ParticleMesh: packed array of TCastleParticleMesh;
-    ParticleMeshIndices: packed array of GLuint;
+    ParticleMeshIndices: packed array of GLushort;
 
     FStartEmitting: Boolean;
     FEffect: TCastleParticleEffect;
@@ -402,10 +403,6 @@ const
 '  float SizeVariance;'nl
 '  float anchorSize[5];'nl
 '  float anchorSizeVariance[5];'nl
-'  float maxRadius;'nl
-'  float maxRadiusVariance;'nl
-'  float minRadius;'nl
-'  float minRadiusVariance;'nl
 '  float rotatePerSecond;'nl
 '  float rotatePerSecondVariance;'nl
 '  vec3 rotation;'nl
@@ -496,6 +493,8 @@ const
 '    outPosition.xyz = effect.sourcePosition + effect.sourcePositionVariance * vrpos;'nl
 '  } else if (effect.sourceType == 3) {'nl
 '    outPosition.xyz = effect.sourcePosition + effect.sourcePositionVariance * normalize(vrpos);'nl
+'  } else if (effect.sourceType == 4) {'nl
+'    outPosition.xyz = effect.sourcePosition + effect.sourcePositionVariance * vec3(normalize(vrpos.xy), vrpos.z);'nl
 '  } else {'nl
 '    outPosition.xyz = effect.sourcePosition + effect.sourcePositionVariance * vrpos;'nl
 '  }'nl
@@ -611,10 +610,6 @@ const
 '  float SizeVariance;'nl
 '  float anchorSize[5];'nl
 '  float anchorSizeVariance[5];'nl
-'  float maxRadius;'nl
-'  float maxRadiusVariance;'nl
-'  float minRadius;'nl
-'  float minRadiusVariance;'nl
 '  float rotatePerSecond;'nl
 '  float rotatePerSecondVariance;'nl
 '  vec3 rotation;'nl
@@ -712,6 +707,8 @@ const
 '    outStartPos = rMatrix * (effect.sourcePosition + scale * effect.sourcePositionVariance * vrpos);'nl
 '  } else if (effect.sourceType == 3) {'nl
 '    outStartPos = rMatrix * (effect.sourcePosition + scale * effect.sourcePositionVariance * normalize(vrpos));'nl
+'  } else if (effect.sourceType == 4) {'nl
+'    outStartPos = rMatrix * (effect.sourcePosition + scale * effect.sourcePositionVariance * vec3(normalize(vrpos.xy), vrpos.z));'nl
 '  } else {'nl
 '    outStartPos = rMatrix * (effect.sourcePosition + scale * effect.sourcePositionVariance * vrpos);'nl
 '  }'nl
@@ -1793,7 +1790,7 @@ begin
   if IndicesCount = 0 then
     glDrawArraysInstanced(GL_TRIANGLES, 0, Length(Self.ParticleMesh), Self.FEffect.MaxParticles)
   else
-    glDrawElementsInstanced(GL_TRIANGLES, IndicesCount, GL_UNSIGNED_INT, nil, Self.FEffect.MaxParticles);
+    glDrawElementsInstanced(GL_TRIANGLES, IndicesCount, GL_UNSIGNED_SHORT, nil, Self.FEffect.MaxParticles);
   glBindTexture(GL_TEXTURE_2D, 0);
   glBindVertexArray(0);
   // Render boundingbox in editor
@@ -2034,7 +2031,7 @@ begin
   if Length(Self.ParticleMeshIndices) > 0 then
   begin
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Self.VBOMeshIndices);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, Length(Self.ParticleMeshIndices) * SizeOf(GLuint), @Self.ParticleMeshIndices[0], GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, Length(Self.ParticleMeshIndices) * SizeOf(GLushort), @Self.ParticleMeshIndices[0], GL_STATIC_DRAW);
   end;
   Self.CurrentBuffer := 0;
   for I := 0 to 1 do
