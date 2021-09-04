@@ -293,7 +293,6 @@ type
     FStartEmitting: Boolean;
     FEffect: TCastleParticleEffect;
     FParticleCount: Integer;
-    FSecondsPassed: Single;
     FIsUpdated: Boolean;
     { Countdown before remove the emitter }
     FCountdownTillRemove,
@@ -319,6 +318,7 @@ type
     FSmoothTexture: Boolean;
     FEnableFog,
     FTimePlaying: Boolean;
+    FDeltaTime,
     FTimePlayingSpeed: Single;
     FAttractorList,
     FColorList,
@@ -361,6 +361,7 @@ type
     property Burst: Boolean read FBurst write SetBurst default False;
     property TimePlaying: Boolean read FTimePlaying write FTimePlaying default True;
     property TimePlayingSpeed: Single read FTimePlayingSpeed write FTimePlayingSpeed default 1.0;
+    property DeltaTime: Single read FDeltaTime write FDeltaTime default 0;
   end;
 
 function CastleParticleBlendValueToBlendMode(const AValue: Integer): TCastleParticleBlendMode;
@@ -372,7 +373,11 @@ uses
 
 const
   TransformVertexShaderSourceMultipleInstances: String =
+{$ifdef GLES}
+'#version 300 es'nl
+{$else}
 '#version 330'nl
+{$endif}
 'layout(location = 0) in vec4 inPosition;'nl
 'layout(location = 1) in vec4 inTimeToLive;'nl
 'layout(location = 2) in vec4 inSizeRotation;'nl
@@ -579,7 +584,11 @@ const
 '}';
 
   TransformVertexShaderSourceSingleInstance: String =
+{$ifdef GLES}
+'#version 300 es'nl
+{$else}
 '#version 330'nl
+{$endif}
 'layout(location = 0) in vec4 inPosition;'nl
 'layout(location = 1) in vec4 inTimeToLive;'nl
 'layout(location = 2) in vec4 inSizeRotation;'nl
@@ -794,7 +803,11 @@ const
 '}';
 
   VertexShaderSourceQuad: String =
+{$ifdef GLES}
+'#version 300 es'nl
+{$else}
 '#version 330'nl
+{$endif}
 'layout(location = 0) in vec4 inPosition;'nl
 'layout(location = 1) in vec4 inTimeToLive;'nl
 'layout(location = 2) in vec4 inSizeRotation;'nl
@@ -847,7 +860,11 @@ const
 '}';
 
   FragmentShaderSourceQuad: String =
+{$ifdef GLES}
+'#version 300 es'nl
+{$else}
 '#version 330'nl
+{$endif}
 'precision lowp float;'nl
 'in vec2 fragTexCoord;'nl
 'in vec4 fragColor;'nl
@@ -870,7 +887,11 @@ const
 '}';
 
   VertexShaderSourceMesh: String =
+{$ifdef GLES}
+'#version 300 es'nl
+{$else}
 '#version 330'nl
+{$endif}
 'layout(location = 0) in vec4 inPosition;'nl
 'layout(location = 1) in vec4 inTimeToLive;'nl
 'layout(location = 2) in vec4 inSizeRotation;'nl
@@ -922,7 +943,11 @@ const
 '}';
 
   FragmentShaderSourceMesh: String =
+{$ifdef GLES}
+'#version 300 es'nl
+{$else}
 '#version 330'nl
+{$endif}
 'precision lowp float;'nl
 'in vec2 fragTexCoord;'nl
 'in vec4 fragColor;'nl
@@ -1488,7 +1513,6 @@ begin
   inherited;
   Self.FIsUpdated := False;
   Self.Texture := 0;
-  Self.FSecondsPassed := 0;
   Self.Scale := Vector3(1, 1, 1);
   Self.FIsGLContextInitialized := False;
   Self.FIsNeedRefresh := False;
@@ -1513,6 +1537,7 @@ begin
   Self.FSizeList.Capacity := 5;
   Self.FSizeVarianceList.Capacity := 5;
   Self.FAnchorList.Capacity := 5;
+  Self.FDeltaTime := 0;
   {$ifdef CASTLE_DESIGN_MODE}
   DebugScene := TCastleScene.Create(Self);
   DebugScene.SetTransient;
@@ -1541,7 +1566,8 @@ end;
 procedure TCastleParticleEmitter.Update(const SecondsPassed: Single; var RemoveMe: TRemoveType);
 var
   I: Integer;
-  S: Single;
+  S,
+  RealSecondsPassed: Single;
   AnchorItem: TCastleParticleEffectAnchorItem;
 begin
   inherited;
@@ -1551,7 +1577,10 @@ begin
   if Self.FIsNeedRefresh or Self.FEffect.IsNeedRefresh then
     Self.InternalRefreshEffect;
 
-  Self.FSecondsPassed := SecondsPassed;
+  if Self.FDeltaTime <= 0 then
+    RealSecondsPassed := SecondsPassed
+  else
+    RealSecondsPassed := Self.FDeltaTime;
 
   if not Self.FIsUpdated then
   begin
@@ -1559,17 +1588,17 @@ begin
     begin
       if FEmissionTime > 0 then
         if Self.TimePlaying then
-          FEmissionTime := Max(0, FEmissionTime - SecondsPassed * Self.TimePlayingSpeed)
+          FEmissionTime := Max(0, FEmissionTime - RealSecondsPassed * Self.TimePlayingSpeed)
         else
-          FEmissionTime := Max(0, FEmissionTime - SecondsPassed);
+          FEmissionTime := Max(0, FEmissionTime - RealSecondsPassed);
     end;
 
     if not Self.FStartEmitting then
     begin
       if Self.TimePlaying then
-        Self.FCountdownTillRemove := Self.FCountdownTillRemove - SecondsPassed * Self.TimePlayingSpeed
+        Self.FCountdownTillRemove := Self.FCountdownTillRemove - RealSecondsPassed * Self.TimePlayingSpeed
       else
-        Self.FCountdownTillRemove := Self.FCountdownTillRemove - SecondsPassed;
+        Self.FCountdownTillRemove := Self.FCountdownTillRemove - RealSecondsPassed;
     end;
 
     if ((not Self.FAllowsUpdateWhenCulled) and Self.FIsDrawn) or Self.FAllowsUpdateWhenCulled then
@@ -1581,9 +1610,9 @@ begin
       glEnable(GL_RASTERIZER_DISCARD);
       TransformFeedbackProgram.Enable;
       if Self.TimePlaying then
-        TransformFeedbackProgram.Uniform('deltaTime').SetValue(Self.FSecondsPassed * Self.TimePlayingSpeed)
+        TransformFeedbackProgram.Uniform('deltaTime').SetValue(RealSecondsPassed * Self.TimePlayingSpeed)
       else
-        TransformFeedbackProgram.Uniform('deltaTime').SetValue(Self.FSecondsPassed);
+        TransformFeedbackProgram.Uniform('deltaTime').SetValue(RealSecondsPassed);
       if Self.FStartEmitting then
         TransformFeedbackProgram.Uniform('emissionTime').SetValue(Self.FEmissionTime)
       else

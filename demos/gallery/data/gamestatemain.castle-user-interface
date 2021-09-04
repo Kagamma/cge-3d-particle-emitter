@@ -187,8 +187,8 @@
                 ],
                 "DirectionPersistent" : {
                   "$$ClassName" : "TCastleVector3Persistent",
-                  "X" : 8.9877441525459290E-002,
-                  "Y" : -9.9595290422439575E-001
+                  "X" : 8.9519500732421875E-002,
+                  "Y" : -9.9598509073257446E-001
                 },
                 "DirectionVariance" : 0.0000000000000000E+000,
                 "LifeSpan" : 8.0000001192092896E-001,
@@ -257,8 +257,8 @@
                 },
                 "DirectionPersistent" : {
                   "$$ClassName" : "TCastleVector3Persistent",
-                  "Y" : 9.5728147029876709E-001,
-                  "Z" : 2.8915748000144958E-001
+                  "Y" : 9.6064531803131104E-001,
+                  "Z" : 2.7777779102325439E-001
                 },
                 "DirectionVariance" : 0.0000000000000000E+000,
                 "LifeSpanVariance" : 1.0000000149011612E-001,
@@ -970,6 +970,7 @@
           {
             "$$ClassName" : "TCastleParticleEmitter",
             "Burst" : true,
+            "DeltaTime" : 1.6000000759959221E-002,
             "Effect" : "GravityEffect",
             "Name" : "GravityEmitter",
             "TranslationPersistent" : {
