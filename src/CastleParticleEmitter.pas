@@ -12,7 +12,7 @@ interface
 uses
   Classes, SysUtils, fpjsonrtti,
   {$ifdef GLES}
-  CastleGLES20, // This wont work. We need GLES3 header
+  CastleGLES30,
   {$else}
   GL, GLExt,
   {$endif}
@@ -479,7 +479,7 @@ const
 '  outTimeToLive.z = effect.particleLifeSpan + effect.particleLifeSpanVariance * (rnd() * 2.0 - 1.0);'nl // Life
 '  outTimeToLive.x = outTimeToLive.z;'nl
 '  outTimeToLive.y = outTimeToLive.z * (effect.anchorCount > 1 ? effect.anchor[1] : 0.99);'nl
-'  outTimeToLive.w = 1;'nl // current anchor
+'  outTimeToLive.w = 1.0;'nl // current anchor
 '  float invLifeSpan = 1.0 / outTimeToLive.x;'nl
 '  float invTimeRemaining = 1.0 / outTimeToLive.y;'nl
 '  outTimeToLive.y = outTimeToLive.z - outTimeToLive.y;'nl
@@ -532,7 +532,7 @@ const
 '}'nl
 
 'void updateParticle() {'nl
-'  float timeBetweenParticle = max(deltaTime, effect.particleLifeSpan / effect.maxParticles);'nl
+'  float timeBetweenParticle = max(deltaTime, effect.particleLifeSpan / float(effect.maxParticles));'nl
 '  if (outTimeToLive.x <= 0.0 && emissionTime == 0.0) {'nl
 '    outTimeToLive.x = (rnd() - 1.0) * effect.particleLifeSpan;'nl
 '  }'nl
@@ -545,7 +545,7 @@ const
 '  outColor += outColorDelta * deltaTime;'nl
 '  if ((outTimeToLive.x >= outTimeToLive.y) && (outTimeToLive.x - deltaTime < outTimeToLive.y)) {'nl
 '    int a = int(outTimeToLive.w) + 1;'nl
-'    outTimeToLive.w = a;'nl // current anchor
+'    outTimeToLive.w = float(a);'nl // current anchor
 '    if (a < effect.anchorCount) {'nl
 '      outTimeToLive.y = outTimeToLive.z * effect.anchor[a];'nl
 '      float invTimeRemaining = 1.0 / (outTimeToLive.y - outTimeToLive.z * effect.anchor[a - 1]);'nl
@@ -692,7 +692,7 @@ const
 '  outTimeToLive.z = effect.particleLifeSpan + effect.particleLifeSpanVariance * (rnd() * 2.0 - 1.0);'nl // Life
 '  outTimeToLive.x = outTimeToLive.z;'nl
 '  outTimeToLive.y = outTimeToLive.z * (effect.anchorCount > 1 ? effect.anchor[1] : 0.99);'nl
-'  outTimeToLive.w = 1;'nl // current anchor
+'  outTimeToLive.w = 1.0;'nl // current anchor
 '  float invLifeSpan = 1.0 / outTimeToLive.x;'nl
 '  float invTimeRemaining = 1.0 / outTimeToLive.y;'nl
 '  outTimeToLive.y = outTimeToLive.z - outTimeToLive.y;'nl
@@ -750,7 +750,7 @@ const
 '}'nl
 
 'void updateParticle() {'nl
-'  float timeBetweenParticle = max(deltaTime, effect.particleLifeSpan / effect.maxParticles);'nl
+'  float timeBetweenParticle = max(deltaTime, effect.particleLifeSpan / float(effect.maxParticles));'nl
 '  if (outTimeToLive.x <= 0.0 && emissionTime == 0.0) {'nl
 '    outTimeToLive.x = (rnd() - 1.0) * effect.particleLifeSpan;'nl
 '  }'nl
@@ -763,7 +763,7 @@ const
 '  outColor += outColorDelta * deltaTime;'nl
 '  if ((outTimeToLive.x >= outTimeToLive.y) && (outTimeToLive.x - deltaTime < outTimeToLive.y)) {'nl
 '    int a = int(outTimeToLive.w) + 1;'nl
-'    outTimeToLive.w = a;'nl // current anchor
+'    outTimeToLive.w = float(a);'nl // current anchor
 '    if (a < effect.anchorCount) {'nl
 '      outTimeToLive.y = outTimeToLive.z * effect.anchor[a];'nl
 '      float invTimeRemaining = 1.0 / (outTimeToLive.y - outTimeToLive.z * effect.anchor[a - 1]);'nl
@@ -968,6 +968,16 @@ const
 '  }'nl
 '  outColor.rgb *= outColor.a;'nl
 '}';
+
+{$ifdef GLES}
+  FragmentShaderSourceDummy: String =
+'#version 300 es'nl
+'precision lowp float;'nl
+'out vec4 outColor;'nl
+'void main() {'nl
+'  outColor = vec4(0.0);'nl
+'}';
+{$endif}
 
   Varyings: array[0..9] of PChar = (
     'outPosition',
@@ -1634,7 +1644,7 @@ begin
           Self.FAttractorTypeList.Add(CastleParticleAttractorType[TCastleParticleAttractor(Self.Items[I]).AttactorType]);
         end;
       end;
-      TransformFeedbackProgram.Uniform('attractorCount').SetValue(Self.FAttractorList.Count);
+      TransformFeedbackProgram.Uniform('attractorCount').SetValue(TGLint(Self.FAttractorList.Count));
       TransformFeedbackProgram.Uniform('attractors').SetValue(Self.FAttractorList);
       TransformFeedbackProgram.Uniform('attractorType').SetValue(Self.FAttractorTypeList);
 
@@ -1660,7 +1670,7 @@ begin
         Self.FColorList.Add(AnchorItem.Color);
         Self.FColorVarianceList.Add(AnchorItem.ColorVariance);
       end;
-      TransformFeedbackProgram.Uniform('effect.anchorCount').SetValue(Self.FAnchorList.Count);
+      TransformFeedbackProgram.Uniform('effect.anchorCount').SetValue(TGLint(Self.FAnchorList.Count));
       TransformFeedbackProgram.Uniform('effect.anchor').SetValue(Self.FAnchorList);
       TransformFeedbackProgram.Uniform('effect.anchorColor').SetValue(Self.FColorList);
       TransformFeedbackProgram.Uniform('effect.anchorColorVariance').SetValue(Self.FColorVarianceList);
@@ -1889,11 +1899,17 @@ begin
   begin
     TransformFeedbackProgramSingleInstance := TGLSLProgram.Create;
     TransformFeedbackProgramSingleInstance.AttachVertexShader(TransformVertexShaderSourceSingleInstance);
+    {$ifdef GLES}
+      TransformFeedbackProgramSingleInstance.AttachFragmentShader(FragmentShaderSourceDummy);
+    {$endif}
     TransformFeedbackProgramSingleInstance.SetTransformFeedbackVaryings(Varyings);
     TransformFeedbackProgramSingleInstance.Link;
 
     TransformFeedbackProgramMultipleInstances := TGLSLProgram.Create;
     TransformFeedbackProgramMultipleInstances.AttachVertexShader(TransformVertexShaderSourceMultipleInstances);
+    {$ifdef GLES}
+      TransformFeedbackProgramMultipleInstances.AttachFragmentShader(FragmentShaderSourceDummy);
+    {$endif}
     TransformFeedbackProgramMultipleInstances.SetTransformFeedbackVaryings(Varyings);
     TransformFeedbackProgramMultipleInstances.Link;
 
