@@ -9,14 +9,19 @@
         "$$ClassName" : "TCastleCamera",
         "InitialPositionPersistent" : {
           "$$ClassName" : "TCastleVector3Persistent",
-          "X" : -6.4367294311523438E-001,
-          "Y" : 1.5905542373657227E+000,
+          "X" : 2.8264764785766602E+001,
+          "Y" : 1.7886074066162109E+001,
           "Z" : 5.0000000000000000E+002
         },
         "Name" : "Camera",
         "Orthographic" : {
           "$$ClassName" : "TCastleOrthographic",
           "Name" : "Orthographic",
+          "OriginPersistent" : {
+            "$$ClassName" : "TCastleVector2Persistent",
+            "X" : 5.0000000000000000E-001,
+            "Y" : 5.0000000000000000E-001
+          },
           "Scale" : 2.0085538864135742E+001,
           "Width" : 3.0000000000000000E+000
         },
@@ -187,8 +192,8 @@
                 ],
                 "DirectionPersistent" : {
                   "$$ClassName" : "TCastleVector3Persistent",
-                  "X" : 8.9519500732421875E-002,
-                  "Y" : -9.9598509073257446E-001
+                  "X" : 8.9165784418582916E-002,
+                  "Y" : -9.9601680040359497E-001
                 },
                 "DirectionVariance" : 0.0000000000000000E+000,
                 "LifeSpan" : 8.0000001192092896E-001,
@@ -257,8 +262,8 @@
                 },
                 "DirectionPersistent" : {
                   "$$ClassName" : "TCastleVector3Persistent",
-                  "Y" : 9.6064531803131104E-001,
-                  "Z" : 2.7777779102325439E-001
+                  "Y" : 9.6351790428161621E-001,
+                  "Z" : 2.6764389872550964E-001
                 },
                 "DirectionVariance" : 0.0000000000000000E+000,
                 "LifeSpanVariance" : 1.0000000149011612E-001,
