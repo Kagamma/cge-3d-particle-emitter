@@ -12,7 +12,7 @@ interface
 uses
   Classes, SysUtils, fpjsonrtti,
   {$ifdef GLES}
-  CastleGLES30,
+  CastleGLES,
   {$else}
   GL, GLExt,
   {$endif}
