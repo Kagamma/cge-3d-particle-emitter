@@ -1932,6 +1932,7 @@ begin
   glGenBuffers(1, @Self.VBOMeshIndices);
   glGenVertexArrays(2, @Self.VAOMeshes);
   Self.FIsGLContextInitialized := True;
+  Self.FIsNeedRefresh := True;
 end;
 
 procedure TCastleParticleEmitter.GLContextClose;
