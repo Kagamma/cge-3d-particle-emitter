@@ -372,7 +372,7 @@ type
     procedure GLContextOpen; virtual;
     procedure GLContextClose; override;
     procedure RefreshEffect;
-    procedure EffectChanged;
+    procedure Changed;
     function LocalBoundingBox: TBox3D; override;
   published
     property Effect: TCastleParticleEffect read FEffect write LoadEffect;
@@ -2218,7 +2218,7 @@ begin
   Self.FIsNeedRefresh := True;
 end;
 
-procedure TCastleParticleEmitter.EffectChanged;
+procedure TCastleParticleEmitter.Changed;
 begin
   Self.FIsEffectChanged := True;
 end;
