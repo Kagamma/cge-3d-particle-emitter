@@ -137,6 +137,32 @@ type
     property ColorVariancePersistent: TCastleColorPersistent read FColorVariancePersistent;
   end;
 
+  TCastleParticleEffectUBO = packed record
+    Rotation: TVector3;
+    LifeSpan: Single;
+    RotationVariance: TVector3;
+    LifeSpanVariance: Single;
+    RotationSpeed: TVector3;
+    Speed: Single;
+    RotationSpeedVariance: TVector3;
+    SpeedVariance: Single;
+    SourcePosition: TVector3;
+    Radial: Single;
+    SourcePositionVariance: TVector3;
+    RadialVariance: Single;
+    Gravity: TVector3;
+    DirectionVariance: Single;
+    Direction: TVector3;
+    SourceType: Integer;
+    Anchor,
+    AnchorSize,
+    AnchorSizeVariance: array[0..7] of Single;
+    AnchorColor,
+    AnchorColorVariance: array[0..4] of TVector4;
+    AnchorCount: Integer;
+    MaxParticles: Integer;
+  end;
+
   TCastleParticleEffect = class(TCastleComponent)
   private
     FMesh,
@@ -151,7 +177,7 @@ type
     FSizeVariance,
     FSpeed,
     FSpeedVariance,
-    FDuration: Single;
+    FDuration,
     FDirectionVariance: Single;
     FRotation,
     FRotationVariance,
@@ -285,6 +311,7 @@ type
     VAOMeshes,
     VBOTnFs: array[0..1] of GLuint;
     VBOMesh, VBOMeshIndices: GLuint;
+    UBO: GLuint;
     CurrentBuffer: GLuint;
     Particles: packed array of TCastleParticle;
     ParticleMesh: packed array of TCastleParticleMesh;
@@ -292,6 +319,7 @@ type
 
     FStartEmitting: Boolean;
     FEffect: TCastleParticleEffect;
+    FEffectUBO: TCastleParticleEffectUBO;
     FParticleCount: Integer;
     FIsUpdated: Boolean;
     { Countdown before remove the emitter }
@@ -317,24 +345,21 @@ type
     { If true, smooth texture }
     FSmoothTexture: Boolean;
     FEnableFog,
+    FIsEffectChanged,
     FTimePlaying: Boolean;
     FDeltaTime,
     FTimePlayingSpeed: Single;
-    FAttractorList,
-    FColorList,
-    FColorVarianceList: TVector4List;
-    FAnchorList,
-    FSizeList,
-    FSizeVarianceList: TSingleList;
+    FAttractorList: TVector4List;
     FAttractorTypeList: TLongIntList;
     {$ifdef CASTLE_DESIGN_MODE}
     FDebugBox: TDebugBox;
     {$endif}
     procedure InternalLoadMesh;
     procedure InternalRefreshEffect;
-    procedure SetStartEmitting(V: Boolean);
-    procedure SetBurst(V: Boolean);
-    procedure SetSmoothTexture(V: Boolean);
+    procedure SetStartEmitting(const V: Boolean);
+    procedure SetBurst(const V: Boolean);
+    procedure SetSmoothTexture(const V: Boolean);
+    procedure SetAllowsInstancing(const V: Boolean);
   protected
     function PropertySections(const PropertyName: String): TPropertySections; override;
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
@@ -347,6 +372,7 @@ type
     procedure GLContextOpen; virtual;
     procedure GLContextClose; override;
     procedure RefreshEffect;
+    procedure EffectChanged;
     function LocalBoundingBox: TBox3D; override;
   published
     property Effect: TCastleParticleEffect read FEffect write LoadEffect;
@@ -355,7 +381,7 @@ type
     property DistanceCulling: Single read FDistanceCulling write FDistanceCulling default 0;
     property AllowsWriteToDepthBuffer: Boolean read FAllowsWriteToDepthBuffer write FAllowsWriteToDepthBuffer default False;
     property AllowsUpdateWhenCulled: Boolean read FAllowsUpdateWhenCulled write FAllowsUpdateWhenCulled default True;
-    property AllowsInstancing: Boolean read FAllowsInstancing write FAllowsInstancing default False;
+    property AllowsInstancing: Boolean read FAllowsInstancing write SetAllowsInstancing default False;
     property EnableFog: Boolean read FEnableFog write FEnableFog default False;
     property SmoothTexture: Boolean read FSmoothTexture write SetSmoothTexture default True;
     property Burst: Boolean read FBurst write SetBurst default False;
@@ -400,42 +426,34 @@ const
 'out vec3 outTranslate;'nl
 'out vec4 outRotationXY;'nl
 
-'struct Effect {'nl
-'  int sourceType;'nl
-'  float particleLifeSpan;'nl
-'  float particleLifeSpanVariance;'nl
-'  float Size;'nl
-'  float SizeVariance;'nl
-'  float anchorSize[5];'nl
-'  float anchorSizeVariance[5];'nl
-'  float rotatePerSecond;'nl
-'  float rotatePerSecondVariance;'nl
+'layout(packed) uniform Effect {'nl
 '  vec3 rotation;'nl
+'  float particleLifeSpan;'nl
 '  vec3 rotationVariance;'nl
+'  float particleLifeSpanVariance;'nl
 '  vec3 rotationSpeed;'nl
-'  vec3 rotationSpeedVariance;'nl
 '  float speed;'nl
+'  vec3 rotationSpeedVariance;'nl
 '  float speedVariance;'nl
-'  float radial;'nl
-'  float radialVariance;'nl
-'  float anchor[5];'nl
 '  vec3 sourcePosition;'nl
+'  float radial;'nl
 '  vec3 sourcePositionVariance;'nl
+'  float radialVariance;'nl
 '  vec3 gravity;'nl
-'  vec3 direction;'nl
 '  float directionVariance;'nl
-'  vec4 Color;'nl
-'  vec4 ColorVariance;'nl
+'  vec3 direction;'nl
+'  int sourceType;'nl
+'  float anchor[8];'nl
+'  float anchorSize[8];'nl
+'  float anchorSizeVariance[8];'nl
 '  vec4 anchorColor[5];'nl
 '  vec4 anchorColorVariance[5];'nl
 '  int anchorCount;'nl
 '  int maxParticles;'nl
-'  int isColliable;'nl
 '};'nl
 'uniform vec4 attractors[4];'nl
 'uniform int attractorCount;'nl
 'uniform int attractorType[4];'nl
-'uniform Effect effect;'nl
 'uniform float emissionTime;'nl
 'uniform float deltaTime;'nl
 
@@ -476,18 +494,18 @@ const
 '}'nl
 
 'void emitParticle() {'nl
-'  outTimeToLive.z = effect.particleLifeSpan + effect.particleLifeSpanVariance * (rnd() * 2.0 - 1.0);'nl // Life
+'  outTimeToLive.z = particleLifeSpan + particleLifeSpanVariance * (rnd() * 2.0 - 1.0);'nl // Life
 '  outTimeToLive.x = outTimeToLive.z;'nl
-'  outTimeToLive.y = outTimeToLive.z * (effect.anchorCount > 1 ? effect.anchor[1] : 0.99);'nl
+'  outTimeToLive.y = outTimeToLive.z * (anchorCount > 1 ? anchor[1] : 0.99);'nl
 '  outTimeToLive.w = 1.0;'nl // current anchor
 '  float invLifeSpan = 1.0 / outTimeToLive.x;'nl
 '  float invTimeRemaining = 1.0 / outTimeToLive.y;'nl
 '  outTimeToLive.y = outTimeToLive.z - outTimeToLive.y;'nl
 '  vec3 vrpos = vec3(rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0);'nl
-'  if (effect.sourceType == 1) {'nl
+'  if (sourceType == 1) {'nl
 '    vrpos = vec3(rnd(), rnd(), rnd()) * normalize(vrpos);'nl
-'    outPosition.xyz = effect.sourcePosition + effect.sourcePositionVariance * vrpos;'nl
-'  } else if (effect.sourceType == 2) {'nl
+'    outPosition.xyz = sourcePosition + sourcePositionVariance * vrpos;'nl
+'  } else if (sourceType == 2) {'nl
 '    float face = rnd();'nl
 '    if (face < 1.0 / 3.0)'nl
 '      vrpos = vec3(sign(vrpos.x), vrpos.y, vrpos.z);'nl
@@ -495,46 +513,46 @@ const
 '      vrpos = vec3(vrpos.x, sign(vrpos.y), vrpos.z);'nl
 '    else'nl
 '      vrpos = vec3(vrpos.x, vrpos.y, sign(vrpos.z));'nl
-'    outPosition.xyz = effect.sourcePosition + effect.sourcePositionVariance * vrpos;'nl
-'  } else if (effect.sourceType == 3) {'nl
-'    outPosition.xyz = effect.sourcePosition + effect.sourcePositionVariance * normalize(vrpos);'nl
-'  } else if (effect.sourceType == 4) {'nl
-'    outPosition.xyz = effect.sourcePosition + effect.sourcePositionVariance * vec3(normalize(vrpos.xz), vrpos.y).xzy;'nl
+'    outPosition.xyz = sourcePosition + sourcePositionVariance * vrpos;'nl
+'  } else if (sourceType == 3) {'nl
+'    outPosition.xyz = sourcePosition + sourcePositionVariance * normalize(vrpos);'nl
+'  } else if (sourceType == 4) {'nl
+'    outPosition.xyz = sourcePosition + sourcePositionVariance * vec3(normalize(vrpos.xz), vrpos.y).xzy;'nl
 '  } else {'nl
-'    outPosition.xyz = effect.sourcePosition + effect.sourcePositionVariance * vrpos;'nl
+'    outPosition.xyz = sourcePosition + sourcePositionVariance * vrpos;'nl
 '  }'nl
 '  outTranslate = vec3(0.0);'nl // Do nothing
 '  outStartPos = vec3(0.0);'nl // Do nothing
-'  outDirection = effect.direction;'nl
+'  outDirection = direction;'nl
 '  vec3 cd = normalize(cross(outDirection, outDirection.zxy));'nl
-'  float angle = effect.directionVariance * (rnd() * 2.0 - 1.0);'nl
+'  float angle = directionVariance * (rnd() * 2.0 - 1.0);'nl
 '  vec3 vrdir = rotate(outDirection, angle, cd);'nl
 '  vrdir = rotate(vrdir, rnd() * 2.0 * 3.14159265359, outDirection);'nl
 '  vec3 vspeed = vec3('nl
-'    effect.speed + effect.speedVariance * (rnd() * 2.0 - 1.0),'nl
-'    effect.speed + effect.speedVariance * (rnd() * 2.0 - 1.0),'nl
-'    effect.speed + effect.speedVariance * (rnd() * 2.0 - 1.0));'nl
-'  outVelocity = vec4(vrdir * vspeed, effect.radial + effect.radialVariance * (rnd() * 2.0 - 1.0));'nl
+'    speed + speedVariance * (rnd() * 2.0 - 1.0),'nl
+'    speed + speedVariance * (rnd() * 2.0 - 1.0),'nl
+'    speed + speedVariance * (rnd() * 2.0 - 1.0));'nl
+'  outVelocity = vec4(vrdir * vspeed, radial + radialVariance * (rnd() * 2.0 - 1.0));'nl
 
-'  outColor = effect.anchorColor[0] + effect.anchorColorVariance[0] * vec4(rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0);'nl
-'  vec4 middleColor = effect.anchorCount == 1 ? outColor : effect.anchorColor[1] + effect.anchorColorVariance[1] * vec4(rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0);'nl
+'  outColor = anchorColor[0] + anchorColorVariance[0] * vec4(rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0);'nl
+'  vec4 middleColor = anchorCount == 1 ? outColor : anchorColor[1] + anchorColorVariance[1] * vec4(rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0);'nl
 '  outColorDelta = (middleColor - outColor) * invTimeRemaining;'nl
-'  float startSize = max(0.0001, effect.anchorSize[0] + effect.anchorSizeVariance[0] * (rnd() * 2.0 - 1.0));'nl
-'  float finishSize = effect.anchorCount == 1 ? startSize : max(0.0001, effect.anchorSize[1] + effect.anchorSizeVariance[1] * (rnd() * 2.0 - 1.0));'nl
+'  float startSize = max(0.0001, anchorSize[0] + anchorSizeVariance[0] * (rnd() * 2.0 - 1.0));'nl
+'  float finishSize = anchorCount == 1 ? startSize : max(0.0001, anchorSize[1] + anchorSizeVariance[1] * (rnd() * 2.0 - 1.0));'nl
 '  outSizeRotation.xy = vec2(startSize, (finishSize - startSize) * invTimeRemaining);'nl
 
-'  outSizeRotation.z = effect.rotation.z + effect.rotationVariance.z * (rnd() * 2.0 - 1.0);'nl
-'  outSizeRotation.w = effect.rotationSpeed.z + effect.rotationSpeedVariance.z * (rnd() * 2.0 - 1.0);'nl
-'  outRotationXY.x = effect.rotation.x + effect.rotationVariance.x * (rnd() * 2.0 - 1.0);'nl
-'  outRotationXY.y = effect.rotationSpeed.x + effect.rotationSpeedVariance.x * (rnd() * 2.0 - 1.0);'nl
-'  outRotationXY.z = effect.rotation.y + effect.rotationVariance.y * (rnd() * 2.0 - 1.0);'nl
-'  outRotationXY.w = effect.rotationSpeed.y + effect.rotationSpeedVariance.y * (rnd() * 2.0 - 1.0);'nl
+'  outSizeRotation.z = rotation.z + rotationVariance.z * (rnd() * 2.0 - 1.0);'nl
+'  outSizeRotation.w = rotationSpeed.z + rotationSpeedVariance.z * (rnd() * 2.0 - 1.0);'nl
+'  outRotationXY.x = rotation.x + rotationVariance.x * (rnd() * 2.0 - 1.0);'nl
+'  outRotationXY.y = rotationSpeed.x + rotationSpeedVariance.x * (rnd() * 2.0 - 1.0);'nl
+'  outRotationXY.z = rotation.y + rotationVariance.y * (rnd() * 2.0 - 1.0);'nl
+'  outRotationXY.w = rotationSpeed.y + rotationSpeedVariance.y * (rnd() * 2.0 - 1.0);'nl
 '}'nl
 
 'void updateParticle() {'nl
-'  float timeBetweenParticle = max(deltaTime, effect.particleLifeSpan / float(effect.maxParticles));'nl
+'  float timeBetweenParticle = max(deltaTime, particleLifeSpan / float(maxParticles));'nl
 '  if (outTimeToLive.x <= 0.0 && emissionTime == 0.0) {'nl
-'    outTimeToLive.x = (rnd() - 1.0) * effect.particleLifeSpan;'nl
+'    outTimeToLive.x = (rnd() - 1.0) * particleLifeSpan;'nl
 '  }'nl
 '  if (outTimeToLive.x == 0.0 && emissionTime != 0.0) {'nl
 '    emitParticle();'nl
@@ -546,13 +564,13 @@ const
 '  if ((outTimeToLive.x >= outTimeToLive.y) && (outTimeToLive.x - deltaTime < outTimeToLive.y)) {'nl
 '    int a = int(outTimeToLive.w) + 1;'nl
 '    outTimeToLive.w = float(a);'nl // current anchor
-'    if (a < effect.anchorCount) {'nl
-'      outTimeToLive.y = outTimeToLive.z * effect.anchor[a];'nl
-'      float invTimeRemaining = 1.0 / (outTimeToLive.y - outTimeToLive.z * effect.anchor[a - 1]);'nl
+'    if (a < anchorCount) {'nl
+'      outTimeToLive.y = outTimeToLive.z * anchor[a];'nl
+'      float invTimeRemaining = 1.0 / (outTimeToLive.y - outTimeToLive.z * anchor[a - 1]);'nl
 '      outTimeToLive.y = outTimeToLive.z - outTimeToLive.y;'nl
-'      vec4 finishColor = effect.anchorColor[a] + effect.anchorColorVariance[a] * vec4(rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0);'nl
+'      vec4 finishColor = anchorColor[a] + anchorColorVariance[a] * vec4(rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0);'nl
 '      outColorDelta = (finishColor - outColor) * invTimeRemaining;'nl
-'      float finishSize = max(0.0001, effect.anchorSize[a] + effect.anchorSizeVariance[a] * (rnd() * 2.0 - 1.0));'nl
+'      float finishSize = max(0.0001, anchorSize[a] + anchorSizeVariance[a] * (rnd() * 2.0 - 1.0));'nl
 '      outSizeRotation.y = (finishSize - outSizeRotation.x) * invTimeRemaining;'nl
 '    } else {'nl
 '      outColorDelta = vec4(0.0);'nl
@@ -561,7 +579,7 @@ const
 '    }'nl
 '  }'nl
 '  outTimeToLive.x = max(0.0, outTimeToLive.x - deltaTime);'nl
-'  outVelocity.xyz = rotate(outVelocity.xyz, outVelocity.w * deltaTime, outDirection) + effect.gravity * deltaTime;'nl
+'  outVelocity.xyz = rotate(outVelocity.xyz, outVelocity.w * deltaTime, outDirection) + gravity * deltaTime;'nl
 '  for (int i = 0; i < attractorCount; i++) {'nl
 '    vec3 a = outPosition.xyz - attractors[i].xyz;'nl
 '    if (attractorType[i] == 1) {'nl
@@ -611,42 +629,34 @@ const
 'out vec3 outTranslate;'nl
 'out vec4 outRotationXY;'nl
 
-'struct Effect {'nl
-'  int sourceType;'nl
-'  float particleLifeSpan;'nl
-'  float particleLifeSpanVariance;'nl
-'  float Size;'nl
-'  float SizeVariance;'nl
-'  float anchorSize[5];'nl
-'  float anchorSizeVariance[5];'nl
-'  float rotatePerSecond;'nl
-'  float rotatePerSecondVariance;'nl
+'layout(packed) uniform Effect {'nl
 '  vec3 rotation;'nl
+'  float particleLifeSpan;'nl
 '  vec3 rotationVariance;'nl
+'  float particleLifeSpanVariance;'nl
 '  vec3 rotationSpeed;'nl
-'  vec3 rotationSpeedVariance;'nl
 '  float speed;'nl
+'  vec3 rotationSpeedVariance;'nl
 '  float speedVariance;'nl
-'  float radial;'nl
-'  float radialVariance;'nl
-'  float anchor[5];'nl
 '  vec3 sourcePosition;'nl
+'  float radial;'nl
 '  vec3 sourcePositionVariance;'nl
+'  float radialVariance;'nl
 '  vec3 gravity;'nl
-'  vec3 direction;'nl
 '  float directionVariance;'nl
-'  vec4 Color;'nl
-'  vec4 ColorVariance;'nl
+'  vec3 direction;'nl
+'  int sourceType;'nl
+'  float anchor[8];'nl
+'  float anchorSize[8];'nl
+'  float anchorSizeVariance[8];'nl
 '  vec4 anchorColor[5];'nl
 '  vec4 anchorColorVariance[5];'nl
 '  int anchorCount;'nl
 '  int maxParticles;'nl
-'  int isColliable;'nl
 '};'nl
 'uniform vec4 attractors[4];'nl
 'uniform int attractorCount;'nl
 'uniform int attractorType[4];'nl
-'uniform Effect effect;'nl
 'uniform mat4 mMatrix;'nl
 'uniform float emissionTime;'nl
 'uniform float deltaTime;'nl
@@ -689,9 +699,9 @@ const
 
 'void emitParticle() {'nl
 '  mat3 rMatrix = mat3(mMatrix);'nl
-'  outTimeToLive.z = effect.particleLifeSpan + effect.particleLifeSpanVariance * (rnd() * 2.0 - 1.0);'nl // Life
+'  outTimeToLive.z = particleLifeSpan + particleLifeSpanVariance * (rnd() * 2.0 - 1.0);'nl // Life
 '  outTimeToLive.x = outTimeToLive.z;'nl
-'  outTimeToLive.y = outTimeToLive.z * (effect.anchorCount > 1 ? effect.anchor[1] : 0.99);'nl
+'  outTimeToLive.y = outTimeToLive.z * (anchorCount > 1 ? anchor[1] : 0.99);'nl
 '  outTimeToLive.w = 1.0;'nl // current anchor
 '  float invLifeSpan = 1.0 / outTimeToLive.x;'nl
 '  float invTimeRemaining = 1.0 / outTimeToLive.y;'nl
@@ -702,10 +712,10 @@ const
 '    length(vec3(mMatrix[2][0], mMatrix[2][1], mMatrix[2][2]))'nl
 '  );'nl
 '  vec3 vrpos = vec3(rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0);'nl
-'  if (effect.sourceType == 1) {'nl
+'  if (sourceType == 1) {'nl
 '    vrpos = vec3(rnd(), rnd(), rnd()) * normalize(vrpos);'nl
-'    outStartPos = rMatrix * (effect.sourcePosition + scale * effect.sourcePositionVariance * vrpos);'nl
-'  } else if (effect.sourceType == 2) {'nl
+'    outStartPos = rMatrix * (sourcePosition + scale * sourcePositionVariance * vrpos);'nl
+'  } else if (sourceType == 2) {'nl
 '    float face = rnd();'nl
 '    if (face < 1.0 / 3.0)'nl
 '      vrpos = vec3(sign(vrpos.x), vrpos.y, vrpos.z);'nl
@@ -713,46 +723,46 @@ const
 '      vrpos = vec3(vrpos.x, sign(vrpos.y), vrpos.z);'nl
 '    else'nl
 '      vrpos = vec3(vrpos.x, vrpos.y, sign(vrpos.z));'nl
-'    outStartPos = rMatrix * (effect.sourcePosition + scale * effect.sourcePositionVariance * vrpos);'nl
-'  } else if (effect.sourceType == 3) {'nl
-'    outStartPos = rMatrix * (effect.sourcePosition + scale * effect.sourcePositionVariance * normalize(vrpos));'nl
-'  } else if (effect.sourceType == 4) {'nl
-'    outStartPos = rMatrix * (effect.sourcePosition + scale * effect.sourcePositionVariance * vec3(normalize(vrpos.xz), vrpos.y).xzy);'nl
+'    outStartPos = rMatrix * (sourcePosition + scale * sourcePositionVariance * vrpos);'nl
+'  } else if (sourceType == 3) {'nl
+'    outStartPos = rMatrix * (sourcePosition + scale * sourcePositionVariance * normalize(vrpos));'nl
+'  } else if (sourceType == 4) {'nl
+'    outStartPos = rMatrix * (sourcePosition + scale * sourcePositionVariance * vec3(normalize(vrpos.xz), vrpos.y).xzy);'nl
 '  } else {'nl
-'    outStartPos = rMatrix * (effect.sourcePosition + scale * effect.sourcePositionVariance * vrpos);'nl
+'    outStartPos = rMatrix * (sourcePosition + scale * sourcePositionVariance * vrpos);'nl
 '  }'nl
 '  outTranslate = vec3(mMatrix[3][0], mMatrix[3][1], mMatrix[3][2]);'nl
 '  outPosition.xyz = outTranslate + outStartPos;'nl
-'  outDirection = rMatrix * effect.direction;'nl
+'  outDirection = rMatrix * direction;'nl
 '  vec3 cd = normalize(cross(outDirection, outDirection.zxy));'nl
-'  float angle = effect.directionVariance * (rnd() * 2.0 - 1.0);'nl
+'  float angle = directionVariance * (rnd() * 2.0 - 1.0);'nl
 '  vec3 vrdir = rotate(outDirection, angle, cd);'nl
 '  vrdir = rotate(vrdir, rnd() * 2.0 * 3.14159265359, outDirection);'nl
 '  vec3 vspeed = vec3('nl
-'    effect.speed + effect.speedVariance * (rnd() * 2.0 - 1.0),'nl
-'    effect.speed + effect.speedVariance * (rnd() * 2.0 - 1.0),'nl
-'    effect.speed + effect.speedVariance * (rnd() * 2.0 - 1.0));'nl
-'  outVelocity = vec4(vrdir * vspeed, effect.radial + effect.radialVariance * (rnd() * 2.0 - 1.0));'nl
+'    speed + speedVariance * (rnd() * 2.0 - 1.0),'nl
+'    speed + speedVariance * (rnd() * 2.0 - 1.0),'nl
+'    speed + speedVariance * (rnd() * 2.0 - 1.0));'nl
+'  outVelocity = vec4(vrdir * vspeed, radial + radialVariance * (rnd() * 2.0 - 1.0));'nl
 
-'  outColor = effect.anchorColor[0] + effect.anchorColorVariance[0] * vec4(rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0);'nl
-'  vec4 middleColor = effect.anchorCount == 1 ? outColor : effect.anchorColor[1] + effect.anchorColorVariance[1] * vec4(rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0);'nl
+'  outColor = anchorColor[0] + anchorColorVariance[0] * vec4(rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0);'nl
+'  vec4 middleColor = anchorCount == 1 ? outColor : anchorColor[1] + anchorColorVariance[1] * vec4(rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0);'nl
 '  outColorDelta = (middleColor - outColor) * invTimeRemaining;'nl
-'  float startSize = max(0.0001, effect.anchorSize[0] + effect.anchorSizeVariance[0] * (rnd() * 2.0 - 1.0));'nl
-'  float finishSize = effect.anchorCount == 1 ? startSize : max(0.0001, effect.anchorSize[1] + effect.anchorSizeVariance[1] * (rnd() * 2.0 - 1.0));'nl
+'  float startSize = max(0.0001, anchorSize[0] + anchorSizeVariance[0] * (rnd() * 2.0 - 1.0));'nl
+'  float finishSize = anchorCount == 1 ? startSize : max(0.0001, anchorSize[1] + anchorSizeVariance[1] * (rnd() * 2.0 - 1.0));'nl
 '  outSizeRotation.xy = vec2(startSize, (finishSize - startSize) * invTimeRemaining);'nl
 
-'  outSizeRotation.z = effect.rotation.z + effect.rotationVariance.z * (rnd() * 2.0 - 1.0);'nl
-'  outSizeRotation.w = effect.rotationSpeed.z + effect.rotationSpeedVariance.z * (rnd() * 2.0 - 1.0);'nl
-'  outRotationXY.x = effect.rotation.x + effect.rotationVariance.x * (rnd() * 2.0 - 1.0);'nl
-'  outRotationXY.y = effect.rotationSpeed.x + effect.rotationSpeedVariance.x * (rnd() * 2.0 - 1.0);'nl
-'  outRotationXY.z = effect.rotation.y + effect.rotationVariance.y * (rnd() * 2.0 - 1.0);'nl
-'  outRotationXY.w = effect.rotationSpeed.y + effect.rotationSpeedVariance.y * (rnd() * 2.0 - 1.0);'nl
+'  outSizeRotation.z = rotation.z + rotationVariance.z * (rnd() * 2.0 - 1.0);'nl
+'  outSizeRotation.w = rotationSpeed.z + rotationSpeedVariance.z * (rnd() * 2.0 - 1.0);'nl
+'  outRotationXY.x = rotation.x + rotationVariance.x * (rnd() * 2.0 - 1.0);'nl
+'  outRotationXY.y = rotationSpeed.x + rotationSpeedVariance.x * (rnd() * 2.0 - 1.0);'nl
+'  outRotationXY.z = rotation.y + rotationVariance.y * (rnd() * 2.0 - 1.0);'nl
+'  outRotationXY.w = rotationSpeed.y + rotationSpeedVariance.y * (rnd() * 2.0 - 1.0);'nl
 '}'nl
 
 'void updateParticle() {'nl
-'  float timeBetweenParticle = max(deltaTime, effect.particleLifeSpan / float(effect.maxParticles));'nl
+'  float timeBetweenParticle = max(deltaTime, particleLifeSpan / float(maxParticles));'nl
 '  if (outTimeToLive.x <= 0.0 && emissionTime == 0.0) {'nl
-'    outTimeToLive.x = (rnd() - 1.0) * effect.particleLifeSpan;'nl
+'    outTimeToLive.x = (rnd() - 1.0) * particleLifeSpan;'nl
 '  }'nl
 '  if (outTimeToLive.x == 0.0 && emissionTime != 0.0) {'nl
 '    emitParticle();'nl
@@ -764,13 +774,13 @@ const
 '  if ((outTimeToLive.x >= outTimeToLive.y) && (outTimeToLive.x - deltaTime < outTimeToLive.y)) {'nl
 '    int a = int(outTimeToLive.w) + 1;'nl
 '    outTimeToLive.w = float(a);'nl // current anchor
-'    if (a < effect.anchorCount) {'nl
-'      outTimeToLive.y = outTimeToLive.z * effect.anchor[a];'nl
-'      float invTimeRemaining = 1.0 / (outTimeToLive.y - outTimeToLive.z * effect.anchor[a - 1]);'nl
+'    if (a < anchorCount) {'nl
+'      outTimeToLive.y = outTimeToLive.z * anchor[a];'nl
+'      float invTimeRemaining = 1.0 / (outTimeToLive.y - outTimeToLive.z * anchor[a - 1]);'nl
 '      outTimeToLive.y = outTimeToLive.z - outTimeToLive.y;'nl
-'      vec4 finishColor = effect.anchorColor[a] + effect.anchorColorVariance[a] * vec4(rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0);'nl
+'      vec4 finishColor = anchorColor[a] + anchorColorVariance[a] * vec4(rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0);'nl
 '      outColorDelta = (finishColor - outColor) * invTimeRemaining;'nl
-'      float finishSize = max(0.0001, effect.anchorSize[a] + effect.anchorSizeVariance[a] * (rnd() * 2.0 - 1.0));'nl
+'      float finishSize = max(0.0001, anchorSize[a] + anchorSizeVariance[a] * (rnd() * 2.0 - 1.0));'nl
 '      outSizeRotation.y = (finishSize - outSizeRotation.x) * invTimeRemaining;'nl
 '    } else {'nl
 '      outColorDelta = vec4(0.0);'nl
@@ -779,7 +789,7 @@ const
 '    }'nl
 '  }'nl
 '  outTimeToLive.x = max(0.0, outTimeToLive.x - deltaTime);'nl
-'  outVelocity.xyz = rotate(outVelocity.xyz, outVelocity.w * deltaTime, outDirection) + effect.gravity * deltaTime;'nl
+'  outVelocity.xyz = rotate(outVelocity.xyz, outVelocity.w * deltaTime, outDirection) + gravity * deltaTime;'nl
 '  for (int i = 0; i < attractorCount; i++) {'nl
 '    vec3 a = outPosition.xyz - (attractors[i].xyz + outTranslate);'nl
 '    if (attractorType[i] == 1) {'nl
@@ -1494,22 +1504,28 @@ end;
 
 // ---------------------------------
 
-procedure TCastleParticleEmitter.SetStartEmitting(V: Boolean);
+procedure TCastleParticleEmitter.SetStartEmitting(const V: Boolean);
 begin
   Self.FStartEmitting := V;
   if V and Assigned(FEffect) then
     Self.FCountdownTillRemove := Self.FEffect.LifeSpan + Self.FEffect.LifeSpanVariance;
 end;
 
-procedure TCastleParticleEmitter.SetBurst(V: Boolean);
+procedure TCastleParticleEmitter.SetBurst(const V: Boolean);
 begin
   Self.FBurst := V;
   Self.FIsNeedRefresh := True;
 end;
 
-procedure TCastleParticleEmitter.SetSmoothTexture(V: Boolean);
+procedure TCastleParticleEmitter.SetSmoothTexture(const V: Boolean);
 begin
   Self.FSmoothTexture := V;
+  Self.FIsNeedRefresh := True;
+end;
+
+procedure TCastleParticleEmitter.SetAllowsInstancing(const V: Boolean);
+begin
+  Self.FAllowsInstancing := V;
   Self.FIsNeedRefresh := True;
 end;
 
@@ -1535,18 +1551,8 @@ begin
   FTimePlayingSpeed := 1.0;
   Self.FAttractorList := TVector4List.Create;
   Self.FAttractorTypeList := TLongIntList.Create;
-  Self.FColorList := TVector4List.Create;
-  Self.FColorVarianceList := TVector4List.Create;
-  Self.FSizeList := TSingleList.Create;
-  Self.FSizeVarianceList := TSingleList.Create;
-  Self.FAnchorList := TSingleList.Create;
   Self.FAttractorList.Capacity := 4;
   Self.FAttractorTypeList.Capacity := 4;
-  Self.FColorList.Capacity := 5;
-  Self.FColorVarianceList.Capacity := 5;
-  Self.FSizeList.Capacity := 5;
-  Self.FSizeVarianceList.Capacity := 5;
-  Self.FAnchorList.Capacity := 5;
   Self.FDeltaTime := 0;
   {$ifdef CASTLE_DESIGN_MODE}
   DebugScene := TCastleScene.Create(Self);
@@ -1565,17 +1571,12 @@ destructor TCastleParticleEmitter.Destroy;
 begin
   Self.FAttractorTypeList.Free;
   Self.FAttractorList.Free;
-  Self.FAnchorList.Free;
-  Self.FColorList.Free;
-  Self.FColorVarianceList.Free;
-  Self.FSizeList.Free;
-  Self.FSizeVarianceList.Free;
   inherited;
 end;
 
 procedure TCastleParticleEmitter.Update(const SecondsPassed: Single; var RemoveMe: TRemoveType);
 var
-  I: Integer;
+  I, AnchorCount: Integer;
   S,
   RealSecondsPassed: Single;
   AnchorItem: TCastleParticleEffectAnchorItem;
@@ -1631,7 +1632,6 @@ begin
       begin
         TransformFeedbackProgram.Uniform('mMatrix').SetValue(Self.WorldTransform);
       end;
-
       // Build list of attractor
       Self.FAttractorList.Count := 0;
       Self.FAttractorTypeList.Count := 0;
@@ -1648,60 +1648,64 @@ begin
       TransformFeedbackProgram.Uniform('attractors').SetValue(Self.FAttractorList);
       TransformFeedbackProgram.Uniform('attractorType').SetValue(Self.FAttractorTypeList);
 
-      // Build list of anchors
-      Self.FAnchorList.Count := 0;
-      Self.FColorList.Count := 0;
-      Self.FColorVarianceList.Count := 0;
-      Self.FSizeList.Count := 0;
-      Self.FSizeVarianceList.Count := 0;
-      Self.FAnchorList.Add(0);
-      Self.FSizeList.Add(Self.FEffect.Size);
-      Self.FSizeVarianceList.Add(Self.FEffect.SizeVariance);
-      Self.FColorList.Add(Self.FEffect.Color);
-      Self.FColorVarianceList.Add(Self.FEffect.ColorVariance);
-      for I := 0 to Self.FEffect.Anchors.Count - 1 do
+      // We want editor to always update UBO
+      {$ifdef CASTLE_DESIGN_MODE}
+        Self.FIsEffectChanged := True;
+      {$endif}
+      // We only update UBO if FIsEffectChanged = True
+      if Self.FIsEffectChanged then
       begin
-        // We limit number of anchors to 4 at the moment
-        if I >= 4 then Break;
-        AnchorItem := TCastleParticleEffectAnchorItem(Self.FEffect.Anchors.Items[I]);
-        Self.FAnchorList.Add(Min(0.99, Max(0.01, AnchorItem.TimeNormalized)));
-        Self.FSizeList.Add(AnchorItem.Size);
-        Self.FSizeVarianceList.Add(AnchorItem.SizeVariance);
-        Self.FColorList.Add(AnchorItem.Color);
-        Self.FColorVarianceList.Add(AnchorItem.ColorVariance);
+        // Build list of anchors
+        AnchorCount := 1;
+        Self.FEffectUBO.Anchor[0] := 0;
+        Self.FEffectUBO.AnchorSize[0] := Self.FEffect.Size;
+        Self.FEffectUBO.AnchorSizeVariance[0] := Self.FEffect.SizeVariance;
+        Self.FEffectUBO.AnchorColor[0] := Self.FEffect.Color;
+        Self.FEffectUBO.AnchorColorVariance[0] := Self.FEffect.ColorVariance;
+        for I := 0 to Self.FEffect.Anchors.Count - 1 do
+        begin
+          // We limit number of anchors to 4 at the moment
+          if I >= 4 then Break;
+          AnchorItem := TCastleParticleEffectAnchorItem(Self.FEffect.Anchors.Items[I]);
+          Self.FEffectUBO.Anchor[AnchorCount] := Min(0.99, Max(0.01, AnchorItem.TimeNormalized));
+          Self.FEffectUBO.AnchorSize[AnchorCount] := AnchorItem.Size;
+          Self.FEffectUBO.AnchorSizeVariance[AnchorCount] := AnchorItem.SizeVariance;
+          Self.FEffectUBO.AnchorColor[AnchorCount] := AnchorItem.Color;
+          Self.FEffectUBO.AnchorColorVariance[AnchorCount] := AnchorItem.ColorVariance;
+          Inc(AnchorCount);
+        end;
+        Self.FEffectUBO.AnchorCount := AnchorCount;
+        Self.FEffectUBO.SourceType := CastleParticleSourceValues[Self.FEffect.SourceType];
+        Self.FEffectUBO.SourcePosition := Self.FEffect.SourcePosition;
+        Self.FEffectUBO.sourcePositionVariance := Self.FEffect.SourcePositionVariance;
+        Self.FEffectUBO.MaxParticles := Self.FEffect.MaxParticles;
+        Self.FEffectUBO.LifeSpan := Self.FEffect.LifeSpan;
+        Self.FEffectUBO.LifeSpanVariance := Self.FEffect.LifeSpanVariance;
+        Self.FEffectUBO.Rotation := Self.FEffect.Rotation;
+        Self.FEffectUBO.RotationVariance := Self.FEffect.RotationVariance;
+        Self.FEffectUBO.RotationSpeed := Self.FEffect.RotationSpeed;
+        Self.FEffectUBO.RotationSpeedVariance := Self.FEffect.RotationSpeedVariance;
+        Self.FEffectUBO.Direction := Self.FEffect.Direction;
+        Self.FEffectUBO.DirectionVariance := Self.FEffect.DirectionVariance;
+        Self.FEffectUBO.Speed := Self.FEffect.Speed;
+        Self.FEffectUBO.SpeedVariance := Self.FEffect.SpeedVariance;
+        Self.FEffectUBO.Gravity := Self.FEffect.Gravity;
+        Self.FEffectUBO.Radial := Self.FEffect.Radial;
+        Self.FEffectUBO.RadialVariance := Self.FEffect.RadialVariance;
+
+        glBindBuffer(GL_UNIFORM_BUFFER, Self.UBO);
+        glBufferSubData(GL_UNIFORM_BUFFER, 0, SizeOf(TCastleParticleEffectUBO), @Self.FEffectUBO);
+        glBindBuffer(GL_UNIFORM_BUFFER, 0);
+        Self.FIsEffectChanged := False;
       end;
-      TransformFeedbackProgram.Uniform('effect.anchorCount').SetValue(TGLint(Self.FAnchorList.Count));
-      TransformFeedbackProgram.Uniform('effect.anchor').SetValue(Self.FAnchorList);
-      TransformFeedbackProgram.Uniform('effect.anchorColor').SetValue(Self.FColorList);
-      TransformFeedbackProgram.Uniform('effect.anchorColorVariance').SetValue(Self.FColorVarianceList);
-      TransformFeedbackProgram.Uniform('effect.anchorSize').SetValue(Self.FSizeList);
-      TransformFeedbackProgram.Uniform('effect.anchorSizeVariance').SetValue(Self.FSizeVarianceList);
-
-      TransformFeedbackProgram.Uniform('effect.sourceType').SetValue(CastleParticleSourceValues[Self.FEffect.SourceType]);
-      TransformFeedbackProgram.Uniform('effect.sourcePosition').SetValue(Self.FEffect.SourcePosition);
-      TransformFeedbackProgram.Uniform('effect.sourcePositionVariance').SetValue(Self.FEffect.SourcePositionVariance);
-      TransformFeedbackProgram.Uniform('effect.maxParticles').SetValue(Self.FEffect.MaxParticles);
-
-      TransformFeedbackProgram.Uniform('effect.particleLifeSpan').SetValue(Self.FEffect.LifeSpan);
-      TransformFeedbackProgram.Uniform('effect.particleLifeSpanVariance').SetValue(Self.FEffect.LifeSpanVariance);
-      TransformFeedbackProgram.Uniform('effect.rotation').SetValue(Self.FEffect.Rotation);
-      TransformFeedbackProgram.Uniform('effect.rotationVariance').SetValue(Self.FEffect.RotationVariance);
-      TransformFeedbackProgram.Uniform('effect.rotationSpeed').SetValue(Self.FEffect.RotationSpeed);
-      TransformFeedbackProgram.Uniform('effect.rotationSpeedVariance').SetValue(Self.FEffect.RotationSpeedVariance);
-      TransformFeedbackProgram.Uniform('effect.direction').SetValue(Self.FEffect.Direction);
-      TransformFeedbackProgram.Uniform('effect.directionVariance').SetValue(Self.FEffect.DirectionVariance);
-      TransformFeedbackProgram.Uniform('effect.speed').SetValue(Self.FEffect.Speed);
-      TransformFeedbackProgram.Uniform('effect.speedVariance').SetValue(Self.FEffect.SpeedVariance);
-      TransformFeedbackProgram.Uniform('effect.gravity').SetValue(Self.FEffect.Gravity);
-      TransformFeedbackProgram.Uniform('effect.radial').SetValue(Self.FEffect.Radial);
-      TransformFeedbackProgram.Uniform('effect.radialVariance').SetValue(Self.FEffect.RadialVariance);
       glBindVertexArray(Self.VAOTnFs[Self.CurrentBuffer]);
+      glBindBufferBase(GL_UNIFORM_BUFFER, 0, Self.UBO);
       glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, Self.VBOTnFs[(Self.CurrentBuffer + 1) mod 2]);
       glBeginTransformFeedback(GL_POINTS);
       glDrawArrays(GL_POINTS, 0, Self.FEffect.MaxParticles);
       glEndTransformFeedback();
       glDisable(GL_RASTERIZER_DISCARD);
-      glBindVertexArray(0); // Just in case :)
+      glBindVertexArray(0);
       CurrentBuffer := (Self.CurrentBuffer + 1) mod 2;
     end;
   end;
@@ -1879,7 +1883,9 @@ end;
 
 procedure TCastleParticleEmitter.GLContextOpen;
 var
-  V: Integer;
+  V,
+  ProgramId,
+  EffectUniformIndex: GLuint;
 begin
   // Safeguard
   if not ApplicationProperties.IsGLContextOpen then Exit;
@@ -1892,6 +1898,9 @@ begin
     WritelnLog('GL_MAX_VERTEX_ATTRIBS: ' + IntToStr(V));
     if V < 16 then
       raise Exception.Create('TCastleParticleEmitter requires GL_MAX_VERTEX_ATTRIBS at least 16');
+    // Check MAX_VERTEX_UNIFORM_COMPONENTS
+    glGetIntegerv($8B4A, @V);
+    WritelnLog('MAX_VERTEX_UNIFORM_COMPONENTS: ' + IntToStr(V));
     IsCheckedForUsable := True;
   end;
 
@@ -1913,6 +1922,19 @@ begin
     TransformFeedbackProgramMultipleInstances.SetTransformFeedbackVaryings(Varyings);
     TransformFeedbackProgramMultipleInstances.Link;
 
+    // CGE doesn't expose ProgramId, so we work around by quering for it from OpenGL
+    TransformFeedbackProgramSingleInstance.Enable;
+    glGetIntegerv(GL_CURRENT_PROGRAM, @ProgramId);
+    EffectUniformIndex := glGetUniformBlockIndex(ProgramId, 'Effect');
+    glUniformBlockBinding(ProgramId, EffectUniformIndex, 0);
+    TransformFeedbackProgramSingleInstance.Disable;
+
+    TransformFeedbackProgramMultipleInstances.Enable;
+    glGetIntegerv(GL_CURRENT_PROGRAM, @ProgramId);
+    EffectUniformIndex := glGetUniformBlockIndex(ProgramId, 'Effect');
+    glUniformBlockBinding(ProgramId, EffectUniformIndex, 0);
+    TransformFeedbackProgramMultipleInstances.Disable;
+
     RenderProgramQuad := TGLSLProgram.Create;
     RenderProgramQuad.AttachVertexShader(VertexShaderSourceQuad);
     RenderProgramQuad.AttachFragmentShader(FragmentShaderSourceQuad);
@@ -1931,6 +1953,7 @@ begin
   glGenBuffers(1, @Self.VBOMesh);
   glGenBuffers(1, @Self.VBOMeshIndices);
   glGenVertexArrays(2, @Self.VAOMeshes);
+  glGenBuffers(1, @Self.UBO);
   Self.FIsGLContextInitialized := True;
   Self.FIsNeedRefresh := True;
 end;
@@ -1962,6 +1985,7 @@ begin
     glDeleteVertexArrays(2, @Self.VAOMeshes);
     glDeleteBuffers(2, @Self.VBOTnFs);
     glDeleteVertexArrays(2, @Self.VAOTnFs);
+    glDeleteBuffers(1, @Self.UBO);
     glFreeTexture(Self.Texture);
     Self.FIsGLContextInitialized := False;
   end;
@@ -2095,13 +2119,25 @@ begin
     end;
   end;
 
+  // UBO
+  if Self.AllowsInstancing then
+    TransformFeedbackProgram := TransformFeedbackProgramMultipleInstances
+  else
+    TransformFeedbackProgram := TransformFeedbackProgramSingleInstance;
+  // Create UBO and bind it to 0
+  glBindBuffer(GL_UNIFORM_BUFFER, Self.UBO);
+  glBufferData(GL_UNIFORM_BUFFER, SizeOf(TCastleParticleEffectUBO), @Self.FEffectUBO, GL_STATIC_DRAW);
+  glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
   // Drawing VAO
   glBindBuffer(GL_ARRAY_BUFFER, Self.VBOMesh);
   glBufferData(GL_ARRAY_BUFFER, Length(Self.ParticleMesh) * SizeOf(TCastleParticleMesh), @Self.ParticleMesh[0], GL_STATIC_DRAW);
+  glBindBuffer(GL_ARRAY_BUFFER, 0);
   if Length(Self.ParticleMeshIndices) > 0 then
   begin
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Self.VBOMeshIndices);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, Length(Self.ParticleMeshIndices) * SizeOf(GLushort), @Self.ParticleMeshIndices[0], GL_STATIC_DRAW);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
   end;
   Self.CurrentBuffer := 0;
   for I := 0 to 1 do
@@ -2166,16 +2202,25 @@ begin
     if Length(Self.ParticleMeshIndices) > 0 then
       glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Self.VBOMeshIndices);
 
+    glBindBuffer(GL_UNIFORM_BUFFER, Self.UBO);
+
     glBindVertexArray(0);
   end;
   SetLength(Self.Particles, 0);
+
   Self.FIsNeedRefresh := False;
   Self.FEffect.IsNeedRefresh := False;
+  Self.FIsEffectChanged := True;
 end;
 
 procedure TCastleParticleEmitter.RefreshEffect;
 begin
   Self.FIsNeedRefresh := True;
+end;
+
+procedure TCastleParticleEmitter.EffectChanged;
+begin
+  Self.FIsEffectChanged := True;
 end;
 
 function TCastleParticleEmitter.LocalBoundingBox: TBox3D;
