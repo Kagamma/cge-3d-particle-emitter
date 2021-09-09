@@ -281,9 +281,9 @@ type
   strict private
     Texture: GLuint;
 
-    VAOs,
+    VAOTnFs,
     VAOMeshes,
-    VBOs: array[0..1] of GLuint;
+    VBOTnFs: array[0..1] of GLuint;
     VBOMesh, VBOMeshIndices: GLuint;
     CurrentBuffer: GLuint;
     Particles: packed array of TCastleParticle;
@@ -1695,14 +1695,14 @@ begin
       TransformFeedbackProgram.Uniform('effect.gravity').SetValue(Self.FEffect.Gravity);
       TransformFeedbackProgram.Uniform('effect.radial').SetValue(Self.FEffect.Radial);
       TransformFeedbackProgram.Uniform('effect.radialVariance').SetValue(Self.FEffect.RadialVariance);
-      glBindVertexArray(Self.VAOs[CurrentBuffer]);
-      glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, Self.VBOs[(CurrentBuffer + 1) mod 2]);
+      glBindVertexArray(Self.VAOTnFs[Self.CurrentBuffer]);
+      glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, Self.VBOTnFs[(Self.CurrentBuffer + 1) mod 2]);
       glBeginTransformFeedback(GL_POINTS);
       glDrawArrays(GL_POINTS, 0, Self.FEffect.MaxParticles);
       glEndTransformFeedback();
       glDisable(GL_RASTERIZER_DISCARD);
       glBindVertexArray(0); // Just in case :)
-      CurrentBuffer := (CurrentBuffer + 1) mod 2;
+      CurrentBuffer := (Self.CurrentBuffer + 1) mod 2;
     end;
   end;
 
@@ -1819,7 +1819,7 @@ begin
     RenderProgram.Uniform('vOrMvMatrix').SetValue(Params.RenderingCamera.Matrix);
   end;
   RenderProgram.Uniform('pMatrix').SetValue(RenderContext.ProjectionMatrix);
-  glBindVertexArray(Self.VAOMeshes[CurrentBuffer]);
+  glBindVertexArray(Self.VAOMeshes[Self.CurrentBuffer]);
   glActiveTexture(GL_TEXTURE0);
   if Self.FEffect.TextureViewport = nil then
     glBindTexture(GL_TEXTURE_2D, Self.Texture)
@@ -1926,8 +1926,8 @@ begin
     ApplicationProperties.OnGLContextClose.Add(@FreeGLContext);
   end;
 
-  glGenBuffers(2, @Self.VBOs);
-  glGenVertexArrays(2, @Self.VAOs);
+  glGenBuffers(2, @Self.VBOTnFs);
+  glGenVertexArrays(2, @Self.VAOTnFs);
   glGenBuffers(1, @Self.VBOMesh);
   glGenBuffers(1, @Self.VBOMeshIndices);
   glGenVertexArrays(2, @Self.VAOMeshes);
@@ -1936,14 +1936,32 @@ begin
 end;
 
 procedure TCastleParticleEmitter.GLContextClose;
+var
+  P: Pointer;
+  Size: Integer;
 begin
   if Self.FIsGLContextInitialized then
   begin
+    if not (csDestroying in Self.ComponentState) then
+    begin
+      Size := Self.FEffect.MaxParticles * SizeOf(TCastleParticle);
+      // Backup current state of particles to RAM
+      glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, Self.VBOTnFs[Self.CurrentBuffer]);
+      P := glMapBufferRange(GL_TRANSFORM_FEEDBACK_BUFFER, 0, Size, GL_MAP_READ_BIT);
+      if P <> nil then
+      begin
+        SetLength(Self.Particles, Self.FEffect.MaxParticles);
+        System.Move(P^, Self.Particles[0], Size);
+      end else
+        WritelnLog('Error while backing up particles''s state to RAM: ' + IntToStr(glGetError()));
+      glUnmapBuffer(GL_TRANSFORM_FEEDBACK_BUFFER);
+      glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, 0);
+    end;
     glDeleteBuffers(1, @Self.VBOMesh);
     glDeleteBuffers(1, @Self.VBOMeshIndices);
     glDeleteVertexArrays(2, @Self.VAOMeshes);
-    glDeleteBuffers(2, @Self.VBOs);
-    glDeleteVertexArrays(2, @Self.VAOs);
+    glDeleteBuffers(2, @Self.VBOTnFs);
+    glDeleteVertexArrays(2, @Self.VAOTnFs);
     glFreeTexture(Self.Texture);
     Self.FIsGLContextInitialized := False;
   end;
@@ -2034,7 +2052,6 @@ begin
   Self.FEmissionTime := Self.FEffect.Duration;
   Self.FParticleCount := Self.FEffect.MaxParticles;
   Self.FCountdownTillRemove := Self.FEffect.LifeSpan + Self.FEffect.LifeSpanVariance;
-  SetLength(Self.Particles, Self.FEffect.MaxParticles);
   Self.InternalLoadMesh;
 
   if Self.FEffect.LifeSpan = 0 then
@@ -2057,18 +2074,24 @@ begin
       );
   end;
 
-  // Generate initial lifecycle
-  for I := 0 to Self.FEffect.MaxParticles - 1 do
+  { Here we only generate particles's data if the length of the array is 0.
+    Otherwise it's already contains previous data from VRAM. }
+  if Length(Self.Particles) = 0 then
   begin
-    with Self.Particles[I] do
+    // Generate initial lifecycle
+    SetLength(Self.Particles, Self.FEffect.MaxParticles);
+    for I := 0 to Self.FEffect.MaxParticles - 1 do
     begin
-      if Self.FBurst then
-        TimeToLive.X := 0.005
-      else
-        TimeToLive.X := Random * (Self.FEffect.LifeSpan + Self.FEffect.LifeSpanVariance);
-      // Position.W is being used as random seed
-      Position := Vector4(Random, Random, Random, Random);
-      Direction := Vector3(1, 0, 0);
+      with Self.Particles[I] do
+      begin
+        if Self.FBurst then
+          TimeToLive.X := 0.005
+        else
+          TimeToLive.X := Random * (Self.FEffect.LifeSpan + Self.FEffect.LifeSpanVariance);
+        // Position.W is being used as random seed
+        Position := Vector4(Random, Random, Random, Random);
+        Direction := Vector3(1, 0, 0);
+      end;
     end;
   end;
 
@@ -2084,9 +2107,9 @@ begin
   for I := 0 to 1 do
   begin
     // Transform & feedback VAO
-    glBindVertexArray(Self.VAOs[I]);
+    glBindVertexArray(Self.VAOTnFs[I]);
 
-    glBindBuffer(GL_ARRAY_BUFFER, Self.VBOs[I]);
+    glBindBuffer(GL_ARRAY_BUFFER, Self.VBOTnFs[I]);
     glBufferData(GL_ARRAY_BUFFER, Self.FEffect.MaxParticles * SizeOf(TCastleParticle), @Self.Particles[0], GL_STATIC_DRAW);
 
     glEnableVertexAttribArray(0);
@@ -2113,7 +2136,7 @@ begin
     // Instancing VAO
     glBindVertexArray(Self.VAOMeshes[I]);
 
-    glBindBuffer(GL_ARRAY_BUFFER, Self.VBOs[I]);
+    glBindBuffer(GL_ARRAY_BUFFER, Self.VBOTnFs[I]);
 
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), Pointer(0));
