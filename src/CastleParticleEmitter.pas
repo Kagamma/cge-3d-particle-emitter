@@ -243,10 +243,12 @@ type
   public
     IsColliable: Boolean;
     IsNeedRefresh: Boolean;
+    IsChanged: Boolean;
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     procedure Load(const AURL: String; const IsTexturePathRelative: Boolean = False);
     procedure Save(const AURL: String; const IsTexturePathRelative: Boolean = False);
+    procedure Changed;
 
     property Rotation: TVector3 read FRotation write FRotation;
     property RotationVariance: TVector3 read FRotationVariance write FRotationVariance;
@@ -372,7 +374,6 @@ type
     procedure GLContextOpen; virtual;
     procedure GLContextClose; override;
     procedure RefreshEffect;
-    procedure Changed;
     function LocalBoundingBox: TBox3D; override;
   published
     property Effect: TCastleParticleEffect read FEffect write LoadEffect;
@@ -1502,12 +1503,17 @@ begin
   end;
 end;
 
+procedure TCastleParticleEffect.Changed;
+begin
+  Self.IsChanged := True;
+end;
+
 // ---------------------------------
 
 procedure TCastleParticleEmitter.SetStartEmitting(const V: Boolean);
 begin
   Self.FStartEmitting := V;
-  if V and Assigned(FEffect) then
+  if V and (FEffect <> nil) then
     Self.FCountdownTillRemove := Self.FEffect.LifeSpan + Self.FEffect.LifeSpanVariance;
 end;
 
@@ -1582,7 +1588,7 @@ var
   AnchorItem: TCastleParticleEffectAnchorItem;
 begin
   inherited;
-  if (not Self.Exists) or (not Assigned(Self.FEffect)) then
+  if (not Self.Exists) or (Self.FEffect = nil) then
     Exit;
   Self.GLContextOpen;
   if Self.FIsNeedRefresh or Self.FEffect.IsNeedRefresh then
@@ -1652,8 +1658,8 @@ begin
       {$ifdef CASTLE_DESIGN_MODE}
         Self.FIsEffectChanged := True;
       {$endif}
-      // We only update UBO if FIsEffectChanged = True
-      if Self.FIsEffectChanged then
+      // We only update UBO if Effect.IsChanged = True
+      if Self.FEffect.IsChanged or Self.FIsEffectChanged then
       begin
         // Build list of anchors
         AnchorCount := 1;
@@ -1743,7 +1749,7 @@ var
 begin
   inherited;
   Self.FIsUpdated := False;
-  if (not Self.Exists) or (not Assigned(Self.FEffect)) then
+  if (not Self.Exists) or (Self.FEffect = nil) then
     Exit;
   if not Self.FIsGLContextInitialized then
     Exit;
@@ -1846,6 +1852,9 @@ begin
   glDisable(GL_DEPTH_TEST);
   if not Self.FAllowsWriteToDepthBuffer then
     glDepthMask(GL_TRUE);
+  // We set it here, because 1 effect can be used by multiple emitters
+  Self.FEffect.IsNeedRefresh := False;
+  Self.FEffect.IsChanged := False;
 end;
 
 procedure TCastleParticleEmitter.LoadEffect(const AEffect: TCastleParticleEffect);
@@ -2209,18 +2218,12 @@ begin
   SetLength(Self.Particles, 0);
 
   Self.FIsNeedRefresh := False;
-  Self.FEffect.IsNeedRefresh := False;
   Self.FIsEffectChanged := True;
 end;
 
 procedure TCastleParticleEmitter.RefreshEffect;
 begin
   Self.FIsNeedRefresh := True;
-end;
-
-procedure TCastleParticleEmitter.Changed;
-begin
-  Self.FIsEffectChanged := True;
 end;
 
 function TCastleParticleEmitter.LocalBoundingBox: TBox3D;
