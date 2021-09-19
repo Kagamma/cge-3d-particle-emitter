@@ -1753,6 +1753,10 @@ begin
     Exit;
   if not Self.FIsGLContextInitialized then
     Exit;
+  // We set it here, because 1 effect can be used by multiple emitters
+  Self.FEffect.IsNeedRefresh := False;
+  Self.FEffect.IsChanged := False;
+  //
   if (not Self.Visible) or Params.InShadow or (Params.StencilTest > 0) then
     Exit;
   if not Params.Transparent then
@@ -1852,9 +1856,6 @@ begin
   glDisable(GL_DEPTH_TEST);
   if not Self.FAllowsWriteToDepthBuffer then
     glDepthMask(GL_TRUE);
-  // We set it here, because 1 effect can be used by multiple emitters
-  Self.FEffect.IsNeedRefresh := False;
-  Self.FEffect.IsChanged := False;
 end;
 
 procedure TCastleParticleEmitter.LoadEffect(const AEffect: TCastleParticleEffect);
@@ -2133,7 +2134,7 @@ begin
     TransformFeedbackProgram := TransformFeedbackProgramMultipleInstances
   else
     TransformFeedbackProgram := TransformFeedbackProgramSingleInstance;
-  // Create UBO and bind it to 0
+  // Create UBO
   glBindBuffer(GL_UNIFORM_BUFFER, Self.UBO);
   glBufferData(GL_UNIFORM_BUFFER, SizeOf(TCastleParticleEffectUBO), @Self.FEffectUBO, GL_STATIC_DRAW);
   glBindBuffer(GL_UNIFORM_BUFFER, 0);
