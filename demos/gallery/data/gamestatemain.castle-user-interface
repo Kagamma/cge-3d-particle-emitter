@@ -9,8 +9,8 @@
         "$$ClassName" : "TCastleCamera",
         "InitialPositionPersistent" : {
           "$$ClassName" : "TCastleVector3Persistent",
-          "X" : 2.8264764785766602E+001,
-          "Y" : 1.7886074066162109E+001,
+          "X" : 3.4911895751953125E+001,
+          "Y" : 1.3813957214355469E+001,
           "Z" : 5.0000000000000000E+002
         },
         "Name" : "Camera",
@@ -22,7 +22,7 @@
             "X" : 5.0000000000000000E-001,
             "Y" : 5.0000000000000000E-001
           },
-          "Scale" : 2.0085538864135742E+001,
+          "Scale" : 2.4532533645629883E+001,
           "Width" : 3.0000000000000000E+000
         },
         "Perspective" : {
@@ -192,8 +192,8 @@
                 ],
                 "DirectionPersistent" : {
                   "$$ClassName" : "TCastleVector3Persistent",
-                  "X" : 8.9165784418582916E-002,
-                  "Y" : -9.9601680040359497E-001
+                  "X" : 8.7457738816738129E-002,
+                  "Y" : -9.9616819620132446E-001
                 },
                 "DirectionVariance" : 0.0000000000000000E+000,
                 "LifeSpan" : 8.0000001192092896E-001,
@@ -262,8 +262,8 @@
                 },
                 "DirectionPersistent" : {
                   "$$ClassName" : "TCastleVector3Persistent",
-                  "Y" : 9.6351790428161621E-001,
-                  "Z" : 2.6764389872550964E-001
+                  "Y" : 9.7327142953872681E-001,
+                  "Z" : 2.2965763509273529E-001
                 },
                 "DirectionVariance" : 0.0000000000000000E+000,
                 "LifeSpanVariance" : 1.0000000149011612E-001,
@@ -650,6 +650,73 @@
           },
           {
             "$$ClassName" : "TCastleParticleEmitter",
+            "Effect" : "RingEffect",
+            "Name" : "RingEmitter",
+            "RotationPersistent" : {
+              "$$ClassName" : "TCastleVector4Persistent",
+              "W" : 1.5700000524520874E+000,
+              "X" : 1.0000000000000000E+000
+            },
+            "TranslationPersistent" : {
+              "$$ClassName" : "TCastleVector3Persistent",
+              "X" : 4.8465457916259766E+001,
+              "Y" : 1.9452404022216797E+001
+            },
+            "$NonVisualComponents" : [
+              {
+                "$$ClassName" : "TCastleParticleEffect",
+                "Anchors" : [
+                  {
+                    "$$ClassName" : "TCastleParticleEffectAnchorItem",
+                    "ColorPersistent" : {
+                      "$$ClassName" : "TCastleColorPersistent",
+                      "Alpha" : 0.0000000000000000E+000
+                    },
+                    "Size" : 3.0000001192092896E-001
+                  }
+                ],
+                "DirectionVariance" : 2.0000000298023224E-001,
+                "LifeSpan" : 2.0000000000000000E+000,
+                "LifeSpanVariance" : 2.0000000298023224E-001,
+                "MaxParticles" : 500,
+                "Name" : "RingEffect",
+                "Size" : 3.0000001192092896E-001,
+                "SourcePositionLocalVariancePersistent" : {
+                  "$$ClassName" : "TCastleVector3Persistent",
+                  "X" : 5.0000000000000000E-001,
+                  "Y" : 5.0000000000000000E-001
+                },
+                "SourcePositionVariancePersistent" : {
+                  "$$ClassName" : "TCastleVector3Persistent",
+                  "X" : 2.5000000000000000E+000,
+                  "Y" : 0.0000000000000000E+000,
+                  "Z" : 2.5000000000000000E+000
+                },
+                "SourceType" : "pstCylinderSurface",
+                "Speed" : 0.0000000000000000E+000,
+                "SpeedVariance" : 0.0000000000000000E+000,
+                "Texture" : "castle-data:/default.png"
+              }
+            ]
+          },
+          {
+            "$$ClassName" : "TCastleText",
+            "Name" : "Text16",
+            "RenderOptions" : {
+              "$$ClassName" : "TCastleScene.TSceneRenderOptions",
+              "Name" : "RenderOptions"
+            },
+            "Text" : [
+              "Ring"
+            ],
+            "TranslationPersistent" : {
+              "$$ClassName" : "TCastleVector3Persistent",
+              "X" : 4.6943340301513672E+001,
+              "Y" : 1.5412732124328613E+001
+            }
+          },
+          {
+            "$$ClassName" : "TCastleParticleEmitter",
             "Burst" : true,
             "Effect" : "BurstEffect",
             "Name" : "BurstEmitter",
@@ -980,8 +1047,8 @@
             "Name" : "GravityEmitter",
             "TranslationPersistent" : {
               "$$ClassName" : "TCastleVector3Persistent",
-              "X" : 4.7868957519531250E+001,
-              "Y" : 1.8843418121337891E+001
+              "X" : 5.9845787048339844E+001,
+              "Y" : 2.8424877166748047E+001
             },
             "$NonVisualComponents" : [
               {
@@ -1046,7 +1113,7 @@
                 "TranslationPersistent" : {
                   "$$ClassName" : "TCastleVector3Persistent",
                   "X" : 4.5547485351562500E-002,
-                  "Y" : -3.1881713867187500E-001
+                  "Y" : 2.8002548217773437E-001
                 }
               }
             ]

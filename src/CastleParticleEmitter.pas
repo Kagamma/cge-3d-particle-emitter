@@ -154,12 +154,13 @@ type
     DirectionVariance: Single;
     Direction: TVector3;
     SourceType: Integer;
+    SourcePositionLocalVariance: TVector3;
+    AnchorCount: Integer;
     Anchor,
     AnchorSize,
     AnchorSizeVariance: array[0..7] of Single;
     AnchorColor,
     AnchorColorVariance: array[0..4] of TVector4;
-    AnchorCount: Integer;
     MaxParticles: Integer;
   end;
 
@@ -185,6 +186,7 @@ type
     FRotationSpeedVariance,
     FSourcePosition,
     FSourcePositionVariance,
+    FSourcePositionLocalVariance,
     FDirection,
     FGravity: TVector3;
     FColor,
@@ -197,6 +199,7 @@ type
     FRotationSpeedVariancePersistent,
     FSourcePositionPersistent,
     FSourcePositionVariancePersistent,
+    FSourcePositionLocalVariancePersistent,
     FDirectionPersistent,
     FGravityPersistent: TCastleVector3Persistent;
     FColorPersistent,
@@ -222,6 +225,8 @@ type
     function GetSourcePositionForPersistent: TVector3;
     procedure SetSourcePositionVarianceForPersistent(const AValue: TVector3);
     function GetSourcePositionVarianceForPersistent: TVector3;
+    procedure SetSourcePositionLocalVarianceForPersistent(const AValue: TVector3);
+    function GetSourcePositionLocalVarianceForPersistent: TVector3;
     procedure SetDirectionForPersistent(const AValue: TVector3);
     function GetDirectionForPersistent: TVector3;
     procedure SetGravityForPersistent(const AValue: TVector3);
@@ -256,6 +261,7 @@ type
     property RotationSpeedVariance: TVector3 read FRotationSpeedVariance write FRotationSpeedVariance;
     property SourcePosition: TVector3 read FSourcePosition write FSourcePosition;
     property SourcePositionVariance: TVector3 read FSourcePositionVariance write FSourcePositionVariance;
+    property SourcePositionLocalVariance: TVector3 read FSourcePositionLocalVariance write FSourcePositionLocalVariance;
     property Direction: TVector3 read FDirection write FDirection;
     property Gravity: TVector3 read FGravity write FGravity;
     property Color: TVector4 read FColor write FColor;
@@ -287,6 +293,7 @@ type
     property RotationSpeedVariancePersistent: TCastleVector3Persistent read FRotationSpeedVariancePersistent write FRotationSpeedVariancePersistent;
     property SourcePositionPersistent: TCastleVector3Persistent read FSourcePositionPersistent;
     property SourcePositionVariancePersistent: TCastleVector3Persistent read FSourcePositionVariancePersistent;
+    property SourcePositionLocalVariancePersistent: TCastleVector3Persistent read FSourcePositionLocalVariancePersistent;
     property DirectionPersistent: TCastleVector3Persistent read FDirectionPersistent;
     property GravityPersistent: TCastleVector3Persistent read FGravityPersistent;
     property ColorPersistent: TCastleColorPersistent read FColorPersistent;
@@ -444,12 +451,13 @@ const
 '  float directionVariance;'nl
 '  vec3 direction;'nl
 '  int sourceType;'nl
+'  vec3 sourcePositionLocalVariance;'nl
+'  int anchorCount;'nl
 '  float anchor[8];'nl
 '  float anchorSize[8];'nl
 '  float anchorSizeVariance[8];'nl
 '  vec4 anchorColor[5];'nl
 '  vec4 anchorColorVariance[5];'nl
-'  int anchorCount;'nl
 '  int maxParticles;'nl
 '};'nl
 'uniform vec4 attractors[4];'nl
@@ -504,7 +512,7 @@ const
 '  outTimeToLive.y = outTimeToLive.z - outTimeToLive.y;'nl
 '  vec3 vrpos = vec3(rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0);'nl
 '  if (sourceType == 1) {'nl
-'    vrpos = vec3(rnd(), rnd(), rnd()) * normalize(vrpos);'nl
+'    vrpos = normalize(vrpos);'nl
 '    outPosition.xyz = sourcePosition + sourcePositionVariance * vrpos;'nl
 '  } else if (sourceType == 2) {'nl
 '    float face = rnd();'nl
@@ -522,6 +530,7 @@ const
 '  } else {'nl
 '    outPosition.xyz = sourcePosition + sourcePositionVariance * vrpos;'nl
 '  }'nl
+'  outPosition.xyz += sourcePositionLocalVariance * normalize(vec3(rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0));'nl
 '  outTranslate = vec3(0.0);'nl // Do nothing
 '  outStartPos = vec3(0.0);'nl // Do nothing
 '  outDirection = direction;'nl
@@ -647,12 +656,13 @@ const
 '  float directionVariance;'nl
 '  vec3 direction;'nl
 '  int sourceType;'nl
+'  vec3 sourcePositionLocalVariance;'nl
+'  int anchorCount;'nl
 '  float anchor[8];'nl
 '  float anchorSize[8];'nl
 '  float anchorSizeVariance[8];'nl
 '  vec4 anchorColor[5];'nl
 '  vec4 anchorColorVariance[5];'nl
-'  int anchorCount;'nl
 '  int maxParticles;'nl
 '};'nl
 'uniform vec4 attractors[4];'nl
@@ -714,7 +724,7 @@ const
 '  );'nl
 '  vec3 vrpos = vec3(rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0);'nl
 '  if (sourceType == 1) {'nl
-'    vrpos = vec3(rnd(), rnd(), rnd()) * normalize(vrpos);'nl
+'    vrpos = normalize(vrpos);'nl
 '    outStartPos = rMatrix * (sourcePosition + scale * sourcePositionVariance * vrpos);'nl
 '  } else if (sourceType == 2) {'nl
 '    float face = rnd();'nl
@@ -732,6 +742,7 @@ const
 '  } else {'nl
 '    outStartPos = rMatrix * (sourcePosition + scale * sourcePositionVariance * vrpos);'nl
 '  }'nl
+'  outStartPos += sourcePositionLocalVariance * normalize(vec3(rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0));'nl
 '  outTranslate = vec3(mMatrix[3][0], mMatrix[3][1], mMatrix[3][2]);'nl
 '  outPosition.xyz = outTranslate + outStartPos;'nl
 '  outDirection = rMatrix * direction;'nl
@@ -1253,6 +1264,16 @@ begin
   Result := FSourcePositionVariance;
 end;
 
+procedure TCastleParticleEffect.SetSourcePositionLocalVarianceForPersistent(const AValue: TVector3);
+begin
+  Self.FSourcePositionLocalVariance := AValue;
+end;
+
+function TCastleParticleEffect.GetSourcePositionLocalVarianceForPersistent: TVector3;
+begin
+  Result := FSourcePositionLocalVariance;
+end;
+
 procedure TCastleParticleEffect.SetDirectionForPersistent(const AValue: TVector3);
 begin
   Self.FDirection := AValue.Normalize;
@@ -1409,6 +1430,11 @@ begin
     @Self.SetSourcePositionVarianceForPersistent,
     Self.FSourcePositionVariance
   );
+  Self.FSourcePositionLocalVariancePersistent := CreateVec3Persistent(
+    @Self.GetSourcePositionLocalVarianceForPersistent,
+    @Self.SetSourcePositionLocalVarianceForPersistent,
+    Self.FSourcePositionLocalVariance
+  );
   Self.FDirectionPersistent := CreateVec3Persistent(
     @Self.GetDirectionForPersistent,
     @Self.SetDirectionForPersistent,
@@ -1443,6 +1469,7 @@ begin
   FreeAndNil(Self.FRotationSpeedVariancePersistent);
   FreeAndNil(Self.FSourcePositionPersistent);
   FreeAndNil(Self.FSourcePositionVariancePersistent);
+  FreeAndNil(Self.FSourcePositionLocalVariancePersistent);
   FreeAndNil(Self.FDirectionPersistent);
   FreeAndNil(Self.FGravityPersistent);
   FreeAndNil(Self.FColorPersistent);
@@ -1683,7 +1710,8 @@ begin
         Self.FEffectUBO.AnchorCount := AnchorCount;
         Self.FEffectUBO.SourceType := CastleParticleSourceValues[Self.FEffect.SourceType];
         Self.FEffectUBO.SourcePosition := Self.FEffect.SourcePosition;
-        Self.FEffectUBO.sourcePositionVariance := Self.FEffect.SourcePositionVariance;
+        Self.FEffectUBO.SourcePositionVariance := Self.FEffect.SourcePositionVariance;
+        Self.FEffectUBO.SourcePositionLocalVariance := Self.FEffect.SourcePositionLocalVariance;
         Self.FEffectUBO.MaxParticles := Self.FEffect.MaxParticles;
         Self.FEffectUBO.LifeSpan := Self.FEffect.LifeSpan;
         Self.FEffectUBO.LifeSpanVariance := Self.FEffect.LifeSpanVariance;
