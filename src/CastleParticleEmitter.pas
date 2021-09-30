@@ -512,7 +512,7 @@ const
 '  outTimeToLive.y = outTimeToLive.z - outTimeToLive.y;'nl
 '  vec3 vrpos = vec3(rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0);'nl
 '  if (sourceType == 1) {'nl
-'    vrpos = normalize(vrpos);'nl
+'    vrpos = vec3(rnd(), rnd(), rnd()) * normalize(vrpos);'nl
 '    outPosition.xyz = sourcePosition + sourcePositionVariance * vrpos;'nl
 '  } else if (sourceType == 2) {'nl
 '    float face = rnd();'nl
@@ -724,7 +724,7 @@ const
 '  );'nl
 '  vec3 vrpos = vec3(rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0);'nl
 '  if (sourceType == 1) {'nl
-'    vrpos = normalize(vrpos);'nl
+'    vrpos = vec3(rnd(), rnd(), rnd()) * normalize(vrpos);'nl
 '    outStartPos = rMatrix * (sourcePosition + scale * sourcePositionVariance * vrpos);'nl
 '  } else if (sourceType == 2) {'nl
 '    float face = rnd();'nl
