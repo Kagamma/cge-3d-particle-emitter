@@ -412,6 +412,13 @@ const
 {$else}
 '#version 330'nl
 {$endif}
+
+'#define SOURCE_BOX 0'nl
+'#define SOURCE_SPHEROID 1'nl
+'#define SOURCE_BOXSURFACE 2'nl
+'#define SOURCE_SPHEROIDSURFACE 3'nl
+'#define SOURCE_CYLINDERSURFACE 4'nl
+
 'layout(location = 0) in vec4 inPosition;'nl
 'layout(location = 1) in vec4 inTimeToLive;'nl
 'layout(location = 2) in vec4 inSizeRotation;'nl
@@ -511,10 +518,10 @@ const
 '  float invTimeRemaining = 1.0 / outTimeToLive.y;'nl
 '  outTimeToLive.y = outTimeToLive.z - outTimeToLive.y;'nl
 '  vec3 vrpos = vec3(rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0);'nl
-'  if (sourceType == 1) {'nl
+'  if (sourceType == SOURCE_SPHEROID) {'nl
 '    vrpos = vec3(rnd(), rnd(), rnd()) * normalize(vrpos);'nl
 '    outPosition.xyz = sourcePosition + sourcePositionVariance * vrpos;'nl
-'  } else if (sourceType == 2) {'nl
+'  } else if (sourceType == SOURCE_BOXSURFACE) {'nl
 '    float face = rnd();'nl
 '    if (face < 1.0 / 3.0)'nl
 '      vrpos = vec3(sign(vrpos.x), vrpos.y, vrpos.z);'nl
@@ -523,9 +530,9 @@ const
 '    else'nl
 '      vrpos = vec3(vrpos.x, vrpos.y, sign(vrpos.z));'nl
 '    outPosition.xyz = sourcePosition + sourcePositionVariance * vrpos;'nl
-'  } else if (sourceType == 3) {'nl
+'  } else if (sourceType == SOURCE_SPHEROIDSURFACE) {'nl
 '    outPosition.xyz = sourcePosition + sourcePositionVariance * normalize(vrpos);'nl
-'  } else if (sourceType == 4) {'nl
+'  } else if (sourceType == SOURCE_CYLINDERSURFACE) {'nl
 '    outPosition.xyz = sourcePosition + sourcePositionVariance * vec3(normalize(vrpos.xz), vrpos.y).xzy;'nl
 '  } else {'nl
 '    outPosition.xyz = sourcePosition + sourcePositionVariance * vrpos;'nl
@@ -617,6 +624,13 @@ const
 {$else}
 '#version 330'nl
 {$endif}
+
+'#define SOURCE_BOX 0'nl
+'#define SOURCE_SPHEROID 1'nl
+'#define SOURCE_BOXSURFACE 2'nl
+'#define SOURCE_SPHEROIDSURFACE 3'nl
+'#define SOURCE_CYLINDERSURFACE 4'nl
+
 'layout(location = 0) in vec4 inPosition;'nl
 'layout(location = 1) in vec4 inTimeToLive;'nl
 'layout(location = 2) in vec4 inSizeRotation;'nl
@@ -723,10 +737,10 @@ const
 '    length(vec3(mMatrix[2][0], mMatrix[2][1], mMatrix[2][2]))'nl
 '  );'nl
 '  vec3 vrpos = vec3(rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0);'nl
-'  if (sourceType == 1) {'nl
+'  if (sourceType == SOURCE_SPHEROID) {'nl
 '    vrpos = vec3(rnd(), rnd(), rnd()) * normalize(vrpos);'nl
 '    outStartPos = rMatrix * (sourcePosition + scale * sourcePositionVariance * vrpos);'nl
-'  } else if (sourceType == 2) {'nl
+'  } else if (sourceType == SOURCE_BOXSURFACE) {'nl
 '    float face = rnd();'nl
 '    if (face < 1.0 / 3.0)'nl
 '      vrpos = vec3(sign(vrpos.x), vrpos.y, vrpos.z);'nl
@@ -735,9 +749,9 @@ const
 '    else'nl
 '      vrpos = vec3(vrpos.x, vrpos.y, sign(vrpos.z));'nl
 '    outStartPos = rMatrix * (sourcePosition + scale * sourcePositionVariance * vrpos);'nl
-'  } else if (sourceType == 3) {'nl
+'  } else if (sourceType == SOURCE_SPHEROIDSURFACE) {'nl
 '    outStartPos = rMatrix * (sourcePosition + scale * sourcePositionVariance * normalize(vrpos));'nl
-'  } else if (sourceType == 4) {'nl
+'  } else if (sourceType == SOURCE_CYLINDERSURFACE) {'nl
 '    outStartPos = rMatrix * (sourcePosition + scale * sourcePositionVariance * vec3(normalize(vrpos.xz), vrpos.y).xzy);'nl
 '  } else {'nl
 '    outStartPos = rMatrix * (sourcePosition + scale * sourcePositionVariance * vrpos);'nl
@@ -830,6 +844,11 @@ const
 {$else}
 '#version 330'nl
 {$endif}
+'#define SOURCE_BOX 0'nl
+'#define SOURCE_SPHEROID 1'nl
+'#define SOURCE_BOXSURFACE 2'nl
+'#define SOURCE_SPHEROIDSURFACE 3'nl
+'#define SOURCE_CYLINDERSURFACE 4'nl
 'layout(location = 0) in vec4 inPosition;'nl
 'layout(location = 1) in vec4 inTimeToLive;'nl
 'layout(location = 2) in vec4 inSizeRotation;'nl
