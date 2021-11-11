@@ -382,6 +382,7 @@ type
     procedure GLContextClose; override;
     procedure RefreshEffect;
     function LocalBoundingBox: TBox3D; override;
+    function Clone(const AOwner: TComponent): TCastleParticleEmitter;
   published
     property Effect: TCastleParticleEffect read FEffect write LoadEffect;
     { If true, the emitter will start emitting }
@@ -2315,6 +2316,23 @@ begin
     else
       Result := inherited PropertySections(PropertyName);
   end;
+end;
+
+function TCastleParticleEmitter.Clone(const AOwner: TComponent): TCastleParticleEmitter;
+begin
+  Result := TCastleParticleEmitter.Create(AOwner);
+  Result.DistanceCulling := Self.DistanceCulling;
+  Result.AllowsWriteToDepthBuffer := Self.AllowsWriteToDepthBuffer;
+  Result.AllowsUpdateWhenCulled := Self.AllowsUpdateWhenCulled;
+  Result.AllowsInstancing := Self.AllowsInstancing;
+  Result.EnableFog := Self.EnableFog;
+  Result.SmoothTexture := Self.SmoothTexture;
+  Result.Burst := Self.Burst;
+  Result.TimePlaying := Self.TimePlaying;
+  Result.TimePlayingSpeed := Self.TimePlayingSpeed;
+  Result.DeltaTime := Self.DeltaTime;
+  // TODO: Should we clone effect?
+  Result.Effect := Self.Effect;
 end;
 
 initialization
