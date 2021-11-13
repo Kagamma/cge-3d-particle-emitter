@@ -845,11 +845,6 @@ const
 {$else}
 '#version 330'nl
 {$endif}
-'#define SOURCE_BOX 0'nl
-'#define SOURCE_SPHEROID 1'nl
-'#define SOURCE_BOXSURFACE 2'nl
-'#define SOURCE_SPHEROIDSURFACE 3'nl
-'#define SOURCE_CYLINDERSURFACE 4'nl
 'layout(location = 0) in vec4 inPosition;'nl
 'layout(location = 1) in vec4 inTimeToLive;'nl
 'layout(location = 2) in vec4 inSizeRotation;'nl
