@@ -6,6 +6,9 @@ unit CastleParticleEmitter;
 
 {$ifdef ANDROID}{$define GLES}{$endif}
 {$ifdef iOS}{$define GLES}{$endif}
+{$ifdef FPC}
+  {$mode delphi}
+{$endif}
 
 interface
 
@@ -1095,14 +1098,12 @@ end;
 
 function TCastleParticleViewport.PropertySections(const PropertyName: String): TPropertySections;
 begin
-  case PropertyName of
-    'TextureWidth',
-    'TextureHeight',
-    'Visible':
-      Result := [psBasic];
-    else
-      Result := inherited PropertySections(PropertyName);
-  end;
+  if (PropertyName = 'TextureWidth')
+    or (PropertyName = 'TextureHeight')
+    or (PropertyName = 'Visible') then
+    Result := [psBasic]
+  else
+    Result := inherited PropertySections(PropertyName);
 end;
 
 constructor TCastleParticleViewport.Create(AOwner: TComponent);
@@ -1178,13 +1179,13 @@ begin
   Self.FColor := Vector4(1, 1, 1, 1);
   Self.FSize := 1;
   Self.FColorPersistent := CreateColorPersistent(
-    @Self.GetColorForPersistent,
-    @Self.SetColorForPersistent,
+    Self.GetColorForPersistent,
+    Self.SetColorForPersistent,
     Self.FColor
   );
   Self.FColorVariancePersistent := CreateColorPersistent(
-    @Self.GetColorVarianceForPersistent,
-    @Self.SetColorVarianceForPersistent,
+    Self.GetColorVarianceForPersistent,
+    Self.SetColorVarianceForPersistent,
     Self.FColorVariance
   );
   Self.FTimeNormalized := 1;
@@ -1377,12 +1378,10 @@ end;
 
 function TCastleParticleEffect.PropertySections(const PropertyName: String): TPropertySections;
 begin
-  case PropertyName of
-    'Tag':
-      Result := inherited PropertySections(PropertyName);
-    else
-      Result := [psBasic];
-  end;
+  if PropertyName = 'Tag' then
+    Result := inherited PropertySections(PropertyName)
+  else
+    Result := [psBasic];
 end;
 
 constructor TCastleParticleEffect.Create(AOwner: TComponent);
@@ -1406,68 +1405,68 @@ begin
   Self.FSourceType := pstBox;
   //
   Self.FBoundingBoxMinPersistent := CreateVec3Persistent(
-    @Self.GetBoundingBoxMinForPersistent,
-    @Self.SetBoundingBoxMinForPersistent,
+    Self.GetBoundingBoxMinForPersistent,
+    Self.SetBoundingBoxMinForPersistent,
     Self.BBox.Data[0]
   );
   Self.FBoundingBoxMaxPersistent := CreateVec3Persistent(
-    @Self.GetBoundingBoxMaxForPersistent,
-    @Self.SetBoundingBoxMaxForPersistent,
+    Self.GetBoundingBoxMaxForPersistent,
+    Self.SetBoundingBoxMaxForPersistent,
     Self.BBox.Data[1]
   );
   Self.FRotationPersistent := CreateVec3Persistent(
-    @Self.GetRotationForPersistent,
-    @Self.SetRotationForPersistent,
+    Self.GetRotationForPersistent,
+    Self.SetRotationForPersistent,
     Self.FRotation
   );
   Self.FRotationVariancePersistent := CreateVec3Persistent(
-    @Self.GetRotationVarianceForPersistent,
-    @Self.SetRotationVarianceForPersistent,
+    Self.GetRotationVarianceForPersistent,
+    Self.SetRotationVarianceForPersistent,
     Self.FRotationVariance
   );
   Self.FRotationSpeedPersistent := CreateVec3Persistent(
-    @Self.GetRotationSpeedForPersistent,
-    @Self.SetRotationSpeedForPersistent,
+    Self.GetRotationSpeedForPersistent,
+    Self.SetRotationSpeedForPersistent,
     Self.FRotation
   );
   Self.FRotationSpeedVariancePersistent := CreateVec3Persistent(
-    @Self.GetRotationSpeedVarianceForPersistent,
-    @Self.SetRotationSpeedVarianceForPersistent,
+    Self.GetRotationSpeedVarianceForPersistent,
+    Self.SetRotationSpeedVarianceForPersistent,
     Self.FRotationSpeedVariance
   );
   Self.FSourcePositionPersistent := CreateVec3Persistent(
-    @Self.GetSourcePositionForPersistent,
-    @Self.SetSourcePositionForPersistent,
+    Self.GetSourcePositionForPersistent,
+    Self.SetSourcePositionForPersistent,
     Self.FSourcePosition
   );
   Self.FSourcePositionVariancePersistent := CreateVec3Persistent(
-    @Self.GetSourcePositionVarianceForPersistent,
-    @Self.SetSourcePositionVarianceForPersistent,
+    Self.GetSourcePositionVarianceForPersistent,
+    Self.SetSourcePositionVarianceForPersistent,
     Self.FSourcePositionVariance
   );
   Self.FSourcePositionLocalVariancePersistent := CreateVec3Persistent(
-    @Self.GetSourcePositionLocalVarianceForPersistent,
-    @Self.SetSourcePositionLocalVarianceForPersistent,
+    Self.GetSourcePositionLocalVarianceForPersistent,
+    Self.SetSourcePositionLocalVarianceForPersistent,
     Self.FSourcePositionLocalVariance
   );
   Self.FDirectionPersistent := CreateVec3Persistent(
-    @Self.GetDirectionForPersistent,
-    @Self.SetDirectionForPersistent,
+    Self.GetDirectionForPersistent,
+    Self.SetDirectionForPersistent,
     Self.FDirection
   );
   Self.FGravityPersistent := CreateVec3Persistent(
-    @Self.GetGravityForPersistent,
-    @Self.SetGravityForPersistent,
+    Self.GetGravityForPersistent,
+    Self.SetGravityForPersistent,
     Self.FGravity
   );
   Self.FColorPersistent := CreateColorPersistent(
-    @Self.GetColorForPersistent,
-    @Self.SetColorForPersistent,
+    Self.GetColorForPersistent,
+    Self.SetColorForPersistent,
     Self.FColor
   );
   Self.FColorVariancePersistent := CreateColorPersistent(
-    @Self.GetColorVarianceForPersistent,
-    @Self.SetColorVarianceForPersistent,
+    Self.GetColorVarianceForPersistent,
+    Self.SetColorVarianceForPersistent,
     Self.FColorVariance
   );
   Self.FAnchors := TCollection.Create(TCastleParticleEffectAnchorItem);
@@ -1625,7 +1624,6 @@ end;
 procedure TCastleParticleEmitter.Update(const SecondsPassed: Single; var RemoveMe: TRemoveType);
 var
   I, AnchorCount: Integer;
-  S,
   RealSecondsPassed: Single;
   AnchorItem: TCastleParticleEffectAnchorItem;
 begin
@@ -1783,7 +1781,6 @@ end;
 
 procedure TCastleParticleEmitter.LocalRender(const Params: TRenderParams);
 var
-  BoundingBoxMin, BoundingBoxMax,
   RenderCameraPosition: TVector3;
   RelativeBBox: TBox3D;
   M: TMatrix4;
@@ -1913,15 +1910,13 @@ end;
 
 function TCastleParticleEmitter.PropertySections(const PropertyName: String): TPropertySections;
 begin
-  case PropertyName of
-    'Burst',
-    'AllowsInstancing',
-    'StartEmitting',
-    'Effect':
-      Result := [psBasic];
-    else
-      Result := inherited PropertySections(PropertyName);
-  end;
+  if (PropertyName = 'Burst')
+    or (PropertyName = 'AllowsInstancing')
+    or (PropertyName = 'StartEmitting')
+    or (PropertyName = 'Effect') then
+    Result := [psBasic]
+  else
+    Result := inherited PropertySections(PropertyName);
 end;
 
 procedure TCastleParticleEmitter.Notification(AComponent: TComponent; Operation: TOperation);
@@ -2304,13 +2299,11 @@ end;
 
 function TCastleParticleAttractor.PropertySections(const PropertyName: String): TPropertySections;
 begin
-  case PropertyName of
-    'AttactorType',
-    'Attraction':
-      Result := [psBasic];
-    else
-      Result := inherited PropertySections(PropertyName);
-  end;
+  if (PropertyName = 'AttactorType')
+    or (PropertyName = 'Attraction') then
+    Result := [psBasic]
+  else
+    Result := inherited PropertySections(PropertyName);
 end;
 
 function TCastleParticleEmitter.Clone(const AOwner: TComponent): TCastleParticleEmitter;
