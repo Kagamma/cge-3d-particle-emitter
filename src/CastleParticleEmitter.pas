@@ -423,6 +423,9 @@ const
 '#define SOURCE_SPHEROIDSURFACE 3'nl
 '#define SOURCE_CYLINDERSURFACE 4'nl
 
+'#define ATTRACTOR_DISTANCE 0'nl
+'#define ATTRACTOR_GRAVITY_POINT 1'nl
+
 'layout(location = 0) in vec4 inPosition;'nl
 'layout(location = 1) in vec4 inTimeToLive;'nl
 'layout(location = 2) in vec4 inSizeRotation;'nl
@@ -603,7 +606,7 @@ const
 '  outVelocity.xyz = rotate(outVelocity.xyz, outVelocity.w * deltaTime, outDirection) + gravity * deltaTime;'nl
 '  for (int i = 0; i < attractorCount; i++) {'nl
 '    vec3 a = outPosition.xyz - attractors[i].xyz;'nl
-'    if (attractorType[i] == 1) {'nl
+'    if (attractorType[i] == ATTRACTOR_GRAVITY_POINT) {'nl
 '      float force = 6.674 * attractors[i].w / length(a);'nl
 '      outVelocity.xyz += normalize(a) * force;'nl
 '    } else {'nl
@@ -634,6 +637,9 @@ const
 '#define SOURCE_BOXSURFACE 2'nl
 '#define SOURCE_SPHEROIDSURFACE 3'nl
 '#define SOURCE_CYLINDERSURFACE 4'nl
+
+'#define ATTRACTOR_DISTANCE 0'nl
+'#define ATTRACTOR_GRAVITY_POINT 1'nl
 
 'layout(location = 0) in vec4 inPosition;'nl
 'layout(location = 1) in vec4 inTimeToLive;'nl
@@ -822,7 +828,7 @@ const
 '  outVelocity.xyz = rotate(outVelocity.xyz, outVelocity.w * deltaTime, outDirection) + gravity * deltaTime;'nl
 '  for (int i = 0; i < attractorCount; i++) {'nl
 '    vec3 a = outPosition.xyz - (attractors[i].xyz + outTranslate);'nl
-'    if (attractorType[i] == 1) {'nl
+'    if (attractorType[i] == ATTRACTOR_GRAVITY_POINT) {'nl
 '      float force = 6.674 * attractors[i].w / length(a);'nl
 '      outVelocity.xyz += normalize(a) * force;'nl
 '    } else {'nl
