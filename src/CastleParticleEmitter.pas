@@ -2159,7 +2159,8 @@ var
   CoordNode: TCoordinateNode;
   VertexList: TVector3List;
   TextureData: packed array of TVector3;
-  MaxTextureSize: Integer;
+  MaxTextureSize,
+  ActualTextureSize: Integer;
 begin
   if not URIFileExists(Self.FEffect.MeshAsSourcePosition) then exit;
   glGetIntegerv(GL_MAX_TEXTURE_SIZE, @MaxTextureSize);
@@ -2178,12 +2179,13 @@ begin
       CoordNode := ShapeNode.FindNode(TCoordinateNode, False) as TCoordinateNode;
       VertexList := CoordNode.FdPoint.Items;
       //
-      SetLength(TextureData, MaxTextureSize);
+      ActualTextureSize := Min(MaxTextureSize, VertexList.Count);
+      SetLength(TextureData, ActualTextureSize);
       for I := 0 to VertexList.Count - 1 do
       begin
         TextureData[I] := VertexList[I];
       end;
-      Self.FEffectUBO.TextureAsSourcePositionSize := VertexList.Count;
+      Self.FEffectUBO.TextureAsSourcePositionSize := ActualTextureSize;
       // Generate texture
       if Self.TextureAsSourcePosition = 0 then
         glGenTextures(1, @Self.TextureAsSourcePosition);
@@ -2193,7 +2195,7 @@ begin
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
       // TODO: Optimize MaxTextureSize, support actual 2D texture
-      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, MaxTextureSize, 1, 0, GL_RGB, GL_FLOAT, @TextureData[0]);
+      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, ActualTextureSize, 1, 0, GL_RGB, GL_FLOAT, @TextureData[0]);
     except
       on E: Exception do
       begin
