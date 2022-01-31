@@ -2158,13 +2158,11 @@ var
   IndexedTriangleSetNode: TIndexedTriangleSetNode;
   CoordNode: TCoordinateNode;
   VertexList: TVector3List;
-  LocalParticleMesh,
   TextureData: packed array of TVector3;
   MaxTextureSize: Integer;
 begin
   if not URIFileExists(Self.FEffect.MeshAsSourcePosition) then exit;
   glGetIntegerv(GL_MAX_TEXTURE_SIZE, @MaxTextureSize);
-  SetLength(LocalParticleMesh, 0);
   Scene := TCastleScene.Create(nil);
   Scene.URL := Self.FEffect.MeshAsSourcePosition;
   try
