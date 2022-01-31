@@ -164,13 +164,15 @@ type
     AnchorSizeVariance: array[0..7] of Single;
     AnchorColor,
     AnchorColorVariance: array[0..4] of TVector4;
-    MaxParticles: Integer;
+    MaxParticles,
+    TextureAsSourcePositionSize: Integer;
   end;
 
   TCastleParticleEffect = class(TCastleComponent)
   private
     FMesh,
-    FTexture: String;
+    FTexture,
+    FMeshAsSourcePosition: String;
     FSourceType: TCastleParticleSourceType;
     FBlendFuncSource,
     FBlendFuncDestination: TCastleParticleBlendMode;
@@ -240,6 +242,7 @@ type
     function GetColorVarianceForPersistent: TVector4;
     procedure SetTextureViewport(const AValue: TCastleParticleViewport);
     procedure SetMesh(const AValue: String);
+    procedure SetMeshAsSourcePosition(const AValue: String);
     procedure SetTexture(const AValue: String);
     procedure SetMaxParticle(const AValue: Integer);
     procedure SetDuration(const AValue: Single);
@@ -272,6 +275,7 @@ type
     property BBox: TBox3D read FBBox write FBBox;
   published
     property Mesh: String read FMesh write SetMesh;
+    property MeshAsSourcePosition: String read FMeshAsSourcePosition write SetMeshAsSourcePosition;
     property Texture: String read FTexture write SetTexture;
     property SourceType: TCastleParticleSourceType read FSourceType write FSourceType default pstBox;
     property BlendFuncSource: TCastleParticleBlendMode read FBlendFuncSource write FBlendFuncSource default pbmOne;
@@ -317,7 +321,8 @@ type
 
   TCastleParticleEmitter = class(TCastleTransform)
   strict private
-    Texture: GLuint;
+    Texture,
+    TextureAsSourcePosition: GLuint;
 
     VAOTnFs,
     VAOMeshes,
@@ -367,6 +372,7 @@ type
     FDebugBox: TDebugBox;
     {$endif}
     procedure InternalLoadMesh;
+    procedure InternalLoadMeshAsSourcePosition;
     procedure InternalRefreshEffect;
     procedure SetStartEmitting(const V: Boolean);
     procedure SetBurst(const V: Boolean);
@@ -473,12 +479,14 @@ const
 '  vec4 anchorColor[5];'nl
 '  vec4 anchorColorVariance[5];'nl
 '  int maxParticles;'nl
+'  int textureAsSourcePositionSize;'nl
 '};'nl
 'uniform vec4 attractors[4];'nl
 'uniform int attractorCount;'nl
 'uniform int attractorType[4];'nl
 'uniform float emissionTime;'nl
 'uniform float deltaTime;'nl
+'uniform sampler2D textureAsSourcePosition;'nl
 
 'float rnd() {'nl
 '  outPosition.w = fract(sin(outPosition.w + outPosition.x + outVelocity.x + outVelocity.y + outColor.x + deltaTime) * 43758.5453123);'nl
@@ -524,25 +532,29 @@ const
 '  float invLifeSpan = 1.0 / outTimeToLive.x;'nl
 '  float invTimeRemaining = 1.0 / outTimeToLive.y;'nl
 '  outTimeToLive.y = outTimeToLive.z - outTimeToLive.y;'nl
-'  vec3 vrpos = vec3(rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0);'nl
-'  if (sourceType == SOURCE_SPHEROID) {'nl
-'    vrpos = vec3(rnd(), rnd(), rnd()) * normalize(vrpos);'nl
-'    outPosition.xyz = sourcePosition + sourcePositionVariance * vrpos;'nl
-'  } else if (sourceType == SOURCE_BOXSURFACE) {'nl
-'    float face = rnd();'nl
-'    if (face < 1.0 / 3.0)'nl
-'      vrpos = vec3(sign(vrpos.x), vrpos.y, vrpos.z);'nl
-'    else if (face < 2.0 / 3.0)'nl
-'      vrpos = vec3(vrpos.x, sign(vrpos.y), vrpos.z);'nl
-'    else'nl
-'      vrpos = vec3(vrpos.x, vrpos.y, sign(vrpos.z));'nl
-'    outPosition.xyz = sourcePosition + sourcePositionVariance * vrpos;'nl
-'  } else if (sourceType == SOURCE_SPHEROIDSURFACE) {'nl
-'    outPosition.xyz = sourcePosition + sourcePositionVariance * normalize(vrpos);'nl
-'  } else if (sourceType == SOURCE_CYLINDERSURFACE) {'nl
-'    outPosition.xyz = sourcePosition + sourcePositionVariance * vec3(normalize(vrpos.xz), vrpos.y).xzy;'nl
+'  if (textureAsSourcePositionSize == 0) {'nl
+'    vec3 vrpos = vec3(rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0);'nl
+'    if (sourceType == SOURCE_SPHEROID) {'nl
+'      vrpos = vec3(rnd(), rnd(), rnd()) * normalize(vrpos);'nl
+'      outPosition.xyz = sourcePosition + sourcePositionVariance * vrpos;'nl
+'    } else if (sourceType == SOURCE_BOXSURFACE) {'nl
+'      float face = rnd();'nl
+'      if (face < 1.0 / 3.0)'nl
+'        vrpos = vec3(sign(vrpos.x), vrpos.y, vrpos.z);'nl
+'      else if (face < 2.0 / 3.0)'nl
+'        vrpos = vec3(vrpos.x, sign(vrpos.y), vrpos.z);'nl
+'      else'nl
+'        vrpos = vec3(vrpos.x, vrpos.y, sign(vrpos.z));'nl
+'      outPosition.xyz = sourcePosition + sourcePositionVariance * vrpos;'nl
+'    } else if (sourceType == SOURCE_SPHEROIDSURFACE) {'nl
+'      outPosition.xyz = sourcePosition + sourcePositionVariance * normalize(vrpos);'nl
+'    } else if (sourceType == SOURCE_CYLINDERSURFACE) {'nl
+'      outPosition.xyz = sourcePosition + sourcePositionVariance * vec3(normalize(vrpos.xz), vrpos.y).xzy;'nl
+'    } else {'nl
+'      outPosition.xyz = sourcePosition + sourcePositionVariance * vrpos;'nl
+'    }'nl
 '  } else {'nl
-'    outPosition.xyz = sourcePosition + sourcePositionVariance * vrpos;'nl
+'    outPosition.xyz = texelFetch(textureAsSourcePosition, ivec2(floor(rnd() * textureAsSourcePositionSize), 0), 0).xyz * sourcePositionVariance;'nl
 '  }'nl
 '  outPosition.xyz += sourcePositionLocalVariance * normalize(vec3(rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0));'nl
 '  outTranslate = vec3(0.0);'nl // Do nothing
@@ -688,6 +700,7 @@ const
 '  vec4 anchorColor[5];'nl
 '  vec4 anchorColorVariance[5];'nl
 '  int maxParticles;'nl
+'  int textureAsSourcePositionSize;'nl
 '};'nl
 'uniform vec4 attractors[4];'nl
 'uniform int attractorCount;'nl
@@ -695,6 +708,7 @@ const
 'uniform mat4 mMatrix;'nl
 'uniform float emissionTime;'nl
 'uniform float deltaTime;'nl
+'uniform sampler2D textureAsSourcePosition;'nl
 
 'float rnd() {'nl
 '  outPosition.w = fract(sin(outPosition.w + outPosition.x + outVelocity.x + outVelocity.y + outColor.x + deltaTime) * 43758.5453123);'nl
@@ -747,24 +761,28 @@ const
 '    length(vec3(mMatrix[2][0], mMatrix[2][1], mMatrix[2][2]))'nl
 '  );'nl
 '  vec3 vrpos = vec3(rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0);'nl
-'  if (sourceType == SOURCE_SPHEROID) {'nl
-'    vrpos = vec3(rnd(), rnd(), rnd()) * normalize(vrpos);'nl
-'    outStartPos = rMatrix * (sourcePosition + scale * sourcePositionVariance * vrpos);'nl
-'  } else if (sourceType == SOURCE_BOXSURFACE) {'nl
-'    float face = rnd();'nl
-'    if (face < 1.0 / 3.0)'nl
-'      vrpos = vec3(sign(vrpos.x), vrpos.y, vrpos.z);'nl
-'    else if (face < 2.0 / 3.0)'nl
-'      vrpos = vec3(vrpos.x, sign(vrpos.y), vrpos.z);'nl
-'    else'nl
-'      vrpos = vec3(vrpos.x, vrpos.y, sign(vrpos.z));'nl
-'    outStartPos = rMatrix * (sourcePosition + scale * sourcePositionVariance * vrpos);'nl
-'  } else if (sourceType == SOURCE_SPHEROIDSURFACE) {'nl
-'    outStartPos = rMatrix * (sourcePosition + scale * sourcePositionVariance * normalize(vrpos));'nl
-'  } else if (sourceType == SOURCE_CYLINDERSURFACE) {'nl
-'    outStartPos = rMatrix * (sourcePosition + scale * sourcePositionVariance * vec3(normalize(vrpos.xz), vrpos.y).xzy);'nl
+'  if (textureAsSourcePositionSize == 0) {'nl
+'    if (sourceType == SOURCE_SPHEROID) {'nl
+'      vrpos = vec3(rnd(), rnd(), rnd()) * normalize(vrpos);'nl
+'      outStartPos = rMatrix * (sourcePosition + scale * sourcePositionVariance * vrpos);'nl
+'    } else if (sourceType == SOURCE_BOXSURFACE) {'nl
+'      float face = rnd();'nl
+'      if (face < 1.0 / 3.0)'nl
+'        vrpos = vec3(sign(vrpos.x), vrpos.y, vrpos.z);'nl
+'      else if (face < 2.0 / 3.0)'nl
+'        vrpos = vec3(vrpos.x, sign(vrpos.y), vrpos.z);'nl
+'      else'nl
+'        vrpos = vec3(vrpos.x, vrpos.y, sign(vrpos.z));'nl
+'      outStartPos = rMatrix * (sourcePosition + scale * sourcePositionVariance * vrpos);'nl
+'    } else if (sourceType == SOURCE_SPHEROIDSURFACE) {'nl
+'      outStartPos = rMatrix * (sourcePosition + scale * sourcePositionVariance * normalize(vrpos));'nl
+'    } else if (sourceType == SOURCE_CYLINDERSURFACE) {'nl
+'      outStartPos = rMatrix * (sourcePosition + scale * sourcePositionVariance * vec3(normalize(vrpos.xz), vrpos.y).xzy);'nl
+'    } else {'nl
+'      outStartPos = rMatrix * (sourcePosition + scale * sourcePositionVariance * vrpos);'nl
+'    }'nl
 '  } else {'nl
-'    outStartPos = rMatrix * (sourcePosition + scale * sourcePositionVariance * vrpos);'nl
+'    outStartPos = rMatrix * (sourcePosition + texelFetch(textureAsSourcePosition, ivec2(floor(rnd() * textureAsSourcePositionSize), 0), 0).xyz * sourcePositionVariance);'nl
 '  }'nl
 '  outStartPos += sourcePositionLocalVariance * normalize(vec3(rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0));'nl
 '  outTranslate = vec3(mMatrix[3][0], mMatrix[3][1], mMatrix[3][2]);'nl
@@ -1352,6 +1370,12 @@ begin
   Self.IsNeedRefresh := True;
 end;
 
+procedure TCastleParticleEffect.SetMeshAsSourcePosition(const AValue: String);
+begin
+  Self.FMeshAsSourcePosition := AValue;
+  Self.IsNeedRefresh := True;
+end;
+
 procedure TCastleParticleEffect.SetTexture(const AValue: String);
 begin
   Self.FTexture := AValue;
@@ -1592,6 +1616,7 @@ begin
   inherited;
   Self.FIsUpdated := False;
   Self.Texture := 0;
+  Self.TextureAsSourcePosition := 0;
   Self.Scale := Vector3(1, 1, 1);
   Self.FIsGLContextInitialized := False;
   Self.FIsNeedRefresh := False;
@@ -1751,6 +1776,8 @@ begin
         glBindBuffer(GL_UNIFORM_BUFFER, 0);
         Self.FIsEffectChanged := False;
       end;
+      glActiveTexture(GL_TEXTURE0);
+      glBindTexture(GL_TEXTURE_2D, Self.TextureAsSourcePosition);
       glBindVertexArray(Self.VAOTnFs[Self.CurrentBuffer]);
       glBindBufferBase(GL_UNIFORM_BUFFER, 0, Self.UBO);
       glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, Self.VBOTnFs[(Self.CurrentBuffer + 1) mod 2]);
@@ -1759,6 +1786,7 @@ begin
       glEndTransformFeedback();
       glDisable(GL_RASTERIZER_DISCARD);
       glBindVertexArray(0);
+      glBindTexture(GL_TEXTURE_2D, 0);
       CurrentBuffer := (Self.CurrentBuffer + 1) mod 2;
     end;
   end;
@@ -1891,6 +1919,7 @@ begin
     glDrawArraysInstanced(GL_TRIANGLES, 0, Length(Self.ParticleMesh), Self.FEffect.MaxParticles)
   else
     glDrawElementsInstanced(GL_TRIANGLES, IndicesCount, GL_UNSIGNED_SHORT, nil, Self.FEffect.MaxParticles);
+  glActiveTexture(GL_TEXTURE1);
   glBindTexture(GL_TEXTURE_2D, 0);
   glBindVertexArray(0);
   // Render boundingbox in editor
@@ -2041,6 +2070,8 @@ begin
     glDeleteVertexArrays(2, @Self.VAOTnFs);
     glDeleteBuffers(1, @Self.UBO);
     glFreeTexture(Self.Texture);
+    if Self.TextureAsSourcePosition <> 0 then
+      glFreeTexture(Self.TextureAsSourcePosition);
     Self.FIsGLContextInitialized := False;
   end;
   inherited;
@@ -2117,6 +2148,65 @@ begin
   end;
 end;
 
+procedure TCastleParticleEmitter.InternalLoadMeshAsSourcePosition;
+var
+  I: Integer;
+  Scene: TCastleScene;
+  ShapeList: TShapeList;
+  Shape: TShape;
+  ShapeNode: TShapeNode;
+  IndexedTriangleSetNode: TIndexedTriangleSetNode;
+  CoordNode: TCoordinateNode;
+  VertexList: TVector3List;
+  LocalParticleMesh,
+  TextureData: packed array of TVector3;
+  MaxTextureSize: Integer;
+begin
+  if not URIFileExists(Self.FEffect.MeshAsSourcePosition) then exit;
+  glGetIntegerv(GL_MAX_TEXTURE_SIZE, @MaxTextureSize);
+  SetLength(LocalParticleMesh, 0);
+  Scene := TCastleScene.Create(nil);
+  Scene.URL := Self.FEffect.MeshAsSourcePosition;
+  try
+    try
+      // We only care the first shape
+      ShapeList := Scene.Shapes.TraverseList(True);
+      if ShapeList.Count = 0 then
+        raise Exception.Create('No mesh found in this model');
+      Shape := ShapeList.Items[0];
+      ShapeNode := Shape.Node as TShapeNode;
+      //
+      IndexedTriangleSetNode := ShapeNode.FindNode(TIndexedTriangleSetNode, False) as TIndexedTriangleSetNode;
+      CoordNode := ShapeNode.FindNode(TCoordinateNode, False) as TCoordinateNode;
+      VertexList := CoordNode.FdPoint.Items;
+      //
+      SetLength(TextureData, MaxTextureSize);
+      for I := 0 to VertexList.Count - 1 do
+      begin
+        TextureData[I] := VertexList[I];
+      end;
+      Self.FEffectUBO.TextureAsSourcePositionSize := VertexList.Count;
+      // Generate texture
+      if Self.TextureAsSourcePosition = 0 then
+        glGenTextures(1, @Self.TextureAsSourcePosition);
+      glBindTexture(GL_TEXTURE_2D, Self.TextureAsSourcePosition);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+      // TODO: Optimize MaxTextureSize, support actual 2D texture
+      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, MaxTextureSize, 1, 0, GL_RGB, GL_FLOAT, @TextureData[0]);
+    except
+      on E: Exception do
+      begin
+        WritelnWarning('CastleParticleEmitter', E.Message);
+      end;
+    end;
+  finally
+    FreeAndNil(Scene);
+  end;
+end;
+
 procedure TCastleParticleEmitter.InternalRefreshEffect;
 var
   I: Integer;
@@ -2136,6 +2226,14 @@ begin
     Self.FEffect.LifeSpan := 0.001;
 
   glFreeTexture(Self.Texture);
+  if Self.TextureAsSourcePosition <> 0 then
+  begin
+    glFreeTexture(Self.TextureAsSourcePosition);
+    Self.TextureAsSourcePosition := 0;
+  end;
+  Self.FEffectUBO.TextureAsSourcePositionSize := 0;
+  Self.InternalLoadMeshAsSourcePosition;
+
   if Self.FEffect.TextureViewport = nil then
   begin
     if Self.FSmoothTexture then
@@ -2335,6 +2433,8 @@ initialization
     'Texture', TImageURLPropertyEditor);
   RegisterPropertyEditor(TypeInfo(AnsiString), TCastleParticleEffect,
     'Mesh', TSceneURLPropertyEditor);
+  RegisterPropertyEditor(TypeInfo(AnsiString), TCastleParticleEffect,
+    'MeshAsSourcePosition', TSceneURLPropertyEditor);
   {$endif}
   RegisterSerializableComponent(TCastleParticleEmitter, 'Particle Emitter');
   RegisterSerializableComponent(TCastleParticleAttractor, 'Particle Attractor');
