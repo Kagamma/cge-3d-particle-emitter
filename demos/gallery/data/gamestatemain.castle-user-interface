@@ -192,8 +192,8 @@
                 ],
                 "DirectionPersistent" : {
                   "$$ClassName" : "TCastleVector3Persistent",
-                  "X" : 8.7457738816738129E-002,
-                  "Y" : -9.9616819620132446E-001
+                  "X" : 8.4614723920822144E-002,
+                  "Y" : -9.9641376733779907E-001
                 },
                 "DirectionVariance" : 0.0000000000000000E+000,
                 "LifeSpan" : 8.0000001192092896E-001,
@@ -262,8 +262,8 @@
                 },
                 "DirectionPersistent" : {
                   "$$ClassName" : "TCastleVector3Persistent",
-                  "Y" : 9.7327142953872681E-001,
-                  "Z" : 2.2965763509273529E-001
+                  "Y" : 9.8195445537567139E-001,
+                  "Z" : 1.8911740183830261E-001
                 },
                 "DirectionVariance" : 0.0000000000000000E+000,
                 "LifeSpanVariance" : 1.0000000149011612E-001,
@@ -1114,6 +1114,73 @@
                   "$$ClassName" : "TCastleVector3Persistent",
                   "X" : 4.5547485351562500E-002,
                   "Y" : 2.8002548217773437E-001
+                }
+              }
+            ]
+          },
+          {
+            "$$ClassName" : "TCastleParticleEmitter",
+            "Effect" : "MeshAsSourcePositionEffect",
+            "Name" : "MeshAsSourcePositionEmitter",
+            "TranslationPersistent" : {
+              "$$ClassName" : "TCastleVector3Persistent",
+              "X" : 5.9737323760986328E+001,
+              "Y" : 1.7553750991821289E+001
+            },
+            "$NonVisualComponents" : [
+              {
+                "$$ClassName" : "TCastleParticleEffect",
+                "Anchors" : [
+                  {
+                    "$$ClassName" : "TCastleParticleEffectAnchorItem",
+                    "ColorPersistent" : {
+                      "$$ClassName" : "TCastleColorPersistent",
+                      "Blue" : 0.0000000000000000E+000,
+                      "Green" : 0.0000000000000000E+000,
+                      "Red" : 0.0000000000000000E+000
+                    }
+                  }
+                ],
+                "ColorPersistent" : {
+                  "$$ClassName" : "TCastleColorPersistent",
+                  "Blue" : 0.0000000000000000E+000,
+                  "Green" : 0.0000000000000000E+000
+                },
+                "ColorVariancePersistent" : {
+                  "$$ClassName" : "TCastleColorPersistent",
+                  "Alpha" : 1.0000000000000000E+000,
+                  "Green" : 1.0000000000000000E+000
+                },
+                "MaxParticles" : 1000,
+                "MeshAsSourcePosition" : "castle-data:/suzanne.gltf",
+                "Name" : "MeshAsSourcePositionEffect",
+                "Size" : 3.0000001192092896E-001,
+                "SourcePositionVariancePersistent" : {
+                  "$$ClassName" : "TCastleVector3Persistent",
+                  "X" : 3.0000000000000000E+000,
+                  "Y" : 3.0000000000000000E+000,
+                  "Z" : 3.0000000000000000E+000
+                },
+                "Speed" : 3.0000001192092896E-001,
+                "SpeedVariance" : 0.0000000000000000E+000,
+                "Texture" : "castle-data:/default.png"
+              }
+            ],
+            "$Children" : [
+              {
+                "$$ClassName" : "TCastleText",
+                "Name" : "Text17",
+                "RenderOptions" : {
+                  "$$ClassName" : "TCastleScene.TSceneRenderOptions",
+                  "Name" : "RenderOptions"
+                },
+                "Text" : [
+                  "Mesh As Source Position"
+                ],
+                "TranslationPersistent" : {
+                  "$$ClassName" : "TCastleVector3Persistent",
+                  "X" : -5.8627777099609375E+000,
+                  "Y" : -1.7531023025512695E+000
                 }
               }
             ]
