@@ -1034,12 +1034,12 @@ const
 
   // Built-in particle vertices & texcoords
   BuiltInVertexArray: packed array[0..5] of TVector3 = (
-    (Data: (-0.5, -0.5, 0)), (Data: (0.5, -0.5, 0)), (Data: (0.5, 0.5, 0)),
-    (Data: (-0.5, -0.5, 0)), (Data: (0.5, 0.5, 0)), (Data: (-0.5, 0.5, 0))
+    (X: -0.5; Y: -0.5; Z: 0), (X: 0.5; Y: -0.5; Z: 0), (X: 0.5; Y: 0.5; Z: 0),
+    (X: -0.5; Y: -0.5; Z: 0), (X: 0.5; Y: 0.5; Z: 0), (X: -0.5; Y: 0.5; Z: 0)
   );
   BuiltInTexcoordArray: packed array[0..5] of TVector2 = (
-    (Data: (0, 0)), (Data: (1, 0)), (Data: (1, 1)),
-    (Data: (0, 0)), (Data: (1, 1)), (Data: (0, 1))
+    (X: 0; Y: 0), (X: 1; Y: 0), (X: 1; Y: 1),
+    (X: 0; Y: 0), (X: 1; Y: 1), (X: 0; Y: 1)
   );
 
 var
