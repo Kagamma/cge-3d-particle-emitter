@@ -392,14 +392,16 @@ type
     procedure RefreshEffect;
     function LocalBoundingBox: TBox3D; override;
     function Clone(const AOwner: TComponent): TCastleParticleEmitter;
+    property StartEmitting: Boolean read FStartEmitting write SetStartEmitting;
+    property AllowsUpdateWhenCulled: Boolean read FAllowsUpdateWhenCulled write FAllowsUpdateWhenCulled;
   published
     property Effect: TCastleParticleEffect read FEffect write LoadEffect;
     { If true, the emitter will start emitting }
-    property StartEmitting: Boolean read FStartEmitting write SetStartEmitting default True;
+    property ProcessEvents: Boolean read FStartEmitting write SetStartEmitting default True;
     property DistanceCulling: Single read FDistanceCulling write FDistanceCulling default 0;
     property AllowsWriteToDepthBuffer: Boolean read FAllowsWriteToDepthBuffer write FAllowsWriteToDepthBuffer default False;
-    property AllowsUpdateWhenCulled: Boolean read FAllowsUpdateWhenCulled write FAllowsUpdateWhenCulled default True;
     property AllowsInstancing: Boolean read FAllowsInstancing write SetAllowsInstancing default False;
+    property AnimateWhenOnlyVisible: Boolean read FAllowsUpdateWhenCulled write FAllowsUpdateWhenCulled default True;
     property EnableFog: Boolean read FEnableFog write FEnableFog default False;
     property SmoothTexture: Boolean read FSmoothTexture write SetSmoothTexture default True;
     property Burst: Boolean read FBurst write SetBurst default False;
