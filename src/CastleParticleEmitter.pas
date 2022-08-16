@@ -170,6 +170,7 @@ type
 
   TCastleParticleEffect = class(TCastleComponent)
   private
+    FBillboard: Boolean;
     FMesh,
     FTexture,
     FMeshAsSourcePosition: String;
@@ -274,6 +275,7 @@ type
     property ColorVariance: TVector4 read FColorVariance write FColorVariance;
     property BBox: TBox3D read FBBox write FBBox;
   published
+    property Billboard: Boolean read FBillboard write FBillboard default True;
     property Mesh: String read FMesh write SetMesh;
     property MeshAsSourcePosition: String read FMeshAsSourcePosition write SetMeshAsSourcePosition;
     property Texture: String read FTexture write SetTexture;
@@ -1419,6 +1421,7 @@ end;
 constructor TCastleParticleEffect.Create(AOwner: TComponent);
 begin
   inherited;
+  Self.FBillboard := True;
   Self.BBox := TBox3D.Empty;
   Self.FTexture := '';
   Self.FMaxParticles := 100;
@@ -1451,6 +1454,7 @@ begin
     Self.SetRotationForPersistent,
     Self.FRotation
   );
+  Self.FBillboard := True;
   Self.FRotationVariancePersistent := CreateVec3Persistent(
     Self.GetRotationVarianceForPersistent,
     Self.SetRotationVarianceForPersistent,
@@ -1869,7 +1873,7 @@ begin
     TransformFeedbackProgram := TransformFeedbackProgramMultipleInstances
   else
     TransformFeedbackProgram := TransformFeedbackProgramSingleInstance;
-  if Self.FEffect.Mesh = '' then
+  if Self.FEffect.Billboard then
     RenderProgram := RenderProgramQuad
   else
     RenderProgram := RenderProgramMesh;

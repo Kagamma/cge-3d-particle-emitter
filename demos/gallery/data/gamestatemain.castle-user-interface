@@ -5,41 +5,12 @@
   "$Children" : [
     {
       "$$ClassName" : "TCastleViewport",
-      "Camera" : {
-        "$$ClassName" : "TCastleCamera",
-        "InitialPositionPersistent" : {
-          "$$ClassName" : "TCastleVector3Persistent",
-          "X" : 3.4911895751953125E+001,
-          "Y" : 1.3813957214355469E+001,
-          "Z" : 5.0000000000000000E+002
-        },
-        "Name" : "Camera",
-        "Orthographic" : {
-          "$$ClassName" : "TCastleOrthographic",
-          "Name" : "Orthographic",
-          "OriginPersistent" : {
-            "$$ClassName" : "TCastleVector2Persistent",
-            "X" : 5.0000000000000000E-001,
-            "Y" : 5.0000000000000000E-001
-          },
-          "Scale" : 2.4532533645629883E+001,
-          "Width" : 3.0000000000000000E+000
-        },
-        "Perspective" : {
-          "$$ClassName" : "TCastlePerspective",
-          "Name" : "Perspective"
-        },
-        "ProjectionFar" : 1.0000000000000000E+003,
-        "ProjectionNear" : -1.0000000000000000E+003,
-        "ProjectionType" : "ptOrthographic"
-      },
+      "Camera" : "Camera1",
       "FullSize" : true,
       "Items" : {
         "$$ClassName" : "TCastleRootTransform",
-        "Name" : "Items",
         "PhysicsProperties" : {
-          "$$ClassName" : "TPhysicsProperties",
-          "Name" : "PhysicsProperties"
+          "$$ClassName" : "TPhysicsProperties"
         },
         "$Children" : [
           {
@@ -79,8 +50,7 @@
                 "$$ClassName" : "TCastleText",
                 "Name" : "Text1",
                 "RenderOptions" : {
-                  "$$ClassName" : "TCastleScene.TSceneRenderOptions",
-                  "Name" : "RenderOptions"
+                  "$$ClassName" : "TCastleScene.TSceneRenderOptions"
                 },
                 "Text" : [
                   "Fire"
@@ -125,6 +95,7 @@
                     "Size" : 5.0000000000000000E-001
                   }
                 ],
+                "Billboard" : false,
                 "BlendFuncDestination" : "pbmOneMinusSrcAlpha",
                 "ColorPersistent" : {
                   "$$ClassName" : "TCastleColorPersistent",
@@ -162,8 +133,7 @@
                 "$$ClassName" : "TCastleText",
                 "Name" : "Text14",
                 "RenderOptions" : {
-                  "$$ClassName" : "TCastleScene.TSceneRenderOptions",
-                  "Name" : "RenderOptions"
+                  "$$ClassName" : "TCastleScene.TSceneRenderOptions"
                 },
                 "Text" : [
                   "Mesh"
@@ -218,8 +188,7 @@
                 "$$ClassName" : "TCastleText",
                 "Name" : "Text2",
                 "RenderOptions" : {
-                  "$$ClassName" : "TCastleScene.TSceneRenderOptions",
-                  "Name" : "RenderOptions"
+                  "$$ClassName" : "TCastleScene.TSceneRenderOptions"
                 },
                 "Text" : [
                   "Rain"
@@ -262,8 +231,8 @@
                 },
                 "DirectionPersistent" : {
                   "$$ClassName" : "TCastleVector3Persistent",
-                  "Y" : 9.8195445537567139E-001,
-                  "Z" : 1.8911740183830261E-001
+                  "Y" : 9.8195457458496094E-001,
+                  "Z" : 1.8911743164062500E-001
                 },
                 "DirectionVariance" : 0.0000000000000000E+000,
                 "LifeSpanVariance" : 1.0000000149011612E-001,
@@ -291,8 +260,7 @@
                 "$$ClassName" : "TCastleText",
                 "Name" : "Text3",
                 "RenderOptions" : {
-                  "$$ClassName" : "TCastleScene.TSceneRenderOptions",
-                  "Name" : "RenderOptions"
+                  "$$ClassName" : "TCastleScene.TSceneRenderOptions"
                 },
                 "Text" : [
                   "Spiral"
@@ -364,8 +332,7 @@
                 "$$ClassName" : "TCastleText",
                 "Name" : "Text4",
                 "RenderOptions" : {
-                  "$$ClassName" : "TCastleScene.TSceneRenderOptions",
-                  "Name" : "RenderOptions"
+                  "$$ClassName" : "TCastleScene.TSceneRenderOptions"
                 },
                 "Text" : [
                   "Orb"
@@ -432,7 +399,7 @@
                 },
                 "DirectionPersistent" : {
                   "$$ClassName" : "TCastleVector3Persistent",
-                  "X" : 9.9999994039535522E-001,
+                  "X" : 1.0000000000000000E+000,
                   "Y" : 0.0000000000000000E+000
                 },
                 "DirectionVariance" : 0.0000000000000000E+000,
@@ -455,8 +422,7 @@
                 "Alignment" : "hpMiddle",
                 "Name" : "Text5",
                 "RenderOptions" : {
-                  "$$ClassName" : "TCastleScene.TSceneRenderOptions",
-                  "Name" : "RenderOptions"
+                  "$$ClassName" : "TCastleScene.TSceneRenderOptions"
                 },
                 "Text" : [
                   "Anchors"
@@ -517,8 +483,7 @@
                 "$$ClassName" : "TCastleText",
                 "Name" : "Text6",
                 "RenderOptions" : {
-                  "$$ClassName" : "TCastleScene.TSceneRenderOptions",
-                  "Name" : "RenderOptions"
+                  "$$ClassName" : "TCastleScene.TSceneRenderOptions"
                 },
                 "Text" : [
                   "Fountain"
@@ -575,8 +540,7 @@
                 "$$ClassName" : "TCastleText",
                 "Name" : "Text7",
                 "RenderOptions" : {
-                  "$$ClassName" : "TCastleScene.TSceneRenderOptions",
-                  "Name" : "RenderOptions"
+                  "$$ClassName" : "TCastleScene.TSceneRenderOptions"
                 },
                 "Text" : [
                   "Box"
@@ -634,8 +598,7 @@
                 "$$ClassName" : "TCastleText",
                 "Name" : "Text8",
                 "RenderOptions" : {
-                  "$$ClassName" : "TCastleScene.TSceneRenderOptions",
-                  "Name" : "RenderOptions"
+                  "$$ClassName" : "TCastleScene.TSceneRenderOptions"
                 },
                 "Text" : [
                   "Spheroid"
@@ -703,8 +666,7 @@
             "$$ClassName" : "TCastleText",
             "Name" : "Text16",
             "RenderOptions" : {
-              "$$ClassName" : "TCastleScene.TSceneRenderOptions",
-              "Name" : "RenderOptions"
+              "$$ClassName" : "TCastleScene.TSceneRenderOptions"
             },
             "Text" : [
               "Ring"
@@ -780,8 +742,7 @@
                 "Alignment" : "hpMiddle",
                 "Name" : "Text12",
                 "RenderOptions" : {
-                  "$$ClassName" : "TCastleScene.TSceneRenderOptions",
-                  "Name" : "RenderOptions"
+                  "$$ClassName" : "TCastleScene.TSceneRenderOptions"
                 },
                 "Text" : [
                   "Burst"
@@ -838,8 +799,7 @@
                 "$$ClassName" : "TCastleText",
                 "Name" : "Text10",
                 "RenderOptions" : {
-                  "$$ClassName" : "TCastleScene.TSceneRenderOptions",
-                  "Name" : "RenderOptions"
+                  "$$ClassName" : "TCastleScene.TSceneRenderOptions"
                 },
                 "Text" : [
                   "Rotation"
@@ -902,8 +862,7 @@
                 "Alignment" : "hpMiddle",
                 "Name" : "Text9",
                 "RenderOptions" : {
-                  "$$ClassName" : "TCastleScene.TSceneRenderOptions",
-                  "Name" : "RenderOptions"
+                  "$$ClassName" : "TCastleScene.TSceneRenderOptions"
                 },
                 "Text" : [
                   "Bounding Box",
@@ -918,23 +877,26 @@
             ]
           },
           {
-            "$$ClassName" : "TCastleParticleEmitter",
-            "AllowsInstancing" : true,
-            "Effect" : "FireEffect",
-            "Name" : "SingleInstanceEmitter",
+            "$$ClassName" : "TCastleTransform",
+            "Name" : "AllowsInstancingTransform",
             "TranslationPersistent" : {
               "$$ClassName" : "TCastleVector3Persistent",
-              "X" : 3.6945571899414062E+001,
-              "Y" : 1.0143333435058594E+001
+              "X" : 3.7008052825927734E+001,
+              "Y" : 9.5061073303222656E+000
             },
             "$Children" : [
+              {
+                "$$ClassName" : "TCastleParticleEmitter",
+                "AllowsInstancing" : true,
+                "Effect" : "FireEffect",
+                "Name" : "AllowsInstancingEmitter"
+              },
               {
                 "$$ClassName" : "TCastleText",
                 "Alignment" : "hpMiddle",
                 "Name" : "Text11",
                 "RenderOptions" : {
-                  "$$ClassName" : "TCastleScene.TSceneRenderOptions",
-                  "Name" : "RenderOptions"
+                  "$$ClassName" : "TCastleScene.TSceneRenderOptions"
                 },
                 "Text" : [
                   "AllowsInstancing = True",
@@ -946,6 +908,24 @@
                   "$$ClassName" : "TCastleVector3Persistent",
                   "X" : 2.4227523803710937E-001,
                   "Y" : -5.1978673934936523E+000
+                }
+              },
+              {
+                "$$ClassName" : "TCastleTransformReference",
+                "Name" : "Reference1",
+                "Reference" : "AllowsInstancingEmitter",
+                "TranslationPersistent" : {
+                  "$$ClassName" : "TCastleVector3Persistent",
+                  "X" : -2.3914756774902344E+000
+                }
+              },
+              {
+                "$$ClassName" : "TCastleTransformReference",
+                "Name" : "Reference2",
+                "Reference" : "AllowsInstancingEmitter",
+                "TranslationPersistent" : {
+                  "$$ClassName" : "TCastleVector3Persistent",
+                  "X" : 2.1523246765136719E+000
                 }
               }
             ]
@@ -1016,8 +996,7 @@
                 "Alignment" : "hpMiddle",
                 "Name" : "Text13",
                 "RenderOptions" : {
-                  "$$ClassName" : "TCastleScene.TSceneRenderOptions",
-                  "Name" : "RenderOptions"
+                  "$$ClassName" : "TCastleScene.TSceneRenderOptions"
                 },
                 "Text" : [
                   "Attractor"
@@ -1092,8 +1071,7 @@
                 "Alignment" : "hpMiddle",
                 "Name" : "Text15",
                 "RenderOptions" : {
-                  "$$ClassName" : "TCastleScene.TSceneRenderOptions",
-                  "Name" : "RenderOptions"
+                  "$$ClassName" : "TCastleScene.TSceneRenderOptions"
                 },
                 "Text" : [
                   "Attractor",
@@ -1171,8 +1149,7 @@
                 "$$ClassName" : "TCastleText",
                 "Name" : "Text17",
                 "RenderOptions" : {
-                  "$$ClassName" : "TCastleScene.TSceneRenderOptions",
-                  "Name" : "RenderOptions"
+                  "$$ClassName" : "TCastleScene.TSceneRenderOptions"
                 },
                 "Text" : [
                   "Mesh As Source Position"
@@ -1184,17 +1161,87 @@
                 }
               }
             ]
+          },
+          {
+            "$$ClassName" : "TCastleCamera",
+            "Name" : "Camera1",
+            "Orthographic" : {
+              "$$ClassName" : "TCastleOrthographic",
+              "OriginPersistent" : {
+                "$$ClassName" : "TCastleVector2Persistent",
+                "X" : 5.0000000000000000E-001,
+                "Y" : 5.0000000000000000E-001
+              },
+              "Width" : 7.3597602844238281E+001
+            },
+            "Perspective" : {
+              "$$ClassName" : "TCastlePerspective"
+            },
+            "ProjectionFar" : 1.0000000000000000E+003,
+            "ProjectionNear" : -1.0000000000000000E+003,
+            "ProjectionType" : "ptOrthographic",
+            "RotationPersistent" : {
+              "$$ClassName" : "TCastleVector4Persistent",
+              "Z" : 1.0000000000000000E+000
+            },
+            "TranslationPersistent" : {
+              "$$ClassName" : "TCastleVector3Persistent",
+              "X" : 3.4911895751953125E+001,
+              "Y" : 1.3813957214355469E+001,
+              "Z" : 5.0000000000000000E+002
+            }
           }
         ]
       },
       "Name" : "Viewport1",
-      "Navigation" : "Navigation2D1",
       "$Children" : [
         {
           "$$ClassName" : "TCastle2DNavigation",
           "Name" : "Navigation2D1"
         }
-      ]
+      ],
+      "InternalDesignCamera" : {
+        "$$ClassName" : "TCastleCamera",
+        "Name" : "",
+        "Orthographic" : {
+          "$$ClassName" : "TCastleOrthographic",
+          "OriginPersistent" : {
+            "$$ClassName" : "TCastleVector2Persistent",
+            "X" : 5.0000000000000000E-001,
+            "Y" : 5.0000000000000000E-001
+          },
+          "Width" : 7.3597602844238281E+001
+        },
+        "Perspective" : {
+          "$$ClassName" : "TCastlePerspective"
+        },
+        "ProjectionType" : "ptOrthographic",
+        "RotationPersistent" : {
+          "$$ClassName" : "TCastleVector4Persistent",
+          "Z" : 1.0000000000000000E+000
+        },
+        "TranslationPersistent" : {
+          "$$ClassName" : "TCastleVector3Persistent",
+          "X" : 3.4911895751953125E+001,
+          "Y" : 1.3813957214355469E+001,
+          "Z" : 1.6000000000000000E+003
+        }
+      },
+      "InternalDesignNavigationType" : 2,
+      "InternalDesignNavigations[dnFly]" : {
+        "$$ClassName" : "TCastleWalkNavigationDesign",
+        "Exists" : false,
+        "Name" : ""
+      },
+      "InternalDesignNavigations[dnExamine]" : {
+        "$$ClassName" : "TCastleExamineNavigationDesign",
+        "Exists" : false,
+        "Name" : ""
+      },
+      "InternalDesignNavigations[dn2D]" : {
+        "$$ClassName" : "TCastle2DNavigationDesign",
+        "Name" : ""
+      }
     },
     {
       "$$ClassName" : "TCastleLabel",
