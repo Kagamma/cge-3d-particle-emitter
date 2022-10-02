@@ -2127,7 +2127,7 @@ begin
         TexcoordNode := ShapeNode.FindNode(TTextureCoordinateNode, False) as TTextureCoordinateNode;
         VertexList := CoordNode.FdPoint.Items;
         TexcoordList := TexcoordNode.FdPoint.Items;
-        NormalList := Shape.NormalsSmooth(False, True);
+        NormalList := Shape.NormalsSmooth(True);
         IndexList := IndexedTriangleSetNode.FdIndex.Items;
         if (VertexList.Count <> TexcoordList.Count) or (VertexList.Count <> NormalList.Count) then
           raise Exception.Create('Invalid mesh data');
