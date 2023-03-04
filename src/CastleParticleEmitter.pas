@@ -26,7 +26,8 @@ uses
   CastleTransform, CastleScene, CastleComponentSerialize, CastleColors, CastleBoxes,
   CastleVectors, CastleRenderContext, Generics.Collections, CastleGLImages, CastleLog,
   CastleUtils, CastleApplicationProperties, CastleGLShaders, CastleClassUtils,
-  X3DNodes, CastleShapes, CastleGLUtils, CastleViewport, CastleImages, CastleRectangles;
+  X3DNodes, CastleShapes, CastleGLUtils, CastleViewport, CastleImages, CastleRectangles,
+  CastleRenderOptions;
 
 type
   TCastleParticleBlendMode = (
@@ -57,7 +58,7 @@ type
 
 const
   CastleParticleBlendValues: array [TCastleParticleBlendMode] of Integer = (
-    0, 1, 768, 769, 770, 771, 772, 773, 774, 775
+    2, 3, 5, 8, 0, 1, 6, 9, 4, 7
   );
   CastleParticleSourceValues: array [TCastleParticleSourceType] of Integer = (
     0, 1, 2, 3, 4
@@ -1888,8 +1889,7 @@ begin
     Fog := nil;
   //
   glEnable(GL_DEPTH_TEST);
-  glEnable(GL_BLEND);
-  glBlendFunc(CastleParticleBlendValues[Self.FEffect.BlendFuncSource], CastleParticleBlendValues[Self.FEffect.BlendFuncDestination]);
+  RenderContext.BlendingEnable(TBlendingSourceFactor(CastleParticleBlendValues[Self.FEffect.BlendFuncSource]), TBlendingDestinationFactor(CastleParticleBlendValues[Self.FEffect.BlendFuncDestination]));
   RenderProgram.Enable;
   RenderProgram.Uniform('scaleX').SetValue(Vector3(Params.Transform^[0,0], Params.Transform^[0,1], Params.Transform^[0,2]).Length);
   RenderProgram.Uniform('scaleY').SetValue(Vector3(Params.Transform^[1,0], Params.Transform^[1,1], Params.Transform^[1,2]).Length);
@@ -1932,7 +1932,7 @@ begin
   {$ifdef CASTLE_DESIGN_MODE}
   Self.FDebugBox.Box := Self.FEffect.BBox;
   {$endif}
-  glDisable(GL_BLEND);
+  RenderContext.BlendingDisable;
   // Which pass is this?
   glDisable(GL_DEPTH_TEST);
   if not Self.FAllowsWriteToDepthBuffer then
