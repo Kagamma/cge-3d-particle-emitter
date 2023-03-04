@@ -1932,7 +1932,6 @@ begin
   {$ifdef CASTLE_DESIGN_MODE}
   Self.FDebugBox.Box := Self.FEffect.BBox;
   {$endif}
-  RenderContext.BlendingDisable;
   // Which pass is this?
   glDisable(GL_DEPTH_TEST);
   if not Self.FAllowsWriteToDepthBuffer then
