@@ -1888,7 +1888,7 @@ begin
   else
     Fog := nil;
   //
-  glEnable(GL_DEPTH_TEST);
+  RenderContext.DepthTest := True;
   RenderContext.BlendingEnable(TBlendingSourceFactor(CastleParticleBlendValues[Self.FEffect.BlendFuncSource]), TBlendingDestinationFactor(CastleParticleBlendValues[Self.FEffect.BlendFuncDestination]));
   RenderProgram.Enable;
   RenderProgram.Uniform('scaleX').SetValue(Vector3(Params.Transform^[0,0], Params.Transform^[0,1], Params.Transform^[0,2]).Length);
@@ -1933,7 +1933,6 @@ begin
   Self.FDebugBox.Box := Self.FEffect.BBox;
   {$endif}
   // Which pass is this?
-  glDisable(GL_DEPTH_TEST);
   if not Self.FAllowsWriteToDepthBuffer then
     glDepthMask(GL_TRUE);
 end;
