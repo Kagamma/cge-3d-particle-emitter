@@ -1843,7 +1843,7 @@ begin
     Exit;
   if (not Self.FStartEmitting) and (Self.FCountdownTillRemove <= 0) then
     Exit;
-  if not Self.ExcludeFromStatistics then
+  //if not Self.ExcludeFromStatistics then
     Inc(Params.Statistics.ScenesVisible);
   if DistanceCulling > 0 then
   begin
@@ -1861,7 +1861,7 @@ begin
       Exit;
   end;
   Self.FIsDrawn := True;
-  if not Self.ExcludeFromStatistics then
+  //if not Self.ExcludeFromStatistics then
   begin
     Inc(Params.Statistics.ShapesVisible);
     Inc(Params.Statistics.ShapesRendered);
