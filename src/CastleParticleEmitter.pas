@@ -369,7 +369,7 @@ type
     FDeltaTime,
     FTimePlayingSpeed: Single;
     FAttractorList: TVector4List;
-    FAttractorTypeList: TLongIntList;
+    FAttractorTypeList: TInt32List;
     {$ifdef CASTLE_DESIGN_MODE}
     FDebugBox: TDebugBox;
     {$endif}
@@ -1634,7 +1634,7 @@ begin
   FTimePlaying := true;
   FTimePlayingSpeed := 1.0;
   Self.FAttractorList := TVector4List.Create;
-  Self.FAttractorTypeList := TLongIntList.Create;
+  Self.FAttractorTypeList := TInt32List.Create;
   Self.FAttractorList.Capacity := 4;
   Self.FAttractorTypeList.Capacity := 4;
   Self.FDeltaTime := 0;
@@ -2092,7 +2092,7 @@ var
   TexcoordNode: TTextureCoordinateNode;
   VertexList, NormalList: TVector3List;
   TexcoordList: TVector2List;
-  IndexList: TLongIntList;
+  IndexList: TInt32List;
 begin
   SetLength(Self.ParticleMeshIndices, 0);
   SetLength(Self.ParticleMesh, 0);
