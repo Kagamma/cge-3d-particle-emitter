@@ -17,7 +17,7 @@ uses
   {$ifdef GLES}
   CastleGLES,
   {$else}
-  GL, GLExt,
+  CastleGL,
   {$endif}
   {$ifdef CASTLE_DESIGN_MODE}
   PropEdits, CastlePropEdits, CastleDebugTransform,
