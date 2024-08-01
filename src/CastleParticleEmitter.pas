@@ -1847,7 +1847,7 @@ begin
     Inc(Params.Statistics.ScenesVisible);
   if DistanceCulling > 0 then
   begin
-    RenderCameraPosition := Params.InverseTransform^.MultPoint(Params.RenderingCamera.Camera.Position);
+    RenderCameraPosition := Params.Transformation^.InverseTransform.MultPoint(Params.RenderingCamera.Camera.Position);
     if RenderCameraPosition.Length > DistanceCulling + LocalBoundingBox.Radius then
       Exit;
   end;
@@ -1890,9 +1890,9 @@ begin
   RenderContext.DepthTest := True;
   RenderContext.BlendingEnable(TBlendingSourceFactor(CastleParticleBlendValues[Self.FEffect.BlendFuncSource]), TBlendingDestinationFactor(CastleParticleBlendValues[Self.FEffect.BlendFuncDestination]));
   RenderProgram.Enable;
-  RenderProgram.Uniform('scaleX').SetValue(Vector3(Params.Transform^[0,0], Params.Transform^[0,1], Params.Transform^[0,2]).Length);
-  RenderProgram.Uniform('scaleY').SetValue(Vector3(Params.Transform^[1,0], Params.Transform^[1,1], Params.Transform^[1,2]).Length);
-  RenderProgram.Uniform('scaleZ').SetValue(Vector3(Params.Transform^[2,0], Params.Transform^[2,1], Params.Transform^[2,2]).Length);
+  RenderProgram.Uniform('scaleX').SetValue(Vector3(Params.Transformation^.Transform[0,0], Params.Transformation^.Transform[0,1], Params.Transformation^.Transform[0,2]).Length);
+  RenderProgram.Uniform('scaleY').SetValue(Vector3(Params.Transformation^.Transform[1,0], Params.Transformation^.Transform[1,1], Params.Transformation^.Transform[1,2]).Length);
+  RenderProgram.Uniform('scaleZ').SetValue(Vector3(Params.Transformation^.Transform[2,0], Params.Transformation^.Transform[2,1], Params.Transformation^.Transform[2,2]).Length);
   if (Fog <> nil) then
   begin
     // TODO: More type of fog
@@ -1905,7 +1905,7 @@ begin
   end;
   if Self.AllowsInstancing then
   begin
-    M := Params.RenderingCamera.Matrix * Params.Transform^;
+    M := Params.RenderingCamera.Matrix * Params.Transformation^.Transform;
     RenderProgram.Uniform('vOrMvMatrix').SetValue(M);
   end else
   begin
