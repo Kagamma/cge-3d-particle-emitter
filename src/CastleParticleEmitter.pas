@@ -370,6 +370,9 @@ type
     FTimePlayingSpeed: Single;
     FAttractorList: TVector4List;
     FAttractorTypeList: TInt32List;
+    //
+    FCameraMatrix: TMatrix4;
+    FGlobalFog: TFogNode;
     {$ifdef CASTLE_DESIGN_MODE}
     FDebugBox: TDebugBox;
     {$endif}
@@ -380,6 +383,7 @@ type
     procedure SetBurst(const V: Boolean);
     procedure SetSmoothTexture(const V: Boolean);
     procedure SetAllowsInstancing(const V: Boolean);
+    procedure InternalRender(const Transformation: TTransformation; const PassParams: TRenderOnePassParams);
   protected
     function PropertySections(const PropertyName: String): TPropertySections; override;
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
@@ -1823,9 +1827,6 @@ procedure TCastleParticleEmitter.LocalRender(const Params: TRenderParams);
 var
   RenderCameraPosition: TVector3;
   RelativeBBox: TBox3D;
-  M: TMatrix4;
-  IndicesCount: Integer;
-  Fog: TFogFunctionality;
 begin
   inherited;
   Self.FIsUpdated := False;
@@ -1837,9 +1838,7 @@ begin
   Self.FEffect.IsNeedRefresh := False;
   Self.FEffect.IsChanged := False;
   //
-  if (not Self.Visible) or Params.InShadow or (Params.StencilTest > 0) then
-    Exit;
-  if not Params.Transparent then
+  if not Self.Visible then
     Exit;
   if (not Self.FStartEmitting) and (Self.FCountdownTillRemove <= 0) then
     Exit;
@@ -1867,6 +1866,22 @@ begin
     Inc(Params.Statistics.ShapesRendered);
     Inc(Params.Statistics.ScenesRendered);
   end;
+  Self.FGlobalFog := TFogNode(Params.GlobalFog);
+  Self.FCameraMatrix := Params.RenderingCamera.Matrix;
+
+  Params.AddRenderEvent(Self.InternalRender);
+end;
+
+procedure TCastleParticleEmitter.InternalRender(const Transformation: TTransformation; const PassParams: TRenderOnePassParams);
+var
+  Fog: TFogFunctionality;
+  M: TMatrix4;
+  IndicesCount: Integer;
+begin
+  if PassParams.DisableShadowVolumeCastingLights or
+     (not PassParams.UsingBlending) or
+     PassParams.InsideStencilTest then
+    exit;
 
   // Draw particles
   if Self.AllowsInstancing then
@@ -1882,17 +1897,17 @@ begin
   else
     glDepthMask(GL_TRUE);
   // Get global fog
-  if Self.FEnableFog and (Params.GlobalFog <> nil) then
-    Fog := (Params.GlobalFog as TFogNode).Functionality(TFogFunctionality) as TFogFunctionality
+  if Self.FEnableFog and (Self.FGlobalFog <> nil) then
+    Fog := (Self.FGlobalFog as TFogNode).Functionality(TFogFunctionality) as TFogFunctionality
   else
     Fog := nil;
   //
   RenderContext.DepthTest := True;
   RenderContext.BlendingEnable(TBlendingSourceFactor(CastleParticleBlendValues[Self.FEffect.BlendFuncSource]), TBlendingDestinationFactor(CastleParticleBlendValues[Self.FEffect.BlendFuncDestination]));
   RenderProgram.Enable;
-  RenderProgram.Uniform('scaleX').SetValue(Vector3(Params.Transformation^.Transform[0,0], Params.Transformation^.Transform[0,1], Params.Transformation^.Transform[0,2]).Length);
-  RenderProgram.Uniform('scaleY').SetValue(Vector3(Params.Transformation^.Transform[1,0], Params.Transformation^.Transform[1,1], Params.Transformation^.Transform[1,2]).Length);
-  RenderProgram.Uniform('scaleZ').SetValue(Vector3(Params.Transformation^.Transform[2,0], Params.Transformation^.Transform[2,1], Params.Transformation^.Transform[2,2]).Length);
+  RenderProgram.Uniform('scaleX').SetValue(Vector3(Transformation.Transform[0,0], Transformation.Transform[0,1], Transformation.Transform[0,2]).Length);
+  RenderProgram.Uniform('scaleY').SetValue(Vector3(Transformation.Transform[1,0], Transformation.Transform[1,1], Transformation.Transform[1,2]).Length);
+  RenderProgram.Uniform('scaleZ').SetValue(Vector3(Transformation.Transform[2,0], Transformation.Transform[2,1], Transformation.Transform[2,2]).Length);
   if (Fog <> nil) then
   begin
     // TODO: More type of fog
@@ -1905,11 +1920,11 @@ begin
   end;
   if Self.AllowsInstancing then
   begin
-    M := Params.RenderingCamera.Matrix * Params.Transformation^.Transform;
+    M := Self.FCameraMatrix * Transformation.Transform;
     RenderProgram.Uniform('vOrMvMatrix').SetValue(M);
   end else
   begin
-    RenderProgram.Uniform('vOrMvMatrix').SetValue(Params.RenderingCamera.Matrix);
+    RenderProgram.Uniform('vOrMvMatrix').SetValue(Self.FCameraMatrix);
   end;
   RenderProgram.Uniform('pMatrix').SetValue(RenderContext.ProjectionMatrix);
   glBindVertexArray(Self.VAOMeshes[Self.CurrentBuffer]);
@@ -1931,7 +1946,6 @@ begin
   {$ifdef CASTLE_DESIGN_MODE}
   Self.FDebugBox.Box := Self.FEffect.BBox;
   {$endif}
-  // Which pass is this?
   if not Self.FAllowsWriteToDepthBuffer then
     glDepthMask(GL_TRUE);
 end;
