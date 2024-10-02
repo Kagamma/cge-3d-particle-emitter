@@ -2453,9 +2453,9 @@ initialization
   RegisterPropertyEditor(TypeInfo(AnsiString), TCastleParticleEffect,
     'MeshAsSourcePosition', TSceneURLPropertyEditor);
   {$endif}
-  RegisterSerializableComponent(TCastleParticleEmitter, 'Particle Emitter');
-  RegisterSerializableComponent(TCastleParticleAttractor, 'Particle Attractor');
-  RegisterSerializableComponent(TCastleParticleEffect, 'Particle Effect');
-  RegisterSerializableComponent(TCastleParticleViewport, 'Viewport (Particle)');
+  RegisterSerializableComponent(TCastleParticleEmitter, ['Particle', 'Particle Emitter']);
+  RegisterSerializableComponent(TCastleParticleAttractor, ['Particle', 'Particle Attractor']);
+  RegisterSerializableComponent(TCastleParticleEffect, ['Particle', 'Particle Effect']);
+  RegisterSerializableComponent(TCastleParticleViewport, ['Particle', 'Viewport (Particle)']);
 
 end.
