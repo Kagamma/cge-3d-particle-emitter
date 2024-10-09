@@ -1877,11 +1877,15 @@ var
   Fog: TFogFunctionality;
   M: TMatrix4;
   IndicesCount: Integer;
+  PreviousProgram: TGLSLProgram;
+  OldDepthTest, OldDepthBufferUpdate: Boolean;
 begin
   if PassParams.DisableShadowVolumeCastingLights or
      (not PassParams.UsingBlending) or
      PassParams.InsideStencilTest then
     exit;
+
+  PreviousProgram := RenderContext.CurrentProgram;
 
   // Draw particles
   if Self.AllowsInstancing then
@@ -1892,16 +1896,18 @@ begin
     RenderProgram := RenderProgramQuad
   else
     RenderProgram := RenderProgramMesh;
+  OldDepthBufferUpdate := RenderContext.DepthBufferUpdate;
   if not Self.FAllowsWriteToDepthBuffer then
-    glDepthMask(GL_FALSE)
+    RenderContext.DepthBufferUpdate := False
   else
-    glDepthMask(GL_TRUE);
+    RenderContext.DepthBufferUpdate := True;
   // Get global fog
   if Self.FEnableFog and (Self.FGlobalFog <> nil) then
     Fog := (Self.FGlobalFog as TFogNode).Functionality(TFogFunctionality) as TFogFunctionality
   else
     Fog := nil;
   //
+  OldDepthTest := RenderContext.DepthTest;
   RenderContext.DepthTest := True;
   RenderContext.BlendingEnable(TBlendingSourceFactor(CastleParticleBlendValues[Self.FEffect.BlendFuncSource]), TBlendingDestinationFactor(CastleParticleBlendValues[Self.FEffect.BlendFuncDestination]));
   RenderProgram.Enable;
@@ -1948,6 +1954,13 @@ begin
   {$endif}
   if not Self.FAllowsWriteToDepthBuffer then
     glDepthMask(GL_TRUE);
+  if PreviousProgram <> nil then
+  begin
+    PreviousProgram.Enable;
+  end;
+  RenderContext.BlendingEnable(bsOne, bdZero);
+  RenderContext.DepthTest := OldDepthTest;
+  RenderContext.DepthBufferUpdate := OldDepthBufferUpdate;
 end;
 
 procedure TCastleParticleEmitter.LoadEffect(const AEffect: TCastleParticleEffect);
