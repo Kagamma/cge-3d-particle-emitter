@@ -414,6 +414,7 @@ type
     property TimePlaying: Boolean read FTimePlaying write FTimePlaying default True;
     property TimePlayingSpeed: Single read FTimePlayingSpeed write FTimePlayingSpeed default 1.0;
     property DeltaTime: Single read FDeltaTime write FDeltaTime default 0;
+    property ReleaseWhenDone: Boolean read FReleaseWhenDone write FReleaseWhenDone default False;
   end;
 
 function CastleParticleBlendValueToBlendMode(const AValue: Integer): TCastleParticleBlendMode;
@@ -1051,7 +1052,7 @@ const
 '}';
 {$endif}
 
-  Varyings: array[0..9] of PChar = (
+  Varyings: array[0..9] of String = (
     'outPosition',
     'outTimeToLive',
     'outSizeRotation',
@@ -1802,7 +1803,7 @@ begin
   end;
 
   RemoveMe := rtNone;
-  if Self.FReleaseWhenDone then
+  if Self.FReleaseWhenDone {$ifdef CASTLE_DESIGN_MODE}and (InternalCastleApplicationMode in [appSimulation, appSimulationPaused]){$endif} then
   begin
     if (Self.FEmissionTime = 0) then
     begin
@@ -2099,9 +2100,9 @@ begin
     glDeleteBuffers(2, @Self.VBOTnFs);
     glDeleteVertexArrays(2, @Self.VAOTnFs);
     glDeleteBuffers(1, @Self.UBO);
-    glFreeTexture(Self.Texture);
+    glDeleteTextures(1, @Self.Texture);
     if Self.TextureAsSourcePosition <> 0 then
-      glFreeTexture(Self.TextureAsSourcePosition);
+      glDeleteTextures(1, @Self.TextureAsSourcePosition);
     Self.FIsGLContextInitialized := False;
   end;
   inherited;
@@ -2255,10 +2256,10 @@ begin
   if Self.FEffect.LifeSpan = 0 then
     Self.FEffect.LifeSpan := 0.001;
 
-  glFreeTexture(Self.Texture);
+  glDeleteTextures(1, @Self.Texture);
   if Self.TextureAsSourcePosition <> 0 then
   begin
-    glFreeTexture(Self.TextureAsSourcePosition);
+    glDeleteTextures(1, @Self.TextureAsSourcePosition);
     Self.TextureAsSourcePosition := 0;
   end;
   Self.FEffectUBO.TextureAsSourcePositionSize := 0;
