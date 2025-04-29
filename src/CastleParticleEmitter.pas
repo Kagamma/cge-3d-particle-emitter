@@ -2193,7 +2193,7 @@ var
   MaxTextureSize,
   ActualTextureSize: Integer;
 begin
-  if not URIFileExists(Self.FEffect.MeshAsSourcePosition) then exit;
+  if (Self.FEffect.MeshAsSourcePosition = '') or (not URIFileExists(Self.FEffect.MeshAsSourcePosition)) then exit;
   glGetIntegerv(GL_MAX_TEXTURE_SIZE, @MaxTextureSize);
   Scene := TCastleScene.Create(nil);
   Scene.URL := Self.FEffect.MeshAsSourcePosition;
