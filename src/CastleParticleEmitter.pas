@@ -425,6 +425,51 @@ uses
   CastleDownload, CastleURIUtils, Math;
 
 const
+  CommonTransformVertexFunctions =
+'float rnd() {'nl
+'  outPosition.w = fract(sin(outPosition.w + outPosition.x + outVelocity.x + outVelocity.y + outColor.x + deltaTime) * 43758.5453123);'nl
+'  return outPosition.w;'nl
+'}'nl
+
+'vec3 rotate(vec3 v, float angle, vec3 axis) {'nl
+'  axis = normalize(axis);'nl
+'  float c = cos(angle);'nl
+'  float s = sin(angle);'nl
+'  vec3 r = vec3('nl
+'      v.x * (axis.x * axis.x * (1.0 - c) + c)'nl
+'    + v.y * (axis.x * axis.y * (1.0 - c) - axis.z * s)'nl
+'    + v.z * (axis.x * axis.z * (1.0 - c) + axis.y * s),'nl
+'      v.x * (axis.y * axis.x * (1.0 - c) + axis.z * s)'nl
+'    + v.y * (axis.y * axis.y * (1.0 - c) + c)'nl
+'    + v.z * (axis.y * axis.z * (1.0 - c) - axis.x * s),'nl
+'      v.x * (axis.z * axis.x * (1.0 - c) - axis.y * s)'nl
+'    + v.y * (axis.z * axis.y * (1.0 - c) + axis.x * s)'nl
+'    + v.z * (axis.z * axis.z * (1.0 - c) + c)'nl
+'  );'nl
+'  return r;'nl
+'}';
+
+  CommonVertexFunctions =
+'mat3 createRotate(vec3 p) {'nl
+'  float cr = cos(p.x);'nl
+'  float sr = sin(p.x);'nl
+'  float cp = cos(p.y);'nl
+'  float sp = sin(p.y);'nl
+'  float cy = cos(p.z);'nl
+'  float sy = sin(p.z);'nl
+'  return mat3('nl
+'    cp * cy,'nl
+'    cp * sy,'nl
+'    - sp,'nl
+'    sr * sp * cy - cr * sy,'nl
+'    sr * sp * sy + cr * cy,'nl
+'    sr * cp,'nl
+'    cr * sp * cy + sr * sy,'nl
+'    cr * sp * sy - sr * cy,'nl
+'    cr * cp'nl
+'  );'nl
+'}';
+
   TransformVertexShaderSourceMultipleInstances: String =
 {$ifdef GLES}
 '#version 300 es'nl
@@ -497,28 +542,7 @@ const
 'uniform float deltaTime;'nl
 'uniform sampler2D textureAsSourcePosition;'nl
 
-'float rnd() {'nl
-'  outPosition.w = fract(sin(outPosition.w + outPosition.x + outVelocity.x + outVelocity.y + outColor.x + deltaTime) * 43758.5453123);'nl
-'  return outPosition.w;'nl
-'}'nl
-
-'vec3 rotate(vec3 v, float angle, vec3 axis) {'nl
-'  axis = normalize(axis);'nl
-'  float c = cos(angle);'nl
-'  float s = sin(angle);'nl
-'  vec3 r = vec3('nl
-'      v.x * (axis.x * axis.x * (1.0 - c) + c)'nl
-'    + v.y * (axis.x * axis.y * (1.0 - c) - axis.z * s)'nl
-'    + v.z * (axis.x * axis.z * (1.0 - c) + axis.y * s),'nl
-'      v.x * (axis.y * axis.x * (1.0 - c) + axis.z * s)'nl
-'    + v.y * (axis.y * axis.y * (1.0 - c) + c)'nl
-'    + v.z * (axis.y * axis.z * (1.0 - c) - axis.x * s),'nl
-'      v.x * (axis.z * axis.x * (1.0 - c) - axis.y * s)'nl
-'    + v.y * (axis.z * axis.y * (1.0 - c) + axis.x * s)'nl
-'    + v.z * (axis.z * axis.z * (1.0 - c) + c)'nl
-'  );'nl
-'  return r;'nl
-'}'nl
+CommonTransformVertexFunctions nl
 
 'void initParticle() {'nl
 '  outPosition = inPosition;'nl
@@ -719,28 +743,7 @@ const
 'uniform float deltaTime;'nl
 'uniform sampler2D textureAsSourcePosition;'nl
 
-'float rnd() {'nl
-'  outPosition.w = fract(sin(outPosition.w + outPosition.x + outVelocity.x + outVelocity.y + outColor.x + deltaTime) * 43758.5453123);'nl
-'  return outPosition.w;'nl
-'}'nl
-
-'vec3 rotate(vec3 v, float angle, vec3 axis) {'nl
-'  axis = normalize(axis);'nl
-'  float c = cos(angle);'nl
-'  float s = sin(angle);'nl
-'  vec3 r = vec3('nl
-'      v.x * (axis.x * axis.x * (1.0 - c) + c)'nl
-'    + v.y * (axis.x * axis.y * (1.0 - c) - axis.z * s)'nl
-'    + v.z * (axis.x * axis.z * (1.0 - c) + axis.y * s),'nl
-'      v.x * (axis.y * axis.x * (1.0 - c) + axis.z * s)'nl
-'    + v.y * (axis.y * axis.y * (1.0 - c) + c)'nl
-'    + v.z * (axis.y * axis.z * (1.0 - c) - axis.x * s),'nl
-'      v.x * (axis.z * axis.x * (1.0 - c) - axis.y * s)'nl
-'    + v.y * (axis.z * axis.y * (1.0 - c) + axis.x * s)'nl
-'    + v.z * (axis.z * axis.z * (1.0 - c) + c)'nl
-'  );'nl
-'  return r;'nl
-'}'nl
+CommonTransformVertexFunctions nl
 
 'void initParticle() {'nl
 '  outPosition = inPosition;'nl
@@ -899,25 +902,7 @@ const
 'uniform float scaleY;'nl
 'uniform float scaleZ;'nl
 
-'mat3 createRotate(vec3 p) {'nl
-'  float cr = cos(p.x);'nl
-'  float sr = sin(p.x);'nl
-'  float cp = cos(p.y);'nl
-'  float sp = sin(p.y);'nl
-'  float cy = cos(p.z);'nl
-'  float sy = sin(p.z);'nl
-'  return mat3('nl
-'    cp * cy,'nl
-'    cp * sy,'nl
-'    - sp,'nl
-'    sr * sp * cy - cr * sy,'nl
-'    sr * sp * sy + cr * cy,'nl
-'    sr * cp,'nl
-'    cr * sp * cy + sr * sy,'nl
-'    cr * sp * sy - sr * cy,'nl
-'    cr * cp'nl
-'  );'nl
-'}'nl
+CommonVertexFunctions nl
 
 'void main() {'nl
 '  if (inTimeToLive.x > 0.0) {'nl
@@ -983,25 +968,7 @@ const
 'uniform float scaleY;'nl
 'uniform float scaleZ;'nl
 
-'mat3 createRotate(vec3 p) {'nl
-'  float cr = cos(p.x);'nl
-'  float sr = sin(p.x);'nl
-'  float cp = cos(p.y);'nl
-'  float sp = sin(p.y);'nl
-'  float cy = cos(p.z);'nl
-'  float sy = sin(p.z);'nl
-'  return mat3('nl
-'    cp * cy,'nl
-'    cp * sy,'nl
-'    - sp,'nl
-'    sr * sp * cy - cr * sy,'nl
-'    sr * sp * sy + cr * cy,'nl
-'    sr * cp,'nl
-'    cr * sp * cy + sr * sy,'nl
-'    cr * sp * sy - sr * cy,'nl
-'    cr * cp'nl
-'  );'nl
-'}'nl
+CommonVertexFunctions nl
 
 'void main() {'nl
 '  if (inTimeToLive.x > 0.0) {'nl
