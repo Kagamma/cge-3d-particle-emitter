@@ -487,9 +487,9 @@ const
 '  vec3 r = normalize(cross(d, w));'nl
 '  vec3 u = normalize(cross(r, d));'nl
 '  return mat3('nl
-'    r.x, u.x, -d.x,'nl
-'    r.y, u.y, -d.y,'nl
-'    r.z, u.z, -d.z'nl
+'    r.xyz,'nl
+'    u.xyz,'nl
+'    d.xyz'nl
 '  );'nl
 '}'nl
 
