@@ -10,7 +10,13 @@
       "Items" : {
         "$$ClassName" : "TCastleRootTransform",
         "PhysicsProperties" : {
-          "$$ClassName" : "TPhysicsProperties"
+          "$$ClassName" : "TPhysicsProperties",
+          "LayerCollisions" : {
+            "$$ClassName" : "TCastleLayerCollisions"
+          },
+          "LayerNames" : {
+            "$$ClassName" : "TCastleLayerNames"
+          }
         },
         "$Children" : [
           {
@@ -166,10 +172,11 @@
                   "Y" : -9.9641376733779907E-001
                 },
                 "DirectionVariance" : 0.0000000000000000E+000,
-                "LifeSpan" : 8.0000001192092896E-001,
+                "LifeSpan" : 4.0000000596046448E-001,
                 "LifeSpanVariance" : 1.0000000149011612E-001,
                 "Name" : "RainEffect",
-                "Size" : 3.0000001192092896E-001,
+                "RotationType" : "prtPreviousPosition",
+                "Size" : 6.0000002384185791E-001,
                 "SourcePositionPersistent" : {
                   "$$ClassName" : "TCastleVector3Persistent",
                   "Y" : 4.0000000000000000E+000
@@ -179,8 +186,28 @@
                   "X" : 4.0000000000000000E+000,
                   "Z" : 4.0000000000000000E+000
                 },
-                "Speed" : 7.0000000000000000E+000,
-                "Texture" : "castle-data:/default.png"
+                "Speed" : 1.4000000000000000E+001,
+                "Texture" : "castle-data:/default.png",
+                "VertexPersistent_0" : {
+                  "$$ClassName" : "TCastleVector3Persistent",
+                  "X" : -1.5000000000000000E+000,
+                  "Y" : -1.0000000149011612E-001
+                },
+                "VertexPersistent_1" : {
+                  "$$ClassName" : "TCastleVector3Persistent",
+                  "X" : 1.5000000000000000E+000,
+                  "Y" : -1.0000000149011612E-001
+                },
+                "VertexPersistent_2" : {
+                  "$$ClassName" : "TCastleVector3Persistent",
+                  "X" : 1.5000000000000000E+000,
+                  "Y" : 1.0000000149011612E-001
+                },
+                "VertexPersistent_3" : {
+                  "$$ClassName" : "TCastleVector3Persistent",
+                  "X" : -1.5000000000000000E+000,
+                  "Y" : 1.0000000149011612E-001
+                }
               }
             ],
             "$Children" : [
@@ -455,8 +482,7 @@
                       "Alpha" : 0.0000000000000000E+000,
                       "Green" : 8.6666667461395264E-001,
                       "Red" : 8.6666667461395264E-001
-                    },
-                    "Size" : 3.0000001192092896E-001
+                    }
                   }
                 ],
                 "ColorPersistent" : {
@@ -473,9 +499,25 @@
                 "LifeSpanVariance" : 2.0000000298023224E-001,
                 "MaxParticles" : 200,
                 "Name" : "FountainEffect",
-                "Size" : 3.0000001192092896E-001,
+                "RotationType" : "prtPreviousPosition",
                 "Speed" : 6.0000000000000000E+000,
-                "Texture" : "castle-data:/default.png"
+                "Texture" : "castle-data:/default.png",
+                "VertexPersistent_0" : {
+                  "$$ClassName" : "TCastleVector3Persistent",
+                  "Y" : -1.0000000149011612E-001
+                },
+                "VertexPersistent_1" : {
+                  "$$ClassName" : "TCastleVector3Persistent",
+                  "Y" : -1.0000000149011612E-001
+                },
+                "VertexPersistent_2" : {
+                  "$$ClassName" : "TCastleVector3Persistent",
+                  "Y" : 1.0000000149011612E-001
+                },
+                "VertexPersistent_3" : {
+                  "$$ClassName" : "TCastleVector3Persistent",
+                  "Y" : 1.0000000149011612E-001
+                }
               }
             ],
             "$Children" : [
@@ -605,7 +647,7 @@
                 ],
                 "TranslationPersistent" : {
                   "$$ClassName" : "TCastleVector3Persistent",
-                  "X" : -2.3413009643554687E+000,
+                  "X" : -2.3413009643554688E+000,
                   "Y" : -4.0496129989624023E+000
                 }
               }
@@ -616,7 +658,7 @@
             "Effect" : "RingEffect",
             "Name" : "RingEmitter",
             "RotationPersistent" : {
-              "$$ClassName" : "TCastleVector4Persistent",
+              "$$ClassName" : "TCastleVector4RotationPersistent",
               "W" : 1.5700000524520874E+000,
               "X" : 1.0000000000000000E+000
             },
@@ -906,7 +948,7 @@
                 ],
                 "TranslationPersistent" : {
                   "$$ClassName" : "TCastleVector3Persistent",
-                  "X" : 2.4227523803710937E-001,
+                  "X" : 2.4227523803710938E-001,
                   "Y" : -5.1978673934936523E+000
                 }
               },
@@ -1013,7 +1055,7 @@
                 "Name" : "Attractor",
                 "TranslationPersistent" : {
                   "$$ClassName" : "TCastleVector3Persistent",
-                  "Y" : -1.8673629760742187E+000
+                  "Y" : -1.8673629760742188E+000
                 }
               }
             ]
@@ -1091,7 +1133,7 @@
                 "TranslationPersistent" : {
                   "$$ClassName" : "TCastleVector3Persistent",
                   "X" : 4.5547485351562500E-002,
-                  "Y" : 2.8002548217773437E-001
+                  "Y" : 2.8002548217773438E-001
                 }
               }
             ]
@@ -1163,6 +1205,113 @@
             ]
           },
           {
+            "$$ClassName" : "TCastleParticleEmitter",
+            "Effect" : "SparkEffect",
+            "Name" : "SparkEmitter",
+            "RotationPersistent" : {
+              "$$ClassName" : "TCastleVector4RotationPersistent",
+              "Z" : 1.0000000000000000E+000
+            },
+            "TranslationPersistent" : {
+              "$$ClassName" : "TCastleVector3Persistent",
+              "X" : 5.9156864166259766E+001,
+              "Y" : 9.5549526214599609E+000
+            },
+            "$NonVisualComponents" : [
+              {
+                "$$ClassName" : "TCastleParticleEffect",
+                "Anchors" : [
+                  {
+                    "$$ClassName" : "TCastleParticleEffectAnchorItem",
+                    "ColorPersistent" : {
+                      "$$ClassName" : "TCastleColorPersistent",
+                      "Blue" : 5.5294120311737061E-001,
+                      "Green" : 8.3137255907058716E-001
+                    },
+                    "Size" : 1.5000000000000000E+000,
+                    "SizeVariance" : 5.0000000000000000E-001,
+                    "TimeNormalized" : 5.0000000000000000E-001
+                  },
+                  {
+                    "$$ClassName" : "TCastleParticleEffectAnchorItem",
+                    "ColorPersistent" : {
+                      "$$ClassName" : "TCastleColorPersistent",
+                      "Alpha" : 0.0000000000000000E+000,
+                      "Blue" : 5.0000000000000000E-001,
+                      "Green" : 5.0000000000000000E-001
+                    },
+                    "Size" : 1.5000000000000000E+000,
+                    "SizeVariance" : 5.0000000000000000E-001
+                  }
+                ],
+                "ColorPersistent" : {
+                  "$$ClassName" : "TCastleColorPersistent",
+                  "Blue" : 5.0000000000000000E-001,
+                  "Green" : 5.0000000000000000E-001
+                },
+                "ColorVariancePersistent" : {
+                  "$$ClassName" : "TCastleColorPersistent",
+                  "Blue" : 2.0000000298023224E-001,
+                  "Green" : 2.0000000298023224E-001
+                },
+                "DirectionVariance" : 3.1400001049041748E+000,
+                "LifeSpan" : 5.0000000000000000E-001,
+                "LifeSpanVariance" : 0.0000000000000000E+000,
+                "MaxParticles" : 50,
+                "Name" : "SparkEffect",
+                "RotationType" : "prtPreviousPosition",
+                "SourcePositionVariancePersistent" : {
+                  "$$ClassName" : "TCastleVector3Persistent",
+                  "X" : 9.9999997764825821E-003,
+                  "Y" : 9.9999997764825821E-003,
+                  "Z" : 9.9999997764825821E-003
+                },
+                "SourceType" : "pstSpheroid",
+                "Speed" : 5.0000000000000000E+000,
+                "SpeedVariance" : 0.0000000000000000E+000,
+                "Texture" : "castle-data:/default.png",
+                "VertexPersistent_0" : {
+                  "$$ClassName" : "TCastleVector3Persistent",
+                  "X" : -2.0000000298023224E-001,
+                  "Y" : -5.0000000745058060E-002
+                },
+                "VertexPersistent_1" : {
+                  "$$ClassName" : "TCastleVector3Persistent",
+                  "X" : 2.0000000000000000E+000,
+                  "Y" : -5.0000000745058060E-002
+                },
+                "VertexPersistent_2" : {
+                  "$$ClassName" : "TCastleVector3Persistent",
+                  "X" : 2.0000000000000000E+000,
+                  "Y" : 5.0000000745058060E-002
+                },
+                "VertexPersistent_3" : {
+                  "$$ClassName" : "TCastleVector3Persistent",
+                  "X" : -2.0000000298023224E-001,
+                  "Y" : 5.0000000745058060E-002
+                }
+              }
+            ],
+            "$Children" : [
+              {
+                "$$ClassName" : "TCastleText",
+                "Alignment" : "hpMiddle",
+                "Name" : "Text18",
+                "RenderOptions" : {
+                  "$$ClassName" : "TCastleScene.TSceneRenderOptions"
+                },
+                "Text" : [
+                  "Spark"
+                ],
+                "TranslationPersistent" : {
+                  "$$ClassName" : "TCastleVector3Persistent",
+                  "X" : 3.6529827117919922E-001,
+                  "Y" : -3.8445682525634766E+000
+                }
+              }
+            ]
+          },
+          {
             "$$ClassName" : "TCastleCamera",
             "Name" : "Camera1",
             "Orthographic" : {
@@ -1181,7 +1330,7 @@
             "ProjectionNear" : -1.0000000000000000E+003,
             "ProjectionType" : "ptOrthographic",
             "RotationPersistent" : {
-              "$$ClassName" : "TCastleVector4Persistent",
+              "$$ClassName" : "TCastleVector4RotationPersistent",
               "Z" : 1.0000000000000000E+000
             },
             "TranslationPersistent" : {
@@ -1217,7 +1366,7 @@
         },
         "ProjectionType" : "ptOrthographic",
         "RotationPersistent" : {
-          "$$ClassName" : "TCastleVector4Persistent",
+          "$$ClassName" : "TCastleVector4RotationPersistent",
           "Z" : 1.0000000000000000E+000
         },
         "TranslationPersistent" : {
@@ -1251,17 +1400,19 @@
         "Red" : 1.0000000000000000E+000
       },
       "FontSize" : 2.0000000000000000E+001,
-      "HorizontalAnchorDelta" : -2.0000000000000000E+001,
       "HorizontalAnchorParent" : "hpRight",
       "HorizontalAnchorSelf" : "hpRight",
       "Name" : "LabelFps",
       "Text" : [
         "FPS: xxx"
       ],
-      "VerticalAnchorDelta" : -2.0000000000000000E+001,
+      "TranslationPersistent" : {
+        "$$ClassName" : "TCastleVector2Persistent",
+        "X" : -2.0000000000000000E+001,
+        "Y" : -2.0000000000000000E+001
+      },
       "VerticalAnchorParent" : "vpTop",
-      "VerticalAnchorSelf" : "vpTop",
-      "WordWrap" : false
+      "VerticalAnchorSelf" : "vpTop"
     }
   ]
 }

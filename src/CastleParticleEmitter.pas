@@ -55,6 +55,11 @@ type
     patGravityPoint
   );
 
+  TCastleParticleRotationType = (
+    prtDefault,
+    prtPreviousPosition
+  );
+
 const
   CastleParticleBlendValues: array [TCastleParticleBlendMode] of Integer = (
     2, 3, 5, 8, 0, 1, 6, 9, 4, 7
@@ -84,6 +89,7 @@ type
     Direction: TVector3;
     Translate: TVector3;
     RotationXY: TVector4;
+    PreviousPosition: TVector3;
   end;
 
   PCastleParticleMesh = ^TCastleParticleMesh;
@@ -177,6 +183,7 @@ type
     FSourceType: TCastleParticleSourceType;
     FBlendFuncSource,
     FBlendFuncDestination: TCastleParticleBlendMode;
+    FRotationType: TCastleParticleRotationType;
     FMaxParticles: Integer;
     FLifeSpan,
     FLifeSpanVariance,
@@ -215,6 +222,14 @@ type
     FTextureViewport: TCastleParticleViewport;
     FBBox: TBox3D;
     FAnchors: TCollection;
+    FVertex_0,
+    FVertex_1,
+    FVertex_2,
+    FVertex_3: TVector3;
+    FVertexPersistent_0,
+    FVertexPersistent_1,
+    FVertexPersistent_2,
+    FVertexPersistent_3: TCastleVector3Persistent;
     procedure SetBoundingBoxMinForPersistent(const AValue: TVector3);
     function GetBoundingBoxMinForPersistent: TVector3;
     procedure SetBoundingBoxMaxForPersistent(const AValue: TVector3);
@@ -241,6 +256,14 @@ type
     function GetColorForPersistent: TVector4;
     procedure SetColorVarianceForPersistent(const AValue: TVector4);
     function GetColorVarianceForPersistent: TVector4;
+    procedure SetVertex0ForPersistent(const AValue: TVector3);
+    function GetVertex0ForPersistent: TVector3;
+    procedure SetVertex1ForPersistent(const AValue: TVector3);
+    function GetVertex1ForPersistent: TVector3;
+    procedure SetVertex2ForPersistent(const AValue: TVector3);
+    function GetVertex2ForPersistent: TVector3;
+    procedure SetVertex3ForPersistent(const AValue: TVector3);
+    function GetVertex3ForPersistent: TVector3;
     procedure SetTextureViewport(const AValue: TCastleParticleViewport);
     procedure SetMesh(const AValue: String);
     procedure SetMeshAsSourcePosition(const AValue: String);
@@ -274,12 +297,17 @@ type
     property Color: TVector4 read FColor write FColor;
     property ColorVariance: TVector4 read FColorVariance write FColorVariance;
     property BBox: TBox3D read FBBox write FBBox;
+    property Vertex_0: TVector3 read FVertex_0 write FVertex_0;
+    property Vertex_1: TVector3 read FVertex_1 write FVertex_1;
+    property Vertex_2: TVector3 read FVertex_2 write FVertex_2;
+    property Vertex_3: TVector3 read FVertex_3 write FVertex_3;
   published
     property Billboard: Boolean read FBillboard write FBillboard default True;
     property Mesh: String read FMesh write SetMesh;
     property MeshAsSourcePosition: String read FMeshAsSourcePosition write SetMeshAsSourcePosition;
     property Texture: String read FTexture write SetTexture;
     property SourceType: TCastleParticleSourceType read FSourceType write FSourceType default pstBox;
+    property RotationType: TCastleParticleRotationType read FRotationType write FRotationType default prtDefault;
     property BlendFuncSource: TCastleParticleBlendMode read FBlendFuncSource write FBlendFuncSource default pbmOne;
     property BlendFuncDestination: TCastleParticleBlendMode read FBlendFuncDestination write FBlendFuncDestination default pbmOne;
     property MaxParticles: Integer read FMaxParticles write SetMaxParticle default 100;
@@ -308,6 +336,10 @@ type
     property ColorPersistent: TCastleColorPersistent read FColorPersistent;
     property ColorVariancePersistent: TCastleColorPersistent read FColorVariancePersistent;
     property Anchors: TCollection read FAnchors;
+    property VertexPersistent_0: TCastleVector3Persistent read FVertexPersistent_0;
+    property VertexPersistent_1: TCastleVector3Persistent read FVertexPersistent_1;
+    property VertexPersistent_2: TCastleVector3Persistent read FVertexPersistent_2;
+    property VertexPersistent_3: TCastleVector3Persistent read FVertexPersistent_3;
   end;
 
   TCastleParticleAttractor = class(TCastleTransform)
@@ -496,6 +528,7 @@ const
 'layout(location = 7) in vec3 inDirection;'nl
 'layout(location = 8) in vec3 inTranslate;'nl
 'layout(location = 9) in vec4 inRotationXY;'nl
+'layout(location = 10) in vec3 inPreviousPosition;'nl
 
 'out vec4 outPosition;'nl
 'out vec4 outTimeToLive;'nl
@@ -507,6 +540,7 @@ const
 'out vec3 outDirection;'nl
 'out vec3 outTranslate;'nl
 'out vec4 outRotationXY;'nl
+'out vec3 outPreviousPosition;'nl
 
 'layout(packed) uniform Effect {'nl
 '  vec3 rotation;'nl
@@ -555,6 +589,7 @@ CommonTransformVertexFunctions nl
 '  outDirection = inDirection;'nl
 '  outTranslate = inTranslate;'nl
 '  outRotationXY = inRotationXY;'nl
+'  outPreviousPosition = inPosition.xyz;'nl
 '}'nl
 
 'void emitParticle() {'nl
@@ -589,6 +624,7 @@ CommonTransformVertexFunctions nl
 '  } else {'nl
 '    outPosition.xyz = texelFetch(textureAsSourcePosition, ivec2(floor(rnd() * textureAsSourcePositionSize), 0), 0).xyz * sourcePositionVariance;'nl
 '  }'nl
+'  outPreviousPosition = outPosition.xyz;'nl
 '  outPosition.xyz += sourcePositionLocalVariance * normalize(vec3(rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0));'nl
 '  outTranslate = vec3(0.0);'nl // Do nothing
 '  outStartPos = vec3(0.0);'nl // Do nothing
@@ -696,6 +732,7 @@ CommonTransformVertexFunctions nl
 'layout(location = 7) in vec3 inDirection;'nl
 'layout(location = 8) in vec3 inTranslate;'nl
 'layout(location = 9) in vec4 inRotationXY;'nl
+'layout(location = 10) in vec3 inPreviousPosition;'nl
 
 'out vec4 outPosition;'nl
 'out vec4 outTimeToLive;'nl
@@ -707,6 +744,7 @@ CommonTransformVertexFunctions nl
 'out vec3 outDirection;'nl
 'out vec3 outTranslate;'nl
 'out vec4 outRotationXY;'nl
+'out vec3 outPreviousPosition;'nl
 
 'layout(packed) uniform Effect {'nl
 '  vec3 rotation;'nl
@@ -756,6 +794,7 @@ CommonTransformVertexFunctions nl
 '  outDirection = inDirection;'nl
 '  outTranslate = inTranslate;'nl
 '  outRotationXY = inRotationXY;'nl
+'  outPreviousPosition = inPosition.xyz;'nl
 '}'nl
 
 'void emitParticle() {'nl
@@ -798,6 +837,7 @@ CommonTransformVertexFunctions nl
 '  }'nl
 '  outStartPos += sourcePositionLocalVariance * normalize(vec3(rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0));'nl
 '  outTranslate = vec3(mMatrix[3][0], mMatrix[3][1], mMatrix[3][2]);'nl
+'  outPreviousPosition = outPosition.xyz;'nl
 '  outPosition.xyz = outTranslate + outStartPos;'nl
 '  outDirection = rMatrix * direction;'nl
 '  vec3 cd = normalize(cross(outDirection, outDirection.zxy));'nl
@@ -884,11 +924,16 @@ CommonTransformVertexFunctions nl
 {$else}
 '#version 330'nl
 {$endif}
+
+'#define ROTATION_DEFAULT 0'nl
+'#define ROTATION_PREVIOUS_POSITION 1'nl
+
 'layout(location = 0) in vec4 inPosition;'nl
 'layout(location = 1) in vec4 inTimeToLive;'nl
 'layout(location = 2) in vec4 inSizeRotation;'nl
 'layout(location = 3) in vec4 inColor;'nl
 'layout(location = 9) in vec4 inRotationXY;'nl
+'layout(location = 10) in vec3 inPreviousPosition;'nl
 'layout(location = 13) in vec3 inVertex;'nl
 'layout(location = 14) in vec2 inTexcoord;'nl
 
@@ -901,6 +946,7 @@ CommonTransformVertexFunctions nl
 'uniform float scaleX;'nl
 'uniform float scaleY;'nl
 'uniform float scaleZ;'nl
+'uniform int rotationType;'nl
 
 CommonVertexFunctions nl
 
@@ -909,7 +955,15 @@ CommonVertexFunctions nl
 '    fragTexCoord = inTexcoord;'nl
 '    fragColor = inColor;'nl
 '    vec3 center = vec3(vOrMvMatrix * vec4(inPosition.xyz, 1.0)).xyz;'nl
-'    mat3 m = createRotate(vec3(inRotationXY.x, inRotationXY.z, inSizeRotation.z));'nl
+'    float angle = inSizeRotation.z;'nl
+'    if (rotationType == ROTATION_PREVIOUS_POSITION) {'nl
+'      vec3 centerScreen = vec4(pMatrix * vec4(center, 1.0)).xyz;'nl
+'      vec3 centerPrevious = vec3(vOrMvMatrix * vec4(inPreviousPosition.xyz, 1.0)).xyz;'nl
+'      vec3 centerPreviousScreen = vec4(pMatrix * vec4(centerPrevious, 1.0)).xyz;'nl
+'      vec3 centerDelta = center - centerPrevious;'nl
+'      angle = atan(centerDelta.y, centerDelta.x);'nl
+'    }'nl
+'    mat3 m = createRotate(vec3(inRotationXY.x, inRotationXY.z, angle));'nl
 '    vec4 p = vec4(m * (inVertex * vec3(scaleX, scaleY, scaleZ) * vec3(inSizeRotation.x)) + center, 1.0);'nl
 '    fragFogCoord = abs(p.z / p.w);'nl
 '    gl_Position = pMatrix * p;'nl
@@ -955,6 +1009,7 @@ CommonVertexFunctions nl
 'layout(location = 2) in vec4 inSizeRotation;'nl
 'layout(location = 3) in vec4 inColor;'nl
 'layout(location = 9) in vec4 inRotationXY;'nl
+'layout(location = 10) in vec3 inPreviousPosition;'nl
 'layout(location = 13) in vec3 inVertex;'nl
 'layout(location = 14) in vec2 inTexcoord;'nl
 
@@ -1019,7 +1074,7 @@ CommonVertexFunctions nl
 '}';
 {$endif}
 
-  Varyings: array[0..9] of String = (
+  Varyings: array[0..10] of String = (
     'outPosition',
     'outTimeToLive',
     'outSizeRotation',
@@ -1029,14 +1084,10 @@ CommonVertexFunctions nl
     'outVelocity',
     'outDirection',
     'outTranslate',
-    'outRotationXY'
+    'outRotationXY',
+    'outPreviousPosition'
   );
 
-  // Built-in particle vertices & texcoords
-  BuiltInVertexArray: packed array[0..5] of TVector3 = (
-    (X: -0.5; Y: -0.5; Z: 0), (X: 0.5; Y: -0.5; Z: 0), (X: 0.5; Y: 0.5; Z: 0),
-    (X: -0.5; Y: -0.5; Z: 0), (X: 0.5; Y: 0.5; Z: 0), (X: -0.5; Y: 0.5; Z: 0)
-  );
   BuiltInTexcoordArray: packed array[0..5] of TVector2 = (
     (X: 0; Y: 0), (X: 1; Y: 0), (X: 1; Y: 1),
     (X: 0; Y: 0), (X: 1; Y: 1), (X: 0; Y: 1)
@@ -1330,6 +1381,50 @@ begin
   Result := Self.FColorVariance;
 end;
 
+procedure TCastleParticleEffect.SetVertex0ForPersistent(const AValue: TVector3);
+begin
+  Self.FVertex_0 := AValue;
+  Self.IsNeedRefresh := True;
+end;
+
+function TCastleParticleEffect.GetVertex0ForPersistent: TVector3;
+begin
+  Result := Self.FVertex_0;
+end;
+
+procedure TCastleParticleEffect.SetVertex1ForPersistent(const AValue: TVector3);
+begin
+  Self.FVertex_1 := AValue;
+  Self.IsNeedRefresh := True;
+end;
+
+function TCastleParticleEffect.GetVertex1ForPersistent: TVector3;
+begin
+  Result := Self.FVertex_1;
+end;
+
+procedure TCastleParticleEffect.SetVertex2ForPersistent(const AValue: TVector3);
+begin
+  Self.FVertex_2 := AValue;
+  Self.IsNeedRefresh := True;
+end;
+
+function TCastleParticleEffect.GetVertex2ForPersistent: TVector3;
+begin
+  Result := Self.FVertex_2;
+end;
+
+procedure TCastleParticleEffect.SetVertex3ForPersistent(const AValue: TVector3);
+begin
+  Self.FVertex_3 := AValue;
+  Self.IsNeedRefresh := True;
+end;
+
+function TCastleParticleEffect.GetVertex3ForPersistent: TVector3;
+begin
+  Result := Self.FVertex_3;
+end;
+
 procedure TCastleParticleEffect.SetTextureViewport(const AValue: TCastleParticleViewport);
 begin
   Self.FTextureViewport := AValue;
@@ -1409,7 +1504,12 @@ begin
   Self.FSpeedVariance := 1;
   Self.FBlendFuncSource := pbmOne;
   Self.FBlendFuncDestination := pbmOne;
+  Self.FRotationType := prtDefault;
   Self.FSourceType := pstBox;
+  Self.FVertex_0 := Vector3(-0.5, -0.5, 0);
+  Self.FVertex_1 := Vector3( 0.5, -0.5, 0);
+  Self.FVertex_2 := Vector3( 0.5,  0.5, 0);
+  Self.FVertex_3 := Vector3(-0.5,  0.5, 0);
   //
   Self.FBoundingBoxMinPersistent := CreateVec3Persistent(
     Self.GetBoundingBoxMinForPersistent,
@@ -1477,6 +1577,26 @@ begin
     Self.SetColorVarianceForPersistent,
     Self.FColorVariance
   );
+  Self.FVertexPersistent_0 := CreateVec3Persistent(
+    Self.GetVertex0ForPersistent,
+    Self.SetVertex0ForPersistent,
+    Self.FVertex_0
+  );
+  Self.FVertexPersistent_1 := CreateVec3Persistent(
+    Self.GetVertex1ForPersistent,
+    Self.SetVertex1ForPersistent,
+    Self.FVertex_1
+  );
+  Self.FVertexPersistent_2 := CreateVec3Persistent(
+    Self.GetVertex2ForPersistent,
+    Self.SetVertex2ForPersistent,
+    Self.FVertex_2
+  );
+  Self.FVertexPersistent_3 := CreateVec3Persistent(
+    Self.GetVertex3ForPersistent,
+    Self.SetVertex3ForPersistent,
+    Self.FVertex_3
+  );
   Self.FAnchors := TCollection.Create(TCastleParticleEffectAnchorItem);
 end;
 
@@ -1496,6 +1616,10 @@ begin
   FreeAndNil(Self.FGravityPersistent);
   FreeAndNil(Self.FColorPersistent);
   FreeAndNil(Self.FColorVariancePersistent);
+  FreeAndNil(Self.FVertexPersistent_0);
+  FreeAndNil(Self.FVertexPersistent_1);
+  FreeAndNil(Self.FVertexPersistent_2);
+  FreeAndNil(Self.FVertexPersistent_3);
   inherited;
 end;
 
@@ -1901,6 +2025,7 @@ begin
     RenderProgram.Uniform('vOrMvMatrix').SetValue(Self.FCameraMatrix);
   end;
   RenderProgram.Uniform('pMatrix').SetValue(RenderContext.ProjectionMatrix);
+  RenderProgram.Uniform('rotationType').SetValue(Integer(Self.FEffect.RotationType));
   glBindVertexArray(Self.VAOMeshes[Self.CurrentBuffer]);
   glActiveTexture(GL_TEXTURE0);
   if Self.FEffect.TextureViewport = nil then
@@ -2094,13 +2219,18 @@ begin
   // Load built-in mesh if Mesh is empty
   if (Self.FEffect.Mesh = '') or (not URIFileExists(Self.FEffect.Mesh)) then
   begin
-    SetLength(Self.ParticleMesh, Length(BuiltInVertexArray));
+    SetLength(Self.ParticleMesh, 6);
     // Generate built-in mesh
-    for I := 0 to High(BuiltInVertexArray) do
+    for I := 0 to 5 do
     begin
-      Self.ParticleMesh[I].Vertex := BuiltInVertexArray[I];
       Self.ParticleMesh[I].Texcoord := BuiltInTexcoordArray[I];
     end;
+    Self.ParticleMesh[0].Vertex := Self.FEffect.Vertex_0;
+    Self.ParticleMesh[1].Vertex := Self.FEffect.Vertex_1;
+    Self.ParticleMesh[2].Vertex := Self.FEffect.Vertex_2;
+    Self.ParticleMesh[3].Vertex := Self.FEffect.Vertex_0;
+    Self.ParticleMesh[4].Vertex := Self.FEffect.Vertex_2;
+    Self.ParticleMesh[5].Vertex := Self.FEffect.Vertex_3;
   end else
   begin
     Scene := TCastleScene.Create(nil);
@@ -2318,6 +2448,8 @@ begin
     glVertexAttribPointer(8, 3, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), Pointer(120));
     glEnableVertexAttribArray(9);
     glVertexAttribPointer(9, 4, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), Pointer(132));
+    glEnableVertexAttribArray(10);
+    glVertexAttribPointer(10, 3, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), Pointer(148));
 
     // Instancing VAO
     glBindVertexArray(Self.VAOMeshes[I]);
@@ -2339,6 +2471,9 @@ begin
     glEnableVertexAttribArray(9);
     glVertexAttribPointer(9, 4, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), Pointer(132));
     glVertexAttribDivisor(9, 1);
+    glEnableVertexAttribArray(10);
+    glVertexAttribPointer(10, 3, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), Pointer(148));
+    glVertexAttribDivisor(10, 1);
 
     glBindBuffer(GL_ARRAY_BUFFER, Self.VBOMesh);
 
