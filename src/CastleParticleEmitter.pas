@@ -482,6 +482,17 @@ const
 '}';
 
   CommonVertexFunctions =
+'mat3 createLookup(vec3 d) {'nl
+'  vec3 w = vec3(0.0, 1.0, 0.0);'nl
+'  vec3 r = normalize(cross(d, w));'nl
+'  vec3 u = normalize(cross(r, d));'nl
+'  return mat3('nl
+'    r.x, u.x, -d.x,'nl
+'    r.y, u.y, -d.y,'nl
+'    r.z, u.z, -d.z'nl
+'  );'nl
+'}'nl
+
 'mat3 createRotate(vec3 p) {'nl
 '  float cr = cos(p.x);'nl
 '  float sr = sin(p.x);'nl
@@ -960,7 +971,7 @@ CommonVertexFunctions nl
 '      vec3 centerScreen = vec4(pMatrix * vec4(center, 1.0)).xyz;'nl
 '      vec3 centerPrevious = vec3(vOrMvMatrix * vec4(inPreviousPosition.xyz, 1.0)).xyz;'nl
 '      vec3 centerPreviousScreen = vec4(pMatrix * vec4(centerPrevious, 1.0)).xyz;'nl
-'      vec3 centerDelta = center - centerPrevious;'nl
+'      vec3 centerDelta = centerPreviousScreen - centerScreen;'nl
 '      angle = atan(centerDelta.y, centerDelta.x);'nl
 '    }'nl
 '    mat3 m = createRotate(vec3(inRotationXY.x, inRotationXY.z, angle));'nl
@@ -1004,6 +1015,10 @@ CommonVertexFunctions nl
 {$else}
 '#version 330'nl
 {$endif}
+
+'#define ROTATION_DEFAULT 0'nl
+'#define ROTATION_PREVIOUS_POSITION 1'nl
+
 'layout(location = 0) in vec4 inPosition;'nl
 'layout(location = 1) in vec4 inTimeToLive;'nl
 'layout(location = 2) in vec4 inSizeRotation;'nl
@@ -1022,6 +1037,7 @@ CommonVertexFunctions nl
 'uniform float scaleX;'nl
 'uniform float scaleY;'nl
 'uniform float scaleZ;'nl
+'uniform int rotationType;'nl
 
 CommonVertexFunctions nl
 
@@ -1029,7 +1045,13 @@ CommonVertexFunctions nl
 '  if (inTimeToLive.x > 0.0) {'nl
 '    fragTexCoord = inTexcoord;'nl
 '    fragColor = inColor;'nl
-'    mat3 m = createRotate(vec3(inRotationXY.x, inRotationXY.z, inSizeRotation.z));'nl
+'    mat3 m;'nl
+'    if (rotationType == ROTATION_PREVIOUS_POSITION) {'nl
+'      vec3 posDelta = normalize(inPreviousPosition - inPosition.xyz);'nl
+'      m = createLookup(posDelta);'nl
+'    } else {'nl
+'      m = createRotate(vec3(inRotationXY.x, inRotationXY.z, inSizeRotation.z));'nl
+'    }'nl
 '    vec4 p = vOrMvMatrix * vec4(m * inVertex * vec3(scaleX, scaleY, scaleZ) * vec3(inSizeRotation.x) + inPosition.xyz, 1.0);'nl
 '    fragFogCoord = abs(p.z / p.w);'nl
 '    gl_Position = pMatrix * p;'nl

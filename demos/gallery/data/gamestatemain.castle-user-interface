@@ -647,7 +647,7 @@
                 ],
                 "TranslationPersistent" : {
                   "$$ClassName" : "TCastleVector3Persistent",
-                  "X" : -2.3413009643554688E+000,
+                  "X" : -2.3413009643554687E+000,
                   "Y" : -4.0496129989624023E+000
                 }
               }
@@ -948,7 +948,7 @@
                 ],
                 "TranslationPersistent" : {
                   "$$ClassName" : "TCastleVector3Persistent",
-                  "X" : 2.4227523803710938E-001,
+                  "X" : 2.4227523803710937E-001,
                   "Y" : -5.1978673934936523E+000
                 }
               },
@@ -1055,7 +1055,7 @@
                 "Name" : "Attractor",
                 "TranslationPersistent" : {
                   "$$ClassName" : "TCastleVector3Persistent",
-                  "Y" : -1.8673629760742188E+000
+                  "Y" : -1.8673629760742187E+000
                 }
               }
             ]
@@ -1133,7 +1133,7 @@
                 "TranslationPersistent" : {
                   "$$ClassName" : "TCastleVector3Persistent",
                   "X" : 4.5547485351562500E-002,
-                  "Y" : 2.8002548217773438E-001
+                  "Y" : 2.8002548217773437E-001
                 }
               }
             ]
@@ -1206,8 +1206,8 @@
           },
           {
             "$$ClassName" : "TCastleParticleEmitter",
-            "Effect" : "SparkEffect",
-            "Name" : "SparkEmitter",
+            "Effect" : "SparkleEffect",
+            "Name" : "SparkleEmitter",
             "RotationPersistent" : {
               "$$ClassName" : "TCastleVector4RotationPersistent",
               "Z" : 1.0000000000000000E+000
@@ -1257,8 +1257,7 @@
                 "DirectionVariance" : 3.1400001049041748E+000,
                 "LifeSpan" : 5.0000000000000000E-001,
                 "LifeSpanVariance" : 0.0000000000000000E+000,
-                "MaxParticles" : 50,
-                "Name" : "SparkEffect",
+                "Name" : "SparkleEffect",
                 "RotationType" : "prtPreviousPosition",
                 "SourcePositionVariancePersistent" : {
                   "$$ClassName" : "TCastleVector3Persistent",
@@ -1272,22 +1271,22 @@
                 "Texture" : "castle-data:/default.png",
                 "VertexPersistent_0" : {
                   "$$ClassName" : "TCastleVector3Persistent",
-                  "X" : -2.0000000298023224E-001,
+                  "X" : -2.0000000000000000E+000,
                   "Y" : -5.0000000745058060E-002
                 },
                 "VertexPersistent_1" : {
                   "$$ClassName" : "TCastleVector3Persistent",
-                  "X" : 2.0000000000000000E+000,
+                  "X" : 2.0000000298023224E-001,
                   "Y" : -5.0000000745058060E-002
                 },
                 "VertexPersistent_2" : {
                   "$$ClassName" : "TCastleVector3Persistent",
-                  "X" : 2.0000000000000000E+000,
+                  "X" : 2.0000000298023224E-001,
                   "Y" : 5.0000000745058060E-002
                 },
                 "VertexPersistent_3" : {
                   "$$ClassName" : "TCastleVector3Persistent",
-                  "X" : -2.0000000298023224E-001,
+                  "X" : -2.0000000000000000E+000,
                   "Y" : 5.0000000745058060E-002
                 }
               }
@@ -1301,7 +1300,7 @@
                   "$$ClassName" : "TCastleScene.TSceneRenderOptions"
                 },
                 "Text" : [
-                  "Spark"
+                  "Sparkle"
                 ],
                 "TranslationPersistent" : {
                   "$$ClassName" : "TCastleVector3Persistent",
