@@ -13,4 +13,7 @@ Due to emitter uses direct OpenGL calls instead of CGE's own renderer, only a fe
 - Use ProcessEvents for start / stop emitting.
 - AnimateWhenOnlyVisible = False will stop update particle if emitter's boundingbox is outside of view frustum.
 
+### How to use ###
+See [MANUALS.md](MANUALS.md)
+
 License: MIT.
