@@ -348,6 +348,7 @@
                 ],
                 "CustomTransformFeedbackVertexShader" : [
                   "void PLUG_update_after() {",
+                  "  // We override outPosition using our own calculations",
                   "  outPosition.xyz = outPreviousPosition.xyz;",
                   "  outPosition.x +=sin(time * 2.0 + outPreviousPosition.w * 3.14) / 50.0;",
                   "  outPosition.y -= 0.5 * deltaTime;",
