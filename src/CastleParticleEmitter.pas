@@ -2509,6 +2509,18 @@ begin
         EffectUniformIndex := glGetUniformBlockIndex(ProgramId, 'Effect');
         glUniformBlockBinding(ProgramId, EffectUniformIndex, 0);
         Self.LocalTransformFeedbackProgramMultipleInstances.Disable;
+      end else
+      begin
+        if Self.LocalTransformFeedbackProgramSingleInstance <> TransformFeedbackProgramSingleInstance then
+        begin
+          Self.LocalTransformFeedbackProgramSingleInstance.Free;
+          Self.LocalTransformFeedbackProgramSingleInstance := TransformFeedbackProgramSingleInstance;
+        end;
+        if Self.LocalTransformFeedbackProgramMultipleInstances <> TransformFeedbackProgramMultipleInstances then
+        begin
+          Self.LocalTransformFeedbackProgramMultipleInstances.Free;
+          Self.LocalTransformFeedbackProgramMultipleInstances := TransformFeedbackProgramMultipleInstances;
+        end;
       end;
       // Render shader
       SrcVertex := Self.FEffect.CustomRenderVertexShader.Text;
@@ -2545,6 +2557,18 @@ begin
         else
           Self.LocalRenderProgramMesh.AttachFragmentShader(FragmentShaderSourceMesh);
         Self.LocalRenderProgramMesh.Link;
+      end else
+      begin
+        if Self.LocalRenderProgramQuad <> RenderProgramQuad then
+        begin
+          Self.LocalRenderProgramQuad.Free;
+          Self.LocalRenderProgramQuad := RenderProgramQuad;
+        end;
+        if Self.LocalRenderProgramMesh <> RenderProgramMesh then
+        begin
+          Self.LocalRenderProgramMesh.Free;
+          Self.LocalRenderProgramMesh := RenderProgramMesh;
+        end;
       end;
     except
       on E: Exception do
