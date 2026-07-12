@@ -350,8 +350,8 @@
                   "void PLUG_update_after() {",
                   "  // We override outPosition using our own calculations",
                   "  outPosition.xyz = outPreviousPosition.xyz;",
-                  "  outPosition.x +=sin(time * 2.0 + outPreviousPosition.w * 3.14) / 50.0;",
-                  "  outPosition.y -= 0.5 * deltaTime;",
+                  "  outPosition.x +=sin(time * 2.0 + outPreviousPosition.w * 6.28) / (25.0 + 25.0 * outPreviousPosition.w);",
+                  "  outPosition.y -= (0.5 + outPreviousPosition.w) * deltaTime;",
                   "}"
                 ],
                 "DirectionPersistent" : {
@@ -360,7 +360,7 @@
                   "Y" : -9.9641376733779907E-001
                 },
                 "DirectionVariance" : 0.0000000000000000E+000,
-                "LifeSpan" : 8.0000000000000000E+000,
+                "LifeSpan" : 5.0000000000000000E+000,
                 "LifeSpanVariance" : 1.0000000149011612E-001,
                 "Name" : "CustomTransformFeedbackShaderEffect",
                 "Size" : 6.0000002384185791E-001,
