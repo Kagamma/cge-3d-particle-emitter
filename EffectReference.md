@@ -11,7 +11,7 @@ There're several spawning methods, controlled by `SourceType` parameter.
 - `SourcePosition`: The location of the source.
 - `SourcePositionLocationVariance`: Determine the position variance of the spawned particle. Calculated by using the following formula: `particle's position + SourcePositionLocationVariance * normalize(vec3(rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0));`
 ### Special parameters:
-`SourcePositionVariance` changed their meaning base on `SourceType`'s values:
+`SourcePositionVariance` changes their meaning based on `SourceType`'s values:
 - `SourceType = pstBox`: `SourcePositionVariance` contains the X / 2, Y / 2, Z / 2 dimension of the box. The particles will spawn inside the box.
 - `SourceType = pstBoxSurface`: `SourcePositionVariance` contains the X / 2, Y / 2, Z / 2 dimension of the box. The particles will spawn on the surface of the box.
 - `SourceType = pstSpheroid`: `SourcePositionVariance` contains the radius of the sphere. The particles will spawn inside the sphere.
