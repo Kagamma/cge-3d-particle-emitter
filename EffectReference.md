@@ -57,4 +57,4 @@ Used to calculate particles position, size and color, controlled by `CustomTrans
 The shader set in the parameter will not replace the default shader, but instead insert itself to the default shader as PLUG.
 
 Currently, only one PLUG is supported:
-- `void PLUG_update_after()`: Will be called after the particle's finished it's calculations. This is mainly used to modify the particle after all calculations are done. See the `Snow` effect in `gallery` demo for example.
+- `void PLUG_update_after()`: Will be called after the particle finished it's calculations. This is mainly used to modify the particle after all calculations are done. See the `Snow` effect in `gallery` demo for example.
