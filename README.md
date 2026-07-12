@@ -14,6 +14,6 @@ Due to emitter uses direct OpenGL calls instead of CGE's own renderer, only a fe
 - AnimateWhenOnlyVisible = False will stop update particle if emitter's boundingbox is outside of view frustum.
 
 ### How to use ###
-See [MANUALS.md](MANUALS.md)
+See [EffectReference.md](EffectReference.md)
 
 License: MIT.
