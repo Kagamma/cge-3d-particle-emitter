@@ -363,7 +363,8 @@
                 "LifeSpan" : 5.0000000000000000E+000,
                 "LifeSpanVariance" : 1.0000000149011612E-001,
                 "Name" : "CustomTransformFeedbackShaderEffect",
-                "Size" : 6.0000002384185791E-001,
+                "Size" : 4.0000000596046448E-001,
+                "SizeVariance" : 1.5000000596046448E-001,
                 "SourcePositionPersistent" : {
                   "$$ClassName" : "TCastleVector3Persistent",
                   "Y" : 4.0000000000000000E+000
