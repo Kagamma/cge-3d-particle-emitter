@@ -8,10 +8,10 @@
 ## Spawning Methods
 There're several spawning methods, controlled by `SourceType` parameter.
 
-### Common parameters:
+#### Common parameters:
 - `SourcePosition`: The location of the source.
 - `SourcePositionLocationVariance`: Determine the position variance of the spawned particle. Calculated by using the following formula: `particle's position + SourcePositionLocationVariance * normalize(vec3(rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0));`
-### Special parameters:
+#### Special parameters:
 `SourcePositionVariance` changes their meaning based on `SourceType`'s values:
 - `SourceType = pstBox`: `SourcePositionVariance` contains the X / 2, Y / 2, Z / 2 dimension of the box. The particles will spawn inside the box.
 - `SourceType = pstBoxSurface`: `SourcePositionVariance` contains the X / 2, Y / 2, Z / 2 dimension of the box. The particles will spawn on the surface of the box.
@@ -26,14 +26,14 @@ There're several spawning methods, controlled by `SourceType` parameter.
 ## Rotation
 There're 2 types of rotation, controlled by `RotationType`:
 
-### prtDefault
+#### prtDefault
 The default way to calculation rotation, via the following parameters:
 - `Rotation`: Euler angles (ZYX)
 - `RotationVariance`:
 - `RotationSpeed`: Rotation = Rotation + RotationSpeed
 - `RotationSpeedVariance`:
 
-### prtPreviousPosition
+#### prtPreviousPosition
 Tell the particles to face toward it's previous position. Completely ignores the 4 parameters used by `prtDefault`
 
 ## Anchors
@@ -61,11 +61,11 @@ There're 2 types of attractor: `patDistance` and `patGravityPoint`
 
 ## Custom Shaders
 There're 2 types of shader we can customize:
-### Render shader
+#### Render shader
 Used to show the particles on screen, controlled by `CusomRenderVertexShader` and `CustomRenderFragmentShader` parameters.
 
 The shader set in those 2 parameters will COMPLETELY REPLACE the default shader.
-### Transform feedback shader
+#### Transform feedback shader
 Used to calculate particles position, size and color, controlled by `CustomTransformFeedbackVertexShader` parameter.
 
 The shader set in the parameter will not replace the default shader, but instead insert itself to the default shader as PLUG.
