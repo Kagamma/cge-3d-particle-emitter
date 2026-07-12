@@ -1,74 +1,87 @@
 - [Spawning Methods](#spawning-methods)
-- [Life cycle](#life-cycle)
+- [Life Cycle](#life-cycle)
 - [Rotation](#rotation)
 - [Anchors](#anchors)
 - [Attractors](#attractors)
 - [Custom Shaders](#custom-shaders)
 
 ## Spawning Methods
-There're several spawning methods, controlled by `SourceType` parameter.
+
+There are several spawning methods, controlled by the `SourceType` parameter.
 
 #### Common parameters:
 - `SourcePosition`: The location of the source.
-- `SourcePositionLocationVariance`: Determine the position variance of the spawned particle. Calculated by using the following formula: `particle's position + SourcePositionLocationVariance * normalize(vec3(rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0));`
-#### Special parameters:
-`SourcePositionVariance` changes their meaning based on `SourceType`'s values:
-- `SourceType = pstBox`: `SourcePositionVariance` contains the X / 2, Y / 2, Z / 2 dimension of the box. The particles will spawn inside the box.
-- `SourceType = pstBoxSurface`: `SourcePositionVariance` contains the X / 2, Y / 2, Z / 2 dimension of the box. The particles will spawn on the surface of the box.
-- `SourceType = pstSpheroid`: `SourcePositionVariance` contains the radius of the sphere. The particles will spawn inside the sphere.
-- `SourceType = pstSpheroidSurface`: `SourcePositionVariance` contains the radius of the sphere. The particles will spawn on the surface of the sphere.
-- `SourceType = pstCylinderSurface`: `SourcePositionVariance` X and Z are the radius, Y is the height of the cylinder. The particles will spawn on the surface of the cylinder.
+- `SourcePositionLocationVariance`: Determines the position variance of each spawned particle using the following formula:  
+  `particle's position + SourcePositionLocationVariance * normalize(vec3(rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0))`
 
-## Life cycle
-- Each particle's life is controlled by the `Lifespan` and `LifespanVariance` parameters. For example, if `Lifespan` is 2 and `LifespanVariance = 0.5`, then a particle will die after `2 + 0.5 * (random(2) - 1)` seconds.
-- A particle emitter's life is controlled by `Duration` parameter. If `Duration` is lower than 0, then this particle emitter will never stop emitting. If `Duration` is higher than 0, then particle emiiter will stop emitting after `Duration` seconds. `ReleaseWhenDone` will determine if this particle emitter will be automatically freed after stop emitting.
+#### Special parameters:
+`SourcePositionVariance` changes meaning depending on the value of `SourceType`:
+
+- `SourceType = pstBox`: `SourcePositionVariance` contains the half-extents (X/2, Y/2, Z/2) of the box. Particles spawn inside the box.
+- `SourceType = pstBoxSurface`: `SourcePositionVariance` contains the half-extents (X/2, Y/2, Z/2) of the box. Particles spawn on the surface of the box.
+- `SourceType = pstSpheroid`: `SourcePositionVariance` contains the radius of the sphere. Particles spawn inside the sphere.
+- `SourceType = pstSpheroidSurface`: `SourcePositionVariance` contains the radius of the sphere. Particles spawn on the surface of the sphere.
+- `SourceType = pstCylinderSurface`: `SourcePositionVariance` X and Z represent the radius, and Y represents the height of the cylinder. Particles spawn on the surface of the cylinder.
+
+## Life Cycle
+
+- Each particle’s lifetime is controlled by the `Lifespan` and `LifespanVariance` parameters. For example, if `Lifespan` is 2 and `LifespanVariance` is 0.5, the particle will die after `2 + 0.5 * (random(2) - 1)` seconds.
+- A particle emitter’s lifetime is controlled by the `Duration` parameter. If `Duration` is less than 0, the emitter never stops. If `Duration` is greater than 0, the emitter stops after the specified number of seconds. The `ReleaseWhenDone` parameter determines whether the emitter is automatically freed after it stops emitting.
 
 ## Rotation
-There're 2 types of rotation, controlled by `RotationType`:
+
+There are two types of rotation, controlled by `RotationType`.
 
 #### prtDefault
-The default way to calculation rotation, via the following parameters:
-- `Rotation`: Euler angles (ZYX)
+The default rotation method, using the following parameters:
+- `Rotation`: Euler angles (ZYX order)
 - `RotationVariance`:
-- `RotationSpeed`: Rotation = Rotation + RotationSpeed
+- `RotationSpeed`: `Rotation = Rotation + RotationSpeed`
 - `RotationSpeedVariance`:
 
 #### prtPreviousPosition
-Tell the particles to face toward it's previous position. Completely ignores the 4 parameters used by `prtDefault`
+Makes particles face toward their previous position. This mode completely ignores the four parameters used by `prtDefault`.
 
 ## Anchors
-A particle's base size and color can be set in Effect.
 
-A particle's size and color can change during it's lifetime, via `Anchors`.
+A particle’s base size and color are set in the Effect.
 
-There's a limitation of 4 anchors per Effect.
+A particle’s size and color can change over its lifetime via **Anchors**.
 
-`TimeNormalized`, which has the range of [0..1], is used to determine when the anchor will take place during the particle's lifetime.
+There's limitation of 4 anchors per Effect.
 
-Size, Color, SizeVariance and ColorVariance are changed via linear interpolation between anchors.
+`TimeNormalized` (range [0..1]) determines at what point during the particle’s lifetime each anchor is applied.
+
+Size, Color, SizeVariance, and ColorVariance are updated using linear interpolation between anchors.
 
 ## Attractors
-Attractors are used to influence the velocity of a particle.
 
-An attractor has to be a child of the Emitter it tries to affect.
+Attractors influence the velocity of particles.
 
-There's a limitation of 4 attractors per emitter.
+An attractor must be a child of the emitter it affects.
 
-There're 2 types of attractor: `patDistance` and `patGravityPoint`
+There's limitation of 4 attractors per emitter.
 
-- `patDistance`: Influence the particle's velocity via the following formula: `velocity = velocity + (particle's position - attractor's position) * attractors's Attraction`
-- `patGravityPoint`: Influence the particle's velocity via the following formula: `velocity = velocity + normalize(particle's position - attractor's position) * (6.674 * attractors's Attraction / distance between particle and attractor)`
+There are two types of attractors: `patDistance` and `patGravityPoint`.
+
+- `patDistance`: Updates velocity using the formula:  
+  `velocity = velocity + (particle's position - attractor's position) * attractor’s Attraction`
+- `patGravityPoint`: Updates velocity using the formula:  
+  `velocity = velocity + normalize(particle's position - attractor's position) * (6.674 * attractor’s Attraction / distance between particle and attractor)`
 
 ## Custom Shaders
-There're 2 types of shader we can customize:
-#### Render shader
-Used to show the particles on screen, controlled by `CusomRenderVertexShader` and `CustomRenderFragmentShader` parameters.
 
-The shader set in those 2 parameters will COMPLETELY REPLACE the default shader.
-#### Transform feedback shader
-Used to calculate particles position, size and color, controlled by `CustomTransformFeedbackVertexShader` parameter.
+There are two types of shaders that can be customized:
 
-The shader set in the parameter will not replace the default shader, but instead insert itself to the default shader as PLUG.
+#### Render Shader
+Used to render particles on screen. Controlled by the `CustomRenderVertexShader` and `CustomRenderFragmentShader` parameters.
 
-Currently, only one PLUG is supported:
-- `void PLUG_update_after()`: Will be called after the particle finished it's calculations. This is mainly used to modify the particle after all calculations are done. See the `Snow` effect in `gallery` demo for example.
+The shaders supplied in these parameters **completely replace** the default render shader.
+
+#### Transform Feedback Shader
+Used to update particle position, size, and color. Controlled by the `CustomTransformFeedbackVertexShader` parameter.
+
+This shader does not replace the default shader. Instead, it is inserted into the default shader as a **plug**.
+
+**Currently supported plug:**
+- `void PLUG_update_after()`: Called after the particle’s calculations are complete. Primarily used to modify particles after all other updates. See the `Snow` effect in the gallery demo for an example.
