@@ -126,7 +126,7 @@
                   "    outColor.rgb = mix(fogColor, outColor.rgb, clamp(fogFactor, 0.0, 1.0));",
                   "  }",
                   "  outColor.rgb *= outColor.a;",
-                  "  outColor.r = (sin(time) / 2.0 + 0.5) * outColor.a;",
+                  "  outColor.r =clamp (sin(time * 2.0), 0.0, 1.0) * outColor.a;",
                   "}"
                 ],
                 "CustomRenderVertexShader" : [
