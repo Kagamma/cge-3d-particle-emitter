@@ -47,6 +47,12 @@
                   "Blue" : 0.0000000000000000E+000,
                   "Green" : 0.0000000000000000E+000
                 },
+                "CustomRenderFragmentShader" : [
+                ],
+                "CustomRenderVertexShader" : [
+                ],
+                "CustomTransformFeedbackVertexShader" : [
+                ],
                 "Name" : "FireEffect",
                 "Texture" : "castle-data:/default.png"
               }
@@ -65,6 +71,88 @@
                   "$$ClassName" : "TCastleVector3Persistent",
                   "X" : -1.1520385742187500E+000,
                   "Y" : -1.7531023025512695E+000
+                }
+              }
+            ]
+          },
+          {
+            "$$ClassName" : "TCastleParticleEmitter",
+            "Effect" : "CustomRenderShaderEffect",
+            "Name" : "CustomRenderShaderEmitter",
+            "TranslationPersistent" : {
+              "$$ClassName" : "TCastleVector3Persistent",
+              "X" : 1.8517341613769531E+001,
+              "Y" : -1.2917709350585938E-001
+            },
+            "$NonVisualComponents" : [
+              {
+                "$$ClassName" : "TCastleParticleEffect",
+                "Anchors" : [
+                  {
+                    "$$ClassName" : "TCastleParticleEffectAnchorItem",
+                    "ColorPersistent" : {
+                      "$$ClassName" : "TCastleColorPersistent",
+                      "Alpha" : 0.0000000000000000E+000,
+                      "Blue" : 0.0000000000000000E+000,
+                      "Green" : 6.0000002384185791E-001
+                    }
+                  }
+                ],
+                "ColorPersistent" : {
+                  "$$ClassName" : "TCastleColorPersistent",
+                  "Blue" : 0.0000000000000000E+000,
+                  "Green" : 0.0000000000000000E+000
+                },
+                "CustomRenderFragmentShader" : [
+                  "#version 330",
+                  "",
+                  "precision lowp float;",
+                  "in vec2 fragTexCoord;",
+                  "in vec4 fragColor;",
+                  "in float fragFogCoord;",
+                  "",
+                  "out vec4 outColor;",
+                  "",
+                  "uniform sampler2D baseColor;",
+                  "uniform int fogEnable;",
+                  "uniform float fogEnd;",
+                  "uniform vec3 fogColor;",
+                  "uniform float time;",
+                  "",
+                  "void main() {",
+                  "  outColor = texture(baseColor, fragTexCoord) * fragColor;",
+                  "  if (fogEnable == 1) {",
+                  "    float fogFactor = (fogEnd - fragFogCoord) / fogEnd;",
+                  "    outColor.rgb = mix(fogColor, outColor.rgb, clamp(fogFactor, 0.0, 1.0));",
+                  "  }",
+                  "  outColor.rgb *= outColor.a;",
+                  "  outColor.r = (sin(time) / 2.0 + 0.5) * outColor.a;",
+                  "}"
+                ],
+                "CustomRenderVertexShader" : [
+                ],
+                "CustomTransformFeedbackVertexShader" : [
+                ],
+                "Name" : "CustomRenderShaderEffect",
+                "Texture" : "castle-data:/default.png"
+              }
+            ],
+            "$Children" : [
+              {
+                "$$ClassName" : "TCastleText",
+                "Alignment" : "hpMiddle",
+                "Name" : "Text20",
+                "RenderOptions" : {
+                  "$$ClassName" : "TCastleScene.TSceneRenderOptions"
+                },
+                "Text" : [
+                  "Custom Render Shader",
+                  "See CustomRenderFragmentShader"
+                ],
+                "TranslationPersistent" : {
+                  "$$ClassName" : "TCastleVector3Persistent",
+                  "X" : 9.8405838012695312E-002,
+                  "Y" : -2.7058219909667969E+000
                 }
               }
             ]
@@ -107,6 +195,12 @@
                   "$$ClassName" : "TCastleColorPersistent",
                   "Alpha" : 0.0000000000000000E+000
                 },
+                "CustomRenderFragmentShader" : [
+                ],
+                "CustomRenderVertexShader" : [
+                ],
+                "CustomTransformFeedbackVertexShader" : [
+                ],
                 "LifeSpan" : 5.0000000000000000E+000,
                 "MaxParticles" : 10,
                 "Mesh" : "castle-data:/cube.gltf",
@@ -166,6 +260,12 @@
                 "$$ClassName" : "TCastleParticleEffect",
                 "Anchors" : [
                 ],
+                "CustomRenderFragmentShader" : [
+                ],
+                "CustomRenderVertexShader" : [
+                ],
+                "CustomTransformFeedbackVertexShader" : [
+                ],
                 "DirectionPersistent" : {
                   "$$ClassName" : "TCastleVector3Persistent",
                   "X" : 8.4614723920822144E-002,
@@ -188,22 +288,22 @@
                 },
                 "Speed" : 1.4000000000000000E+001,
                 "Texture" : "castle-data:/default.png",
-                "VertexPersistent_0" : {
+                "Vertex_0Persistent" : {
                   "$$ClassName" : "TCastleVector3Persistent",
                   "X" : -1.5000000000000000E+000,
                   "Y" : -1.0000000149011612E-001
                 },
-                "VertexPersistent_1" : {
+                "Vertex_1Persistent" : {
                   "$$ClassName" : "TCastleVector3Persistent",
                   "X" : 1.5000000000000000E+000,
                   "Y" : -1.0000000149011612E-001
                 },
-                "VertexPersistent_2" : {
+                "Vertex_2Persistent" : {
                   "$$ClassName" : "TCastleVector3Persistent",
                   "X" : 1.5000000000000000E+000,
                   "Y" : 1.0000000149011612E-001
                 },
-                "VertexPersistent_3" : {
+                "Vertex_3Persistent" : {
                   "$$ClassName" : "TCastleVector3Persistent",
                   "X" : -1.5000000000000000E+000,
                   "Y" : 1.0000000149011612E-001
@@ -224,6 +324,75 @@
                   "$$ClassName" : "TCastleVector3Persistent",
                   "X" : -1.1520385742187500E+000,
                   "Y" : -1.7531023025512695E+000
+                }
+              }
+            ]
+          },
+          {
+            "$$ClassName" : "TCastleParticleEmitter",
+            "Effect" : "CustomTransformFeedbackShaderEffect",
+            "Name" : "CustomTransformFeedbackShaderEmitter",
+            "TranslationPersistent" : {
+              "$$ClassName" : "TCastleVector3Persistent",
+              "X" : 4.1718845367431641E+001,
+              "Y" : -6.0553741455078125E-001
+            },
+            "$NonVisualComponents" : [
+              {
+                "$$ClassName" : "TCastleParticleEffect",
+                "Anchors" : [
+                ],
+                "CustomRenderFragmentShader" : [
+                ],
+                "CustomRenderVertexShader" : [
+                ],
+                "CustomTransformFeedbackVertexShader" : [
+                  "void PLUG_after() {",
+                  "  outPosition.xyz = outPreviousPosition.xyz;",
+                  "  outPosition.x +=sin(time * 2.0 + outPreviousPosition.w * 3.14) / 50.0;",
+                  "  outPosition.y -= 0.5 * deltaTime;",
+                  "}"
+                ],
+                "DirectionPersistent" : {
+                  "$$ClassName" : "TCastleVector3Persistent",
+                  "X" : 8.4614723920822144E-002,
+                  "Y" : -9.9641376733779907E-001
+                },
+                "DirectionVariance" : 0.0000000000000000E+000,
+                "LifeSpan" : 8.0000000000000000E+000,
+                "LifeSpanVariance" : 1.0000000149011612E-001,
+                "Name" : "CustomTransformFeedbackShaderEffect",
+                "Size" : 6.0000002384185791E-001,
+                "SourcePositionPersistent" : {
+                  "$$ClassName" : "TCastleVector3Persistent",
+                  "Y" : 4.0000000000000000E+000
+                },
+                "SourcePositionVariancePersistent" : {
+                  "$$ClassName" : "TCastleVector3Persistent",
+                  "X" : 4.0000000000000000E+000,
+                  "Z" : 4.0000000000000000E+000
+                },
+                "Speed" : 1.0000000000000000E+000,
+                "SpeedVariance" : 5.0000000000000000E-001,
+                "Texture" : "castle-data:/default.png"
+              }
+            ],
+            "$Children" : [
+              {
+                "$$ClassName" : "TCastleText",
+                "Alignment" : "hpMiddle",
+                "Name" : "Text21",
+                "RenderOptions" : {
+                  "$$ClassName" : "TCastleScene.TSceneRenderOptions"
+                },
+                "Text" : [
+                  "Snow, Using",
+                  "Custom Transform Feedback Shader"
+                ],
+                "TranslationPersistent" : {
+                  "$$ClassName" : "TCastleVector3Persistent",
+                  "X" : 2.7704238891601562E-001,
+                  "Y" : -2.1103734970092773E+000
                 }
               }
             ]
@@ -256,6 +425,12 @@
                   "Blue" : 0.0000000000000000E+000,
                   "Green" : 0.0000000000000000E+000
                 },
+                "CustomRenderFragmentShader" : [
+                ],
+                "CustomRenderVertexShader" : [
+                ],
+                "CustomTransformFeedbackVertexShader" : [
+                ],
                 "DirectionPersistent" : {
                   "$$ClassName" : "TCastleVector3Persistent",
                   "Y" : 9.8195457458496094E-001,
@@ -328,6 +503,12 @@
                   "Blue" : 0.0000000000000000E+000,
                   "Green" : 0.0000000000000000E+000
                 },
+                "CustomRenderFragmentShader" : [
+                ],
+                "CustomRenderVertexShader" : [
+                ],
+                "CustomTransformFeedbackVertexShader" : [
+                ],
                 "DirectionPersistent" : {
                   "$$ClassName" : "TCastleVector3Persistent",
                   "Y" : 0.0000000000000000E+000,
@@ -424,6 +605,12 @@
                   "Blue" : 0.0000000000000000E+000,
                   "Green" : 0.0000000000000000E+000
                 },
+                "CustomRenderFragmentShader" : [
+                ],
+                "CustomRenderVertexShader" : [
+                ],
+                "CustomTransformFeedbackVertexShader" : [
+                ],
                 "DirectionPersistent" : {
                   "$$ClassName" : "TCastleVector3Persistent",
                   "X" : 1.0000000000000000E+000,
@@ -490,6 +677,12 @@
                   "Green" : 8.6666667461395264E-001,
                   "Red" : 8.6666667461395264E-001
                 },
+                "CustomRenderFragmentShader" : [
+                ],
+                "CustomRenderVertexShader" : [
+                ],
+                "CustomTransformFeedbackVertexShader" : [
+                ],
                 "DirectionVariance" : 2.0000000298023224E-001,
                 "GravityPersistent" : {
                   "$$ClassName" : "TCastleVector3Persistent",
@@ -502,19 +695,19 @@
                 "RotationType" : "prtPreviousPosition",
                 "Speed" : 6.0000000000000000E+000,
                 "Texture" : "castle-data:/default.png",
-                "VertexPersistent_0" : {
+                "Vertex_0Persistent" : {
                   "$$ClassName" : "TCastleVector3Persistent",
                   "Y" : -1.0000000149011612E-001
                 },
-                "VertexPersistent_1" : {
+                "Vertex_1Persistent" : {
                   "$$ClassName" : "TCastleVector3Persistent",
                   "Y" : -1.0000000149011612E-001
                 },
-                "VertexPersistent_2" : {
+                "Vertex_2Persistent" : {
                   "$$ClassName" : "TCastleVector3Persistent",
                   "Y" : 1.0000000149011612E-001
                 },
-                "VertexPersistent_3" : {
+                "Vertex_3Persistent" : {
                   "$$ClassName" : "TCastleVector3Persistent",
                   "Y" : 1.0000000149011612E-001
                 }
@@ -559,6 +752,12 @@
                     },
                     "Size" : 3.0000001192092896E-001
                   }
+                ],
+                "CustomRenderFragmentShader" : [
+                ],
+                "CustomRenderVertexShader" : [
+                ],
+                "CustomTransformFeedbackVertexShader" : [
                 ],
                 "DirectionVariance" : 2.0000000298023224E-001,
                 "LifeSpan" : 2.0000000000000000E+000,
@@ -617,6 +816,12 @@
                     "Size" : 3.0000001192092896E-001
                   }
                 ],
+                "CustomRenderFragmentShader" : [
+                ],
+                "CustomRenderVertexShader" : [
+                ],
+                "CustomTransformFeedbackVertexShader" : [
+                ],
                 "DirectionVariance" : 2.0000000298023224E-001,
                 "LifeSpan" : 2.0000000000000000E+000,
                 "LifeSpanVariance" : 2.0000000298023224E-001,
@@ -647,7 +852,7 @@
                 ],
                 "TranslationPersistent" : {
                   "$$ClassName" : "TCastleVector3Persistent",
-                  "X" : -2.3413009643554688E+000,
+                  "X" : -2.3413009643554687E+000,
                   "Y" : -4.0496129989624023E+000
                 }
               }
@@ -679,6 +884,12 @@
                     },
                     "Size" : 3.0000001192092896E-001
                   }
+                ],
+                "CustomRenderFragmentShader" : [
+                ],
+                "CustomRenderVertexShader" : [
+                ],
+                "CustomTransformFeedbackVertexShader" : [
                 ],
                 "DirectionVariance" : 2.0000000298023224E-001,
                 "LifeSpan" : 2.0000000000000000E+000,
@@ -764,6 +975,12 @@
                   "$$ClassName" : "TCastleColorPersistent",
                   "Alpha" : 0.0000000000000000E+000
                 },
+                "CustomRenderFragmentShader" : [
+                ],
+                "CustomRenderVertexShader" : [
+                ],
+                "CustomTransformFeedbackVertexShader" : [
+                ],
                 "DirectionVariance" : 2.0000000298023224E-001,
                 "LifeSpan" : 6.9999998807907104E-001,
                 "LifeSpanVariance" : 2.0000000298023224E-001,
@@ -860,6 +1077,12 @@
                   "Blue" : 2.0000000298023224E-001,
                   "Green" : 2.0000000298023224E-001
                 },
+                "CustomRenderFragmentShader" : [
+                ],
+                "CustomRenderVertexShader" : [
+                ],
+                "CustomTransformFeedbackVertexShader" : [
+                ],
                 "DirectionVariance" : 3.1400001049041748E+000,
                 "LifeSpan" : 1.5000000000000000E+000,
                 "LifeSpanVariance" : 0.0000000000000000E+000,
@@ -914,6 +1137,12 @@
                   "Green" : 7.3333334922790527E-001,
                   "Red" : 7.3333334922790527E-001
                 },
+                "CustomRenderFragmentShader" : [
+                ],
+                "CustomRenderVertexShader" : [
+                ],
+                "CustomTransformFeedbackVertexShader" : [
+                ],
                 "DirectionVariance" : 2.0000000298023224E-001,
                 "LifeSpan" : 3.0000000000000000E+000,
                 "LifeSpanVariance" : 2.0000000298023224E-001,
@@ -992,6 +1221,12 @@
                   "Blue" : 0.0000000000000000E+000,
                   "Green" : 0.0000000000000000E+000
                 },
+                "CustomRenderFragmentShader" : [
+                ],
+                "CustomRenderVertexShader" : [
+                ],
+                "CustomTransformFeedbackVertexShader" : [
+                ],
                 "Name" : "BBoxEffect",
                 "Texture" : "castle-data:/default.png"
               }
@@ -1046,7 +1281,7 @@
                 ],
                 "TranslationPersistent" : {
                   "$$ClassName" : "TCastleVector3Persistent",
-                  "X" : 2.4227523803710938E-001,
+                  "X" : 2.4227523803710937E-001,
                   "Y" : -5.1978673934936523E+000
                 }
               },
@@ -1114,6 +1349,12 @@
                   "Blue" : 2.0000000298023224E-001,
                   "Green" : 2.0000000298023224E-001
                 },
+                "CustomRenderFragmentShader" : [
+                ],
+                "CustomRenderVertexShader" : [
+                ],
+                "CustomTransformFeedbackVertexShader" : [
+                ],
                 "DirectionVariance" : 0.0000000000000000E+000,
                 "LifeSpan" : 1.5000000000000000E+000,
                 "LifeSpanVariance" : 1.0000000149011612E-001,
@@ -1153,7 +1394,7 @@
                 "Name" : "Attractor",
                 "TranslationPersistent" : {
                   "$$ClassName" : "TCastleVector3Persistent",
-                  "Y" : -1.8673629760742188E+000
+                  "Y" : -1.8673629760742187E+000
                 }
               }
             ]
@@ -1184,6 +1425,12 @@
                   "Blue" : 2.0000000298023224E-001,
                   "Green" : 2.0000000298023224E-001
                 },
+                "CustomRenderFragmentShader" : [
+                ],
+                "CustomRenderVertexShader" : [
+                ],
+                "CustomTransformFeedbackVertexShader" : [
+                ],
                 "DirectionVariance" : 0.0000000000000000E+000,
                 "LifeSpan" : 1.0000000000000000E+005,
                 "LifeSpanVariance" : 0.0000000000000000E+000,
@@ -1231,7 +1478,7 @@
                 "TranslationPersistent" : {
                   "$$ClassName" : "TCastleVector3Persistent",
                   "X" : 4.5547485351562500E-002,
-                  "Y" : 2.8002548217773438E-001
+                  "Y" : 2.8002548217773437E-001
                 }
               }
             ]
@@ -1269,6 +1516,12 @@
                   "Alpha" : 1.0000000000000000E+000,
                   "Green" : 1.0000000000000000E+000
                 },
+                "CustomRenderFragmentShader" : [
+                ],
+                "CustomRenderVertexShader" : [
+                ],
+                "CustomTransformFeedbackVertexShader" : [
+                ],
                 "MaxParticles" : 1000,
                 "MeshAsSourcePosition" : "castle-data:/suzanne.gltf",
                 "Name" : "MeshAsSourcePositionEffect",
@@ -1350,6 +1603,12 @@
                   "Blue" : 2.0000000298023224E-001,
                   "Green" : 2.0000000298023224E-001
                 },
+                "CustomRenderFragmentShader" : [
+                ],
+                "CustomRenderVertexShader" : [
+                ],
+                "CustomTransformFeedbackVertexShader" : [
+                ],
                 "DirectionVariance" : 3.1400001049041748E+000,
                 "LifeSpan" : 4.0000000596046448E-001,
                 "LifeSpanVariance" : 1.0000000149011612E-001,
@@ -1367,22 +1626,22 @@
                 "Speed" : 7.0000000000000000E+000,
                 "SpeedVariance" : 0.0000000000000000E+000,
                 "Texture" : "castle-data:/default.png",
-                "VertexPersistent_0" : {
+                "Vertex_0Persistent" : {
                   "$$ClassName" : "TCastleVector3Persistent",
                   "X" : -2.0000000000000000E+000,
                   "Y" : -5.0000000745058060E-002
                 },
-                "VertexPersistent_1" : {
+                "Vertex_1Persistent" : {
                   "$$ClassName" : "TCastleVector3Persistent",
                   "X" : 2.0000000000000000E+000,
                   "Y" : -5.0000000745058060E-002
                 },
-                "VertexPersistent_2" : {
+                "Vertex_2Persistent" : {
                   "$$ClassName" : "TCastleVector3Persistent",
                   "X" : 2.0000000000000000E+000,
                   "Y" : 5.0000000745058060E-002
                 },
-                "VertexPersistent_3" : {
+                "Vertex_3Persistent" : {
                   "$$ClassName" : "TCastleVector3Persistent",
                   "X" : -2.0000000000000000E+000,
                   "Y" : 5.0000000745058060E-002

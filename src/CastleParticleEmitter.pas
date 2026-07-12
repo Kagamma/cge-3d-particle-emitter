@@ -13,7 +13,7 @@ unit CastleParticleEmitter;
 interface
 
 uses
-  Classes, SysUtils, fpjsonrtti,
+  Classes, SysUtils, fpjsonrtti, StrUtils,
   {$ifdef GLES}
   CastleGLES,
   {$else}
@@ -89,7 +89,7 @@ type
     Direction: TVector3;
     Translate: TVector3;
     RotationXY: TVector4;
-    PreviousPosition: TVector3;
+    PreviousPosition: TVector4;
   end;
 
   PCastleParticleMesh = ^TCastleParticleMesh;
@@ -230,6 +230,11 @@ type
     FVertexPersistent_1,
     FVertexPersistent_2,
     FVertexPersistent_3: TCastleVector3Persistent;
+
+    FCustomTransformFeedbackVertexShader,
+    FCustomRenderVertexShader,
+    FCustomRenderFragmentShader: TStrings;
+
     procedure SetBoundingBoxMinForPersistent(const AValue: TVector3);
     function GetBoundingBoxMinForPersistent: TVector3;
     procedure SetBoundingBoxMaxForPersistent(const AValue: TVector3);
@@ -272,12 +277,16 @@ type
     procedure SetDuration(const AValue: Single);
     procedure SetLifeSpan(const AValue: Single);
     procedure SetLifeSpanVariance(const AValue: Single);
+    procedure SetCustomTransformFeedbackVertexShader(const V: TStrings);
+    procedure SetCustomRenderVertexShader(const V: TStrings);
+    procedure SetCustomRenderFragmentShader(const V: TStrings);
   protected
     function PropertySections(const PropertyName: String): TPropertySections; override;
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
   public
     IsColliable: Boolean;
     IsNeedRefresh: Boolean;
+    IsNeedRecompile: Boolean;
     IsChanged: Boolean;
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -336,10 +345,14 @@ type
     property ColorPersistent: TCastleColorPersistent read FColorPersistent;
     property ColorVariancePersistent: TCastleColorPersistent read FColorVariancePersistent;
     property Anchors: TCollection read FAnchors;
-    property VertexPersistent_0: TCastleVector3Persistent read FVertexPersistent_0;
-    property VertexPersistent_1: TCastleVector3Persistent read FVertexPersistent_1;
-    property VertexPersistent_2: TCastleVector3Persistent read FVertexPersistent_2;
-    property VertexPersistent_3: TCastleVector3Persistent read FVertexPersistent_3;
+    property Vertex_0Persistent: TCastleVector3Persistent read FVertexPersistent_0;
+    property Vertex_1Persistent: TCastleVector3Persistent read FVertexPersistent_1;
+    property Vertex_2Persistent: TCastleVector3Persistent read FVertexPersistent_2;
+    property Vertex_3Persistent: TCastleVector3Persistent read FVertexPersistent_3;
+
+    property CustomTransformFeedbackVertexShader: TStrings read FCustomTransformFeedbackVertexShader write SetCustomTransformFeedbackVertexShader;
+    property CustomRenderVertexShader: TStrings read FCustomRenderVertexShader write SetCustomRenderVertexShader;
+    property CustomRenderFragmentShader: TStrings read FCustomRenderFragmentShader write SetCustomRenderFragmentShader;
   end;
 
   TCastleParticleAttractor = class(TCastleTransform)
@@ -358,6 +371,10 @@ type
     Texture,
     TextureAsSourcePosition: GLuint;
 
+    LocalRenderProgramQuad,
+    LocalRenderProgramMesh,
+    LocalTransformFeedbackProgramSingleInstance,
+    LocalTransformFeedbackProgramMultipleInstances: TGLSLProgram;
     VAOTnFs,
     VAOMeshes,
     VBOTnFs: array[0..1] of GLuint;
@@ -373,6 +390,7 @@ type
     FEffectUBO: TCastleParticleEffectUBO;
     FParticleCount: Integer;
     FIsUpdated: Boolean;
+    FTime,
     { Countdown before remove the emitter }
     FCountdownTillRemove,
     { The value is in miliseconds. Set it to -1 for infinite emitting, 0 to
@@ -539,7 +557,7 @@ const
 'layout(location = 7) in vec3 inDirection;'nl
 'layout(location = 8) in vec3 inTranslate;'nl
 'layout(location = 9) in vec4 inRotationXY;'nl
-'layout(location = 10) in vec3 inPreviousPosition;'nl
+'layout(location = 10) in vec4 inPreviousPosition;'nl
 
 'out vec4 outPosition;'nl
 'out vec4 outTimeToLive;'nl
@@ -551,7 +569,7 @@ const
 'out vec3 outDirection;'nl
 'out vec3 outTranslate;'nl
 'out vec4 outRotationXY;'nl
-'out vec3 outPreviousPosition;'nl
+'out vec4 outPreviousPosition;'nl
 
 'layout(packed) uniform Effect {'nl
 '  vec3 rotation;'nl
@@ -583,6 +601,7 @@ const
 'uniform vec4 attractors[4];'nl
 'uniform int attractorCount;'nl
 'uniform int attractorType[4];'nl
+'uniform float time;'nl
 'uniform float emissionTime;'nl
 'uniform float deltaTime;'nl
 'uniform sampler2D textureAsSourcePosition;'nl
@@ -600,7 +619,7 @@ CommonTransformVertexFunctions nl
 '  outDirection = inDirection;'nl
 '  outTranslate = inTranslate;'nl
 '  outRotationXY = inRotationXY;'nl
-'  outPreviousPosition = inPosition.xyz;'nl
+'  outPreviousPosition = inPreviousPosition;'nl
 '}'nl
 
 'void emitParticle() {'nl
@@ -635,7 +654,8 @@ CommonTransformVertexFunctions nl
 '  } else {'nl
 '    outPosition.xyz = texelFetch(textureAsSourcePosition, ivec2(floor(rnd() * textureAsSourcePositionSize), 0), 0).xyz * sourcePositionVariance;'nl
 '  }'nl
-'  outPreviousPosition = outPosition.xyz;'nl
+'  outPreviousPosition.xyz = outPosition.xyz;'nl
+'  outPreviousPosition.w = rnd();'nl
 '  outPosition.xyz += sourcePositionLocalVariance * normalize(vec3(rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0));'nl
 '  outTranslate = vec3(0.0);'nl // Do nothing
 '  outStartPos = vec3(0.0);'nl // Do nothing
@@ -664,6 +684,8 @@ CommonTransformVertexFunctions nl
 '  outRotationXY.z = rotation.y + rotationVariance.y * (rnd() * 2.0 - 1.0);'nl
 '  outRotationXY.w = rotationSpeed.y + rotationSpeedVariance.y * (rnd() * 2.0 - 1.0);'nl
 '}'nl
+
+'%PLUG_after_declare%'nl
 
 'void updateParticle() {'nl
 '  float timeBetweenParticle = max(deltaTime, particleLifeSpan / float(maxParticles));'nl
@@ -705,11 +727,13 @@ CommonTransformVertexFunctions nl
 '      outVelocity.xyz += a * attractors[i].w;'nl
 '    }'nl
 '  }'nl
+'  outPreviousPosition.xyz = outPosition.xyz;'nl
 '  outPosition.xyz = rotate(outPosition.xyz, outVelocity.w * deltaTime, outDirection) + outVelocity.xyz * deltaTime;'nl
 '  outSizeRotation.x += outSizeRotation.y * deltaTime;'nl
 '  outSizeRotation.z += outSizeRotation.w * deltaTime;'nl
 '  outRotationXY.x += outRotationXY.y * deltaTime;'nl
 '  outRotationXY.z += outRotationXY.w * deltaTime;'nl
+'  %PLUG_after_call%'nl
 '}'nl
 
 'void main() {'nl
@@ -743,7 +767,7 @@ CommonTransformVertexFunctions nl
 'layout(location = 7) in vec3 inDirection;'nl
 'layout(location = 8) in vec3 inTranslate;'nl
 'layout(location = 9) in vec4 inRotationXY;'nl
-'layout(location = 10) in vec3 inPreviousPosition;'nl
+'layout(location = 10) in vec4 inPreviousPosition;'nl
 
 'out vec4 outPosition;'nl
 'out vec4 outTimeToLive;'nl
@@ -755,7 +779,7 @@ CommonTransformVertexFunctions nl
 'out vec3 outDirection;'nl
 'out vec3 outTranslate;'nl
 'out vec4 outRotationXY;'nl
-'out vec3 outPreviousPosition;'nl
+'out vec4 outPreviousPosition;'nl
 
 'layout(packed) uniform Effect {'nl
 '  vec3 rotation;'nl
@@ -788,6 +812,7 @@ CommonTransformVertexFunctions nl
 'uniform int attractorCount;'nl
 'uniform int attractorType[4];'nl
 'uniform mat4 mMatrix;'nl
+'uniform float time;'nl
 'uniform float emissionTime;'nl
 'uniform float deltaTime;'nl
 'uniform sampler2D textureAsSourcePosition;'nl
@@ -805,7 +830,7 @@ CommonTransformVertexFunctions nl
 '  outDirection = inDirection;'nl
 '  outTranslate = inTranslate;'nl
 '  outRotationXY = inRotationXY;'nl
-'  outPreviousPosition = inPosition.xyz;'nl
+'  outPreviousPosition = inPreviousPosition;'nl
 '}'nl
 
 'void emitParticle() {'nl
@@ -848,8 +873,9 @@ CommonTransformVertexFunctions nl
 '  }'nl
 '  outStartPos += sourcePositionLocalVariance * normalize(vec3(rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0));'nl
 '  outTranslate = vec3(mMatrix[3][0], mMatrix[3][1], mMatrix[3][2]);'nl
-'  outPreviousPosition = outPosition.xyz;'nl
 '  outPosition.xyz = outTranslate + outStartPos;'nl
+'  outPreviousPosition.xyz = outStartPos.xyz;'nl
+'  outPreviousPosition.w = rnd();'nl
 '  outDirection = rMatrix * direction;'nl
 '  vec3 cd = normalize(cross(outDirection, outDirection.zxy));'nl
 '  float angle = directionVariance * (rnd() * 2.0 - 1.0);'nl
@@ -875,6 +901,8 @@ CommonTransformVertexFunctions nl
 '  outRotationXY.z = rotation.y + rotationVariance.y * (rnd() * 2.0 - 1.0);'nl
 '  outRotationXY.w = rotationSpeed.y + rotationSpeedVariance.y * (rnd() * 2.0 - 1.0);'nl
 '}'nl
+
+'%PLUG_after_declare%'nl
 
 'void updateParticle() {'nl
 '  float timeBetweenParticle = max(deltaTime, particleLifeSpan / float(maxParticles));'nl
@@ -917,11 +945,13 @@ CommonTransformVertexFunctions nl
 '    }'nl
 '  }'nl
 '  outStartPos = rotate(outStartPos, outVelocity.w * deltaTime, outDirection) + outVelocity.xyz * deltaTime;'nl
+'  outPreviousPosition.xyz = outPosition.xyz;'nl
 '  outPosition.xyz = outStartPos + outTranslate;'nl
 '  outSizeRotation.x += outSizeRotation.y * deltaTime;'nl
 '  outSizeRotation.z += outSizeRotation.w * deltaTime;'nl
 '  outRotationXY.x += outRotationXY.y * deltaTime;'nl
 '  outRotationXY.z += outRotationXY.w * deltaTime;'nl
+'  %PLUG_after_call%'nl
 '}'nl
 
 'void main() {'nl
@@ -944,7 +974,7 @@ CommonTransformVertexFunctions nl
 'layout(location = 2) in vec4 inSizeRotation;'nl
 'layout(location = 3) in vec4 inColor;'nl
 'layout(location = 9) in vec4 inRotationXY;'nl
-'layout(location = 10) in vec3 inPreviousPosition;'nl
+'layout(location = 10) in vec4 inPreviousPosition;'nl
 'layout(location = 13) in vec3 inVertex;'nl
 'layout(location = 14) in vec2 inTexcoord;'nl
 
@@ -958,6 +988,7 @@ CommonTransformVertexFunctions nl
 'uniform float scaleY;'nl
 'uniform float scaleZ;'nl
 'uniform int rotationType;'nl
+'uniform float time;'nl
 
 CommonVertexFunctions nl
 
@@ -999,6 +1030,7 @@ CommonVertexFunctions nl
 'uniform int fogEnable;'nl
 'uniform float fogEnd;'nl
 'uniform vec3 fogColor;'nl
+'uniform float time;'nl
 
 'void main() {'nl
 '  outColor = texture(baseColor, fragTexCoord) * fragColor;'nl
@@ -1024,7 +1056,7 @@ CommonVertexFunctions nl
 'layout(location = 2) in vec4 inSizeRotation;'nl
 'layout(location = 3) in vec4 inColor;'nl
 'layout(location = 9) in vec4 inRotationXY;'nl
-'layout(location = 10) in vec3 inPreviousPosition;'nl
+'layout(location = 10) in vec4 inPreviousPosition;'nl
 'layout(location = 13) in vec3 inVertex;'nl
 'layout(location = 14) in vec2 inTexcoord;'nl
 
@@ -1038,6 +1070,7 @@ CommonVertexFunctions nl
 'uniform float scaleY;'nl
 'uniform float scaleZ;'nl
 'uniform int rotationType;'nl
+'uniform float time;'nl
 
 CommonVertexFunctions nl
 
@@ -1047,7 +1080,7 @@ CommonVertexFunctions nl
 '    fragColor = inColor;'nl
 '    mat3 m;'nl
 '    if (rotationType == ROTATION_PREVIOUS_POSITION) {'nl
-'      vec3 posDelta = normalize(inPreviousPosition - inPosition.xyz);'nl
+'      vec3 posDelta = normalize(inPreviousPosition.xyz - inPosition.xyz);'nl
 '      m = createLookup(posDelta);'nl
 '    } else {'nl
 '      m = createRotate(vec3(inRotationXY.x, inRotationXY.z, inSizeRotation.z));'nl
@@ -1076,6 +1109,7 @@ CommonVertexFunctions nl
 'uniform int fogEnable;'nl
 'uniform float fogEnd;'nl
 'uniform vec3 fogColor;'nl
+'uniform float time;'nl
 
 'void main() {'nl
 '  outColor = texture(baseColor, fragTexCoord) * fragColor;'nl
@@ -1499,6 +1533,27 @@ begin
   Self.IsNeedRefresh := True;
 end;
 
+procedure TCastleParticleEffect.SetCustomTransformFeedbackVertexShader(const V: TStrings);
+begin
+  Self.CustomTransformFeedbackVertexShader.Assign(V);
+  Self.IsNeedRefresh := True;
+  Self.IsNeedRecompile := True;
+end;
+
+procedure TCastleParticleEffect.SetCustomRenderVertexShader(const V: TStrings);
+begin
+  Self.CustomRenderVertexShader.Assign(V);
+  Self.IsNeedRefresh := True;
+  Self.IsNeedRecompile := True;
+end;
+
+procedure TCastleParticleEffect.SetCustomRenderFragmentShader(const V: TStrings);
+begin
+  Self.CustomRenderFragmentShader.Assign(V);
+  Self.IsNeedRefresh := True;
+  Self.IsNeedRecompile := True;
+end;
+
 function TCastleParticleEffect.PropertySections(const PropertyName: String): TPropertySections;
 begin
   if PropertyName = 'Tag' then
@@ -1620,6 +1675,9 @@ begin
     Self.FVertex_3
   );
   Self.FAnchors := TCollection.Create(TCastleParticleEffectAnchorItem);
+  Self.FCustomTransformFeedbackVertexShader := TStringList.Create;
+  Self.FCustomRenderVertexShader := TStringList.Create;
+  Self.FCustomRenderFragmentShader := TStringList.Create;
 end;
 
 destructor TCastleParticleEffect.Destroy;
@@ -1642,6 +1700,9 @@ begin
   FreeAndNil(Self.FVertexPersistent_1);
   FreeAndNil(Self.FVertexPersistent_2);
   FreeAndNil(Self.FVertexPersistent_3);
+  FreeAndNil(Self.FCustomTransformFeedbackVertexShader);
+  FreeAndNil(Self.FCustomRenderVertexShader);
+  FreeAndNil(Self.FCustomRenderFragmentShader);
   inherited;
 end;
 
@@ -1756,6 +1817,7 @@ begin
   Self.FAttractorList.Capacity := 4;
   Self.FAttractorTypeList.Capacity := 4;
   Self.FDeltaTime := 0;
+  Self.FTime := 0;
   {$ifdef CASTLE_DESIGN_MODE}
   DebugScene := TCastleScene.Create(Self);
   DebugScene.SetTransient;
@@ -1786,13 +1848,17 @@ begin
   if (not Self.Exists) or (Self.FEffect = nil) then
     Exit;
   Self.GLContextOpen;
-  if Self.FIsNeedRefresh or Self.FEffect.IsNeedRefresh then
+  if Self.FIsNeedRefresh or Self.FEffect.IsNeedRefresh or Self.FEffect.IsNeedRecompile then
     Self.InternalRefreshEffect;
 
   if Self.FDeltaTime <= 0 then
     RealSecondsPassed := SecondsPassed
   else
     RealSecondsPassed := Self.FDeltaTime;
+  if Self.TimePlaying then
+    Self.FTime := Self.FTime + RealSecondsPassed * Self.TimePlayingSpeed
+  else
+    Self.FTime := Self.FTime + RealSecondsPassed;
 
   if not Self.FIsUpdated then
   begin
@@ -1816,11 +1882,12 @@ begin
     if ((not Self.FAllowsUpdateWhenCulled) and Self.FIsDrawn) or Self.FAllowsUpdateWhenCulled then
     begin
       if Self.AllowsInstancing then
-        TransformFeedbackProgram := TransformFeedbackProgramMultipleInstances
+        TransformFeedbackProgram := Self.LocalTransformFeedbackProgramMultipleInstances
       else
-        TransformFeedbackProgram := TransformFeedbackProgramSingleInstance;
+        TransformFeedbackProgram := Self.LocalTransformFeedbackProgramSingleInstance;
       glEnable(GL_RASTERIZER_DISCARD);
       TransformFeedbackProgram.Enable;
+      TransformFeedbackProgram.Uniform('time').SetValue(Self.FTime);
       if Self.TimePlaying then
         TransformFeedbackProgram.Uniform('deltaTime').SetValue(RealSecondsPassed * Self.TimePlayingSpeed)
       else
@@ -2003,13 +2070,13 @@ begin
 
   // Draw particles
   if Self.AllowsInstancing then
-    TransformFeedbackProgram := TransformFeedbackProgramMultipleInstances
+    TransformFeedbackProgram := Self.LocalTransformFeedbackProgramMultipleInstances
   else
-    TransformFeedbackProgram := TransformFeedbackProgramSingleInstance;
+    TransformFeedbackProgram := Self.LocalTransformFeedbackProgramSingleInstance;
   if Self.FEffect.Billboard then
-    RenderProgram := RenderProgramQuad
+    RenderProgram := Self.LocalRenderProgramQuad
   else
-    RenderProgram := RenderProgramMesh;
+    RenderProgram := Self.LocalRenderProgramMesh;
   OldDepthBufferUpdate := RenderContext.DepthBufferUpdate;
   if not Self.FAllowsWriteToDepthBuffer then
     RenderContext.DepthBufferUpdate := False
@@ -2048,6 +2115,7 @@ begin
   end;
   RenderProgram.Uniform('pMatrix').SetValue(RenderContext.ProjectionMatrix);
   RenderProgram.Uniform('rotationType').SetValue(Integer(Self.FEffect.RotationType));
+  RenderProgram.Uniform('time').SetValue(Self.FTime);
   glBindVertexArray(Self.VAOMeshes[Self.CurrentBuffer]);
   glActiveTexture(GL_TEXTURE0);
   if Self.FEffect.TextureViewport = nil then
@@ -2081,9 +2149,10 @@ end;
 procedure TCastleParticleEmitter.LoadEffect(const AEffect: TCastleParticleEffect);
 begin
   Self.FEffect := AEffect;
-  if AEffect <> nil then
+  if Self.FEffect <> nil then
   begin
-    AEffect.FreeNotification(Self);
+    Self.FEffect.FreeNotification(Self);
+    Self.FEffect.IsNeedRecompile := True;
   end;
   RefreshEffect;
 end;
@@ -2114,6 +2183,7 @@ var
   V,
   ProgramId,
   EffectUniformIndex: GLuint;
+  S: String;
 begin
   // Safeguard
   if not ApplicationProperties.IsGLContextOpen then Exit;
@@ -2134,47 +2204,59 @@ begin
 
   if TransformFeedbackProgramSingleInstance = nil then
   begin
-    TransformFeedbackProgramSingleInstance := TGLSLProgram.Create;
-    TransformFeedbackProgramSingleInstance.AttachVertexShader(TransformVertexShaderSourceSingleInstance);
-    {$ifdef GLES}
-      TransformFeedbackProgramSingleInstance.AttachFragmentShader(FragmentShaderSourceDummy);
-    {$endif}
-    TransformFeedbackProgramSingleInstance.SetTransformFeedbackVaryings(Varyings);
-    TransformFeedbackProgramSingleInstance.Link;
+    try
+      S := StringsReplace(TransformVertexShaderSourceSingleInstance, ['%PLUG_after_declare%', '%PLUG_after_call%'], ['', ''], [rfReplaceAll]);
+      TransformFeedbackProgramSingleInstance := TGLSLProgram.Create;
+      TransformFeedbackProgramSingleInstance.AttachVertexShader(S);
+      {$ifdef GLES}
+        TransformFeedbackProgramSingleInstance.AttachFragmentShader(FragmentShaderSourceDummy);
+      {$endif}
+      TransformFeedbackProgramSingleInstance.SetTransformFeedbackVaryings(Varyings);
+      TransformFeedbackProgramSingleInstance.Link;
 
-    TransformFeedbackProgramMultipleInstances := TGLSLProgram.Create;
-    TransformFeedbackProgramMultipleInstances.AttachVertexShader(TransformVertexShaderSourceMultipleInstances);
-    {$ifdef GLES}
-      TransformFeedbackProgramMultipleInstances.AttachFragmentShader(FragmentShaderSourceDummy);
-    {$endif}
-    TransformFeedbackProgramMultipleInstances.SetTransformFeedbackVaryings(Varyings);
-    TransformFeedbackProgramMultipleInstances.Link;
+      S := StringsReplace(TransformVertexShaderSourceMultipleInstances, ['%PLUG_after_declare%', '%PLUG_after_call%'], ['', ''], [rfReplaceAll]);
+      TransformFeedbackProgramMultipleInstances := TGLSLProgram.Create;
+      TransformFeedbackProgramMultipleInstances.AttachVertexShader(S);
+      {$ifdef GLES}
+        TransformFeedbackProgramMultipleInstances.AttachFragmentShader(FragmentShaderSourceDummy);
+      {$endif}
+      TransformFeedbackProgramMultipleInstances.SetTransformFeedbackVaryings(Varyings);
+      TransformFeedbackProgramMultipleInstances.Link;
 
-    // CGE doesn't expose ProgramId, so we work around by quering for it from OpenGL
-    TransformFeedbackProgramSingleInstance.Enable;
-    glGetIntegerv(GL_CURRENT_PROGRAM, @ProgramId);
-    EffectUniformIndex := glGetUniformBlockIndex(ProgramId, 'Effect');
-    glUniformBlockBinding(ProgramId, EffectUniformIndex, 0);
-    TransformFeedbackProgramSingleInstance.Disable;
+      // CGE doesn't expose ProgramId, so we work around by quering for it from OpenGL
+      TransformFeedbackProgramSingleInstance.Enable;
+      glGetIntegerv(GL_CURRENT_PROGRAM, @ProgramId);
+      EffectUniformIndex := glGetUniformBlockIndex(ProgramId, 'Effect');
+      glUniformBlockBinding(ProgramId, EffectUniformIndex, 0);
+      TransformFeedbackProgramSingleInstance.Disable;
 
-    TransformFeedbackProgramMultipleInstances.Enable;
-    glGetIntegerv(GL_CURRENT_PROGRAM, @ProgramId);
-    EffectUniformIndex := glGetUniformBlockIndex(ProgramId, 'Effect');
-    glUniformBlockBinding(ProgramId, EffectUniformIndex, 0);
-    TransformFeedbackProgramMultipleInstances.Disable;
+      TransformFeedbackProgramMultipleInstances.Enable;
+      glGetIntegerv(GL_CURRENT_PROGRAM, @ProgramId);
+      EffectUniformIndex := glGetUniformBlockIndex(ProgramId, 'Effect');
+      glUniformBlockBinding(ProgramId, EffectUniformIndex, 0);
+      TransformFeedbackProgramMultipleInstances.Disable;
 
-    RenderProgramQuad := TGLSLProgram.Create;
-    RenderProgramQuad.AttachVertexShader(VertexShaderSourceQuad);
-    RenderProgramQuad.AttachFragmentShader(FragmentShaderSourceQuad);
-    RenderProgramQuad.Link;
+      RenderProgramQuad := TGLSLProgram.Create;
+      RenderProgramQuad.AttachVertexShader(VertexShaderSourceQuad);
+      RenderProgramQuad.AttachFragmentShader(FragmentShaderSourceQuad);
+      RenderProgramQuad.Link;
 
-    RenderProgramMesh := TGLSLProgram.Create;
-    RenderProgramMesh.AttachVertexShader(VertexShaderSourceMesh);
-    RenderProgramMesh.AttachFragmentShader(FragmentShaderSourceMesh);
-    RenderProgramMesh.Link;
+      RenderProgramMesh := TGLSLProgram.Create;
+      RenderProgramMesh.AttachVertexShader(VertexShaderSourceMesh);
+      RenderProgramMesh.AttachFragmentShader(FragmentShaderSourceMesh);
+      RenderProgramMesh.Link;
+    except
+      on E: Exception do
+        WritelnWarning('CastleParticleEmitter', E.Message);
+    end;
 
     ApplicationProperties.OnGLContextClose.Add(@FreeGLContext);
   end;
+
+  Self.LocalRenderProgramMesh := RenderProgramMesh;
+  Self.LocalRenderProgramQuad := RenderProgramQuad;
+  Self.LocalTransformFeedbackProgramSingleInstance := TransformFeedbackProgramSingleInstance;
+  Self.LocalTransformFeedbackProgramMultipleInstances := TransformFeedbackProgramMultipleInstances;
 
   glGenBuffers(2, @Self.VBOTnFs);
   glGenVertexArrays(2, @Self.VAOTnFs);
@@ -2218,6 +2300,15 @@ begin
     if Self.TextureAsSourcePosition <> 0 then
       glDeleteTextures(1, @Self.TextureAsSourcePosition);
     Self.FIsGLContextInitialized := False;
+
+    if Self.LocalRenderProgramMesh <> RenderProgramMesh then
+      FreeAndNil(Self.LocalRenderProgramMesh);
+    if Self.LocalRenderProgramQuad <> RenderProgramQuad then
+      FreeAndNil(Self.LocalRenderProgramQuad);
+    if Self.LocalTransformFeedbackProgramSingleInstance <> TransformFeedbackProgramSingleInstance then
+      FreeAndNil(Self.LocalTransformFeedbackProgramSingleInstance);
+    if Self.LocalTransformFeedbackProgramMultipleInstances <> TransformFeedbackProgramMultipleInstances then
+      FreeAndNil(Self.LocalTransformFeedbackProgramMultipleInstances);
   end;
   inherited;
 end;
@@ -2359,13 +2450,109 @@ end;
 
 procedure TCastleParticleEmitter.InternalRefreshEffect;
 var
+  ProgramId,
+  EffectUniformIndex: GLuint;
   I: Integer;
+  Plug, SrcVertex, SrcFragment: String;
 begin
   if Self.FEffect = nil then
     Exit;
   // Only process if texture exists
   if (not URIFileExists(Self.FEffect.Texture)) and (Self.Effect.TextureViewport = nil) then
     Exit;
+
+  // Do we need to recompile shaders?
+  if Self.FEffect.IsNeedRecompile then
+  begin
+    try
+      Self.FEffect.IsNeedRecompile := False;
+      // TransformFeedback shader
+      Plug := Self.FEffect.CustomTransformFeedbackVertexShader.Text;
+      if Plug <> '' then
+      begin
+        // Single instance
+        SrcVertex := StringsReplace(TransformVertexShaderSourceSingleInstance, ['%PLUG_after_declare%', '%PLUG_after_call%'], [Plug, 'PLUG_after();'], [rfReplaceAll]);
+        if Self.LocalTransformFeedbackProgramSingleInstance = TransformFeedbackProgramSingleInstance then
+        begin
+          Self.LocalTransformFeedbackProgramSingleInstance := TGLSLProgram.Create;
+        end;
+        Self.LocalTransformFeedbackProgramSingleInstance.DetachAllShaders;
+        Self.LocalTransformFeedbackProgramSingleInstance.AttachVertexShader(SrcVertex);
+        {$ifdef GLES}
+          Self.LocalTransformFeedbackProgramSingleInstance.AttachFragmentShader(FragmentShaderSourceDummy);
+        {$endif}
+        Self.LocalTransformFeedbackProgramSingleInstance.SetTransformFeedbackVaryings(Varyings);
+        Self.LocalTransformFeedbackProgramSingleInstance.Link;
+        // Multiple instances
+        SrcVertex := StringsReplace(TransformVertexShaderSourceMultipleInstances, ['%PLUG_after_declare%', '%PLUG_after_call%'], [Plug, 'PLUG_after();'], [rfReplaceAll]);
+        if Self.LocalTransformFeedbackProgramMultipleInstances = TransformFeedbackProgramMultipleInstances then
+        begin
+          Self.LocalTransformFeedbackProgramMultipleInstances := TGLSLProgram.Create;
+        end;
+        Self.LocalTransformFeedbackProgramMultipleInstances.DetachAllShaders;
+        Self.LocalTransformFeedbackProgramMultipleInstances.AttachVertexShader(SrcVertex);
+        {$ifdef GLES}
+          Self.LocalTransformFeedbackProgramMultipleInstances.AttachFragmentShader(FragmentShaderSourceDummy);
+        {$endif}
+        Self.LocalTransformFeedbackProgramMultipleInstances.SetTransformFeedbackVaryings(Varyings);
+        Self.LocalTransformFeedbackProgramMultipleInstances.Link;
+
+        // CGE doesn't expose ProgramId, so we work around by quering for it from OpenGL
+        Self.LocalTransformFeedbackProgramSingleInstance.Enable;
+        glGetIntegerv(GL_CURRENT_PROGRAM, @ProgramId);
+        EffectUniformIndex := glGetUniformBlockIndex(ProgramId, 'Effect');
+        glUniformBlockBinding(ProgramId, EffectUniformIndex, 0);
+        Self.LocalTransformFeedbackProgramSingleInstance.Disable;
+
+        Self.LocalTransformFeedbackProgramMultipleInstances.Enable;
+        glGetIntegerv(GL_CURRENT_PROGRAM, @ProgramId);
+        EffectUniformIndex := glGetUniformBlockIndex(ProgramId, 'Effect');
+        glUniformBlockBinding(ProgramId, EffectUniformIndex, 0);
+        Self.LocalTransformFeedbackProgramMultipleInstances.Disable;
+      end;
+      // Render shader
+      SrcVertex := Self.FEffect.CustomRenderVertexShader.Text;
+      SrcFragment := Self.FEffect.CustomRenderFragmentShader.Text;
+      if (SrcVertex <> '') or (SrcFragment <> '') then
+      begin
+        // Quad
+        if Self.LocalRenderProgramQuad = RenderProgramQuad then
+        begin
+          Self.LocalRenderProgramQuad := TGLSLProgram.Create;
+        end;
+        Self.LocalRenderProgramQuad.DetachAllShaders;
+        if SrcVertex <> '' then
+          Self.LocalRenderProgramQuad.AttachVertexShader(SrcVertex)
+        else
+          Self.LocalRenderProgramQuad.AttachVertexShader(VertexShaderSourceQuad);
+        if SrcFragment <> '' then
+          Self.LocalRenderProgramQuad.AttachFragmentShader(SrcFragment)
+        else
+          Self.LocalRenderProgramQuad.AttachFragmentShader(FragmentShaderSourceQuad);
+        Self.LocalRenderProgramQuad.Link;
+        // Mesh
+        if Self.LocalRenderProgramMesh = RenderProgramMesh then
+        begin
+          Self.LocalRenderProgramMesh := TGLSLProgram.Create;
+        end;
+        Self.LocalRenderProgramMesh.DetachAllShaders;
+        if SrcVertex <> '' then
+          Self.LocalRenderProgramMesh.AttachVertexShader(SrcVertex)
+        else
+          Self.LocalRenderProgramMesh.AttachVertexShader(VertexShaderSourceMesh);
+        if SrcFragment <> '' then
+          Self.LocalRenderProgramMesh.AttachFragmentShader(SrcFragment)
+        else
+          Self.LocalRenderProgramMesh.AttachFragmentShader(FragmentShaderSourceMesh);
+        Self.LocalRenderProgramMesh.Link;
+      end;
+    except
+      on E: Exception do
+      begin
+        WritelnWarning('CastleParticleEmitter', E.Message);
+      end;
+    end;
+  end;
 
   Self.FEmissionTime := Self.FEffect.Duration;
   Self.FParticleCount := Self.FEffect.MaxParticles;
@@ -2471,7 +2658,7 @@ begin
     glEnableVertexAttribArray(9);
     glVertexAttribPointer(9, 4, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), Pointer(132));
     glEnableVertexAttribArray(10);
-    glVertexAttribPointer(10, 3, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), Pointer(148));
+    glVertexAttribPointer(10, 4, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), Pointer(148));
 
     // Instancing VAO
     glBindVertexArray(Self.VAOMeshes[I]);
@@ -2494,7 +2681,7 @@ begin
     glVertexAttribPointer(9, 4, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), Pointer(132));
     glVertexAttribDivisor(9, 1);
     glEnableVertexAttribArray(10);
-    glVertexAttribPointer(10, 3, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), Pointer(148));
+    glVertexAttribPointer(10, 4, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), Pointer(148));
     glVertexAttribDivisor(10, 1);
 
     glBindBuffer(GL_ARRAY_BUFFER, Self.VBOMesh);
