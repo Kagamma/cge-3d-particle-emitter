@@ -347,7 +347,7 @@
                 "CustomRenderVertexShader" : [
                 ],
                 "CustomTransformFeedbackVertexShader" : [
-                  "void PLUG_after() {",
+                  "void PLUG_update_after() {",
                   "  outPosition.xyz = outPreviousPosition.xyz;",
                   "  outPosition.x +=sin(time * 2.0 + outPreviousPosition.w * 3.14) / 50.0;",
                   "  outPosition.y -= 0.5 * deltaTime;",

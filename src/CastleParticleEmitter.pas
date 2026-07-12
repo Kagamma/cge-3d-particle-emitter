@@ -685,7 +685,7 @@ CommonTransformVertexFunctions nl
 '  outRotationXY.w = rotationSpeed.y + rotationSpeedVariance.y * (rnd() * 2.0 - 1.0);'nl
 '}'nl
 
-'%PLUG_after_declare%'nl
+'%PLUG_update_after_declare%'nl
 
 'void updateParticle() {'nl
 '  float timeBetweenParticle = max(deltaTime, particleLifeSpan / float(maxParticles));'nl
@@ -733,7 +733,7 @@ CommonTransformVertexFunctions nl
 '  outSizeRotation.z += outSizeRotation.w * deltaTime;'nl
 '  outRotationXY.x += outRotationXY.y * deltaTime;'nl
 '  outRotationXY.z += outRotationXY.w * deltaTime;'nl
-'  %PLUG_after_call%'nl
+'  %PLUG_update_after_call%'nl
 '}'nl
 
 'void main() {'nl
@@ -902,7 +902,7 @@ CommonTransformVertexFunctions nl
 '  outRotationXY.w = rotationSpeed.y + rotationSpeedVariance.y * (rnd() * 2.0 - 1.0);'nl
 '}'nl
 
-'%PLUG_after_declare%'nl
+'%PLUG_update_after_declare%'nl
 
 'void updateParticle() {'nl
 '  float timeBetweenParticle = max(deltaTime, particleLifeSpan / float(maxParticles));'nl
@@ -951,7 +951,7 @@ CommonTransformVertexFunctions nl
 '  outSizeRotation.z += outSizeRotation.w * deltaTime;'nl
 '  outRotationXY.x += outRotationXY.y * deltaTime;'nl
 '  outRotationXY.z += outRotationXY.w * deltaTime;'nl
-'  %PLUG_after_call%'nl
+'  %PLUG_update_after_call%'nl
 '}'nl
 
 'void main() {'nl
@@ -2205,7 +2205,7 @@ begin
   if TransformFeedbackProgramSingleInstance = nil then
   begin
     try
-      S := StringsReplace(TransformVertexShaderSourceSingleInstance, ['%PLUG_after_declare%', '%PLUG_after_call%'], ['', ''], [rfReplaceAll]);
+      S := StringsReplace(TransformVertexShaderSourceSingleInstance, ['%PLUG_update_after_declare%', '%PLUG_update_after_call%'], ['', ''], [rfReplaceAll]);
       TransformFeedbackProgramSingleInstance := TGLSLProgram.Create;
       TransformFeedbackProgramSingleInstance.AttachVertexShader(S);
       {$ifdef GLES}
@@ -2214,7 +2214,7 @@ begin
       TransformFeedbackProgramSingleInstance.SetTransformFeedbackVaryings(Varyings);
       TransformFeedbackProgramSingleInstance.Link;
 
-      S := StringsReplace(TransformVertexShaderSourceMultipleInstances, ['%PLUG_after_declare%', '%PLUG_after_call%'], ['', ''], [rfReplaceAll]);
+      S := StringsReplace(TransformVertexShaderSourceMultipleInstances, ['%PLUG_update_after_declare%', '%PLUG_update_after_call%'], ['', ''], [rfReplaceAll]);
       TransformFeedbackProgramMultipleInstances := TGLSLProgram.Create;
       TransformFeedbackProgramMultipleInstances.AttachVertexShader(S);
       {$ifdef GLES}
@@ -2471,7 +2471,7 @@ begin
       if Plug <> '' then
       begin
         // Single instance
-        SrcVertex := StringsReplace(TransformVertexShaderSourceSingleInstance, ['%PLUG_after_declare%', '%PLUG_after_call%'], [Plug, 'PLUG_after();'], [rfReplaceAll]);
+        SrcVertex := StringsReplace(TransformVertexShaderSourceSingleInstance, ['%PLUG_update_after_declare%', '%PLUG_update_after_call%'], [Plug, 'PLUG_update_after();'], [rfReplaceAll]);
         if Self.LocalTransformFeedbackProgramSingleInstance = TransformFeedbackProgramSingleInstance then
         begin
           Self.LocalTransformFeedbackProgramSingleInstance := TGLSLProgram.Create;
@@ -2484,7 +2484,7 @@ begin
         Self.LocalTransformFeedbackProgramSingleInstance.SetTransformFeedbackVaryings(Varyings);
         Self.LocalTransformFeedbackProgramSingleInstance.Link;
         // Multiple instances
-        SrcVertex := StringsReplace(TransformVertexShaderSourceMultipleInstances, ['%PLUG_after_declare%', '%PLUG_after_call%'], [Plug, 'PLUG_after();'], [rfReplaceAll]);
+        SrcVertex := StringsReplace(TransformVertexShaderSourceMultipleInstances, ['%PLUG_update_after_declare%', '%PLUG_update_after_call%'], [Plug, 'PLUG_update_after();'], [rfReplaceAll]);
         if Self.LocalTransformFeedbackProgramMultipleInstances = TransformFeedbackProgramMultipleInstances then
         begin
           Self.LocalTransformFeedbackProgramMultipleInstances := TGLSLProgram.Create;
