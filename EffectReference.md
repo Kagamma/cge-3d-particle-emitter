@@ -50,11 +50,11 @@ There're 2 type of shaders we can customize:
 ### Render shader
 Used to show the particles on screen, controlled by `CusomRenderVertexShader` and `CustomRenderFragmentShader` parameters.
 
-The shader set in those 2 parameters will COMPLETELY REPLACED the default shader.
+The shader set in those 2 parameters will COMPLETELY REPLACE the default shader.
 ### Transform feedback shader
 Used to calculate particles position, size and color, controlled by `CustomTransformFeedbackVertexShader` parameter.
 
-The shader set in the parameter will not replaced the default shader, but instead insert itself to the default shader as PLUG.
+The shader set in the parameter will not replace the default shader, but instead insert itself to the default shader as PLUG.
 
 Currently, only one PLUG is supported:
 - `void PLUG_update_after()`: Will be called after the particle's finished it's calculations. This is mainly used to modify the particle after all calculations are done. See the `Snow` effect in `gallery` demo for example.
