@@ -52,6 +52,8 @@ There's limitation of 4 anchors per Effect.
 
 `TimeNormalized` (range [0..1]) determines at what point during the particle’s lifetime each anchor is applied.
 
+`KillDistance` if the value is greater than or equal to 0, then the attractor will automatically kill any particles that come near it: `kill = (particle's distance to attractor) <= KillDistance`
+
 Size, Color, SizeVariance, and ColorVariance are updated using linear interpolation between anchors.
 
 ## Attractors
