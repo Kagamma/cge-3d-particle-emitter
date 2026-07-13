@@ -19,8 +19,8 @@ There are several spawning methods, controlled by the `SourceType` parameter.
 
 - `SourceType = pstBox`: `SourcePositionVariance` contains the half-extents (X/2, Y/2, Z/2) of the box. Particles spawn inside the box.
 - `SourceType = pstBoxSurface`: `SourcePositionVariance` contains the half-extents (X/2, Y/2, Z/2) of the box. Particles spawn on the surface of the box.
-- `SourceType = pstSpheroid`: `SourcePositionVariance` contains the radius of the sphere. Particles spawn inside the sphere.
-- `SourceType = pstSpheroidSurface`: `SourcePositionVariance` contains the radius of the sphere. Particles spawn on the surface of the sphere.
+- `SourceType = pstSpheroid`: `SourcePositionVariance` contains the radius of the spheroid. Particles spawn inside the spheroid.
+- `SourceType = pstSpheroidSurface`: `SourcePositionVariance` contains the radius of the spheroid. Particles spawn on the surface of the spheroid.
 - `SourceType = pstCylinderSurface`: `SourcePositionVariance` X and Z represent the radius, and Y represents the height of the cylinder. Particles spawn on the surface of the cylinder.
 
 ## Life Cycle
