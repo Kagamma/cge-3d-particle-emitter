@@ -105,7 +105,7 @@
                 },
                 "CustomRenderFragmentShader" : [
                   "void PLUG_color(inout vec4 color) {",
-                  "  color.xz = vec2(sin(time));",
+                  "  color.xz = vec2(sin(time * 5.0));",
                   "}"
                 ],
                 "CustomRenderVertexShader" : [
