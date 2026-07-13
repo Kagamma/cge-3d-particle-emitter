@@ -13,7 +13,7 @@ unit CastleParticleEmitter;
 interface
 
 uses
-  Classes, SysUtils, fpjsonrtti, StrUtils,
+  Classes, SysUtils, fpjsonrtti, md5,
   {$ifdef GLES}
   CastleGLES,
   {$else}
@@ -1219,6 +1219,15 @@ CommonVertexFunctions nl'';
     (X: 0; Y: 0), (X: 1; Y: 1), (X: 0; Y: 1)
   );
 
+type
+  TCastleParticleShaders = record
+    Shader1, Shader2: TGLSLProgram;
+  end;
+  TCastleParticleShaderCache = TDictionary<String, TCastleParticleShaders>;
+
+var
+  ShaderCache: TCastleParticleShaderCache;
+
 var
   IsCheckedForUsable: Boolean = False;
   TransformFeedbackProgram: TGLSLProgram = nil;
@@ -1230,6 +1239,9 @@ var
 
 { Call when OpenGL context is closed }
 procedure FreeGLContext;
+var
+  Key: String;
+  Shaders: TCastleParticleShaders;
 begin
   if TransformFeedbackProgramSingleInstance <> nil then
   begin
@@ -1238,6 +1250,15 @@ begin
     FreeAndNil(RenderProgramQuad);
     FreeAndNil(RenderProgramMesh);
   end;
+  //
+  if ShaderCache.Count > 0 then
+    for Key in ShaderCache.Keys do
+    begin
+      Shaders := ShaderCache[Key];
+      Shaders.Shader1.Free;
+      Shaders.Shader2.Free;
+    end;
+  ShaderCache.Clear;
 end;
 
 function CreateVec3Persistent(const G: TGetVector3Event; const S: TSetVector3Event; const ADefaultValue: TVector3): TCastleVector3Persistent;
@@ -2338,6 +2359,9 @@ begin
   glGenBuffers(1, @Self.UBO);
   Self.FIsGLContextInitialized := True;
   Self.FIsNeedRefresh := True;
+  //
+  if Self.FEffect <> nil then
+    Self.FEffect.IsNeedRecompile := True;
 end;
 
 procedure TCastleParticleEmitter.GLContextClose;
@@ -2373,14 +2397,15 @@ begin
       glDeleteTextures(1, @Self.TextureAsSourcePosition);
     Self.FIsGLContextInitialized := False;
 
-    if Self.LocalRenderProgramMesh <> RenderProgramMesh then
+    // These are cached, so we don't need to free them
+    {if Self.LocalRenderProgramMesh <> RenderProgramMesh then
       FreeAndNil(Self.LocalRenderProgramMesh);
     if Self.LocalRenderProgramQuad <> RenderProgramQuad then
       FreeAndNil(Self.LocalRenderProgramQuad);
     if Self.LocalTransformFeedbackProgramSingleInstance <> TransformFeedbackProgramSingleInstance then
       FreeAndNil(Self.LocalTransformFeedbackProgramSingleInstance);
     if Self.LocalTransformFeedbackProgramMultipleInstances <> TransformFeedbackProgramMultipleInstances then
-      FreeAndNil(Self.LocalTransformFeedbackProgramMultipleInstances);
+      FreeAndNil(Self.LocalTransformFeedbackProgramMultipleInstances);}
   end;
   inherited;
 end;
@@ -2525,7 +2550,8 @@ var
   ProgramId,
   EffectUniformIndex: GLuint;
   I: Integer;
-  PlugVertex, PlugFragment, Plug1, Plug2, SrcVertex, SrcFragment: String;
+  Key, PlugVertex, PlugFragment, Plug1, Plug2, SrcVertex, SrcFragment: String;
+  Shaders: TCastleParticleShaders;
 begin
   if Self.FEffect = nil then
     Exit;
@@ -2542,147 +2568,149 @@ begin
       PlugVertex := Self.FEffect.CustomTransformFeedbackVertexShader.Text;
       if PlugVertex <> '' then
       begin
-        // Single instance
-        SrcVertex := TransformVertexShaderSourceSingleInstance_Part1 + PlugVertex + TransformVertexShaderSourceSingleInstance_Part2;
-        if Self.LocalTransformFeedbackProgramSingleInstance = TransformFeedbackProgramSingleInstance then
+        Key := MD5Print(MD5String(PlugVertex));
+        if ShaderCache.ContainsKey(Key) then
         begin
+          Shaders := ShaderCache[Key];
+          Self.LocalTransformFeedbackProgramSingleInstance := Shaders.Shader1;
+          Self.LocalTransformFeedbackProgramMultipleInstances := Shaders.Shader2;
+        end else
+        begin
+          // Single instance
+          SrcVertex := TransformVertexShaderSourceSingleInstance_Part1 + PlugVertex + TransformVertexShaderSourceSingleInstance_Part2;
           Self.LocalTransformFeedbackProgramSingleInstance := TGLSLProgram.Create;
-        end;
-        Self.LocalTransformFeedbackProgramSingleInstance.DetachAllShaders;
-        Self.LocalTransformFeedbackProgramSingleInstance.AttachVertexShader(SrcVertex);
-        {$ifdef GLES}
-          Self.LocalTransformFeedbackProgramSingleInstance.AttachFragmentShader(FragmentShaderSourceDummy);
-        {$endif}
-        Self.LocalTransformFeedbackProgramSingleInstance.SetTransformFeedbackVaryings(Varyings);
-        Self.LocalTransformFeedbackProgramSingleInstance.Link;
-        // Multiple instances
-        SrcVertex := TransformVertexShaderSourceMultipleInstances_Part1 + PlugVertex + TransformVertexShaderSourceMultipleInstances_Part2;
-        if Self.LocalTransformFeedbackProgramMultipleInstances = TransformFeedbackProgramMultipleInstances then
-        begin
+          Self.LocalTransformFeedbackProgramSingleInstance.DetachAllShaders;
+          Self.LocalTransformFeedbackProgramSingleInstance.AttachVertexShader(SrcVertex);
+          {$ifdef GLES}
+            Self.LocalTransformFeedbackProgramSingleInstance.AttachFragmentShader(FragmentShaderSourceDummy);
+          {$endif}
+          Self.LocalTransformFeedbackProgramSingleInstance.SetTransformFeedbackVaryings(Varyings);
+          Self.LocalTransformFeedbackProgramSingleInstance.Link;
+          // Multiple instances
+          SrcVertex := TransformVertexShaderSourceMultipleInstances_Part1 + PlugVertex + TransformVertexShaderSourceMultipleInstances_Part2;
           Self.LocalTransformFeedbackProgramMultipleInstances := TGLSLProgram.Create;
+          Self.LocalTransformFeedbackProgramMultipleInstances.DetachAllShaders;
+          Self.LocalTransformFeedbackProgramMultipleInstances.AttachVertexShader(SrcVertex);
+          {$ifdef GLES}
+            Self.LocalTransformFeedbackProgramMultipleInstances.AttachFragmentShader(FragmentShaderSourceDummy);
+          {$endif}
+          Self.LocalTransformFeedbackProgramMultipleInstances.SetTransformFeedbackVaryings(Varyings);
+          Self.LocalTransformFeedbackProgramMultipleInstances.Link;
+
+          // CGE doesn't expose ProgramId, so we work around by quering for it from OpenGL
+          Self.LocalTransformFeedbackProgramSingleInstance.Enable;
+          glGetIntegerv(GL_CURRENT_PROGRAM, @ProgramId);
+          EffectUniformIndex := glGetUniformBlockIndex(ProgramId, 'Effect');
+          glUniformBlockBinding(ProgramId, EffectUniformIndex, 0);
+          Self.LocalTransformFeedbackProgramSingleInstance.Disable;
+
+          Self.LocalTransformFeedbackProgramMultipleInstances.Enable;
+          glGetIntegerv(GL_CURRENT_PROGRAM, @ProgramId);
+          EffectUniformIndex := glGetUniformBlockIndex(ProgramId, 'Effect');
+          glUniformBlockBinding(ProgramId, EffectUniformIndex, 0);
+          Self.LocalTransformFeedbackProgramMultipleInstances.Disable;
+
+          Shaders.Shader1 := Self.LocalTransformFeedbackProgramSingleInstance;
+          Shaders.Shader2 := Self.LocalTransformFeedbackProgramMultipleInstances;
+          ShaderCache.AddOrSetValue(Key, Shaders);
         end;
-        Self.LocalTransformFeedbackProgramMultipleInstances.DetachAllShaders;
-        Self.LocalTransformFeedbackProgramMultipleInstances.AttachVertexShader(SrcVertex);
-        {$ifdef GLES}
-          Self.LocalTransformFeedbackProgramMultipleInstances.AttachFragmentShader(FragmentShaderSourceDummy);
-        {$endif}
-        Self.LocalTransformFeedbackProgramMultipleInstances.SetTransformFeedbackVaryings(Varyings);
-        Self.LocalTransformFeedbackProgramMultipleInstances.Link;
-
-        // CGE doesn't expose ProgramId, so we work around by quering for it from OpenGL
-        Self.LocalTransformFeedbackProgramSingleInstance.Enable;
-        glGetIntegerv(GL_CURRENT_PROGRAM, @ProgramId);
-        EffectUniformIndex := glGetUniformBlockIndex(ProgramId, 'Effect');
-        glUniformBlockBinding(ProgramId, EffectUniformIndex, 0);
-        Self.LocalTransformFeedbackProgramSingleInstance.Disable;
-
-        Self.LocalTransformFeedbackProgramMultipleInstances.Enable;
-        glGetIntegerv(GL_CURRENT_PROGRAM, @ProgramId);
-        EffectUniformIndex := glGetUniformBlockIndex(ProgramId, 'Effect');
-        glUniformBlockBinding(ProgramId, EffectUniformIndex, 0);
-        Self.LocalTransformFeedbackProgramMultipleInstances.Disable;
       end else
       begin
-        if Self.LocalTransformFeedbackProgramSingleInstance <> TransformFeedbackProgramSingleInstance then
-        begin
-          Self.LocalTransformFeedbackProgramSingleInstance.Free;
-          Self.LocalTransformFeedbackProgramSingleInstance := TransformFeedbackProgramSingleInstance;
-        end;
-        if Self.LocalTransformFeedbackProgramMultipleInstances <> TransformFeedbackProgramMultipleInstances then
-        begin
-          Self.LocalTransformFeedbackProgramMultipleInstances.Free;
-          Self.LocalTransformFeedbackProgramMultipleInstances := TransformFeedbackProgramMultipleInstances;
-        end;
+        Self.LocalTransformFeedbackProgramSingleInstance := TransformFeedbackProgramSingleInstance;
+        Self.LocalTransformFeedbackProgramMultipleInstances := TransformFeedbackProgramMultipleInstances;
       end;
       // Render shader
       PlugVertex := Self.FEffect.CustomRenderVertexShader.Text;
       PlugFragment := Self.FEffect.CustomRenderFragmentShader.Text;
       if (PlugVertex <> '') or (PlugFragment <> '') then
       begin
-        // Quad
-        if Self.LocalRenderProgramQuad = RenderProgramQuad then
+        Key := MD5Print(MD5String(PlugVertex + PlugFragment));
+
+        if ShaderCache.ContainsKey(Key) then
         begin
+          Shaders := ShaderCache[Key];
+          Self.LocalRenderProgramQuad := Shaders.Shader1;
+          Self.LocalRenderProgramMesh := Shaders.Shader2;
+        end else
+        begin
+          // Quad
           Self.LocalRenderProgramQuad := TGLSLProgram.Create;
+          if PlugVertex <> '' then
+          begin
+            if PlugVertex.IndexOf('PLUG_vertex_object_space') >= 0 then
+              Plug1 := ''
+            else
+              Plug1 := 'void PLUG_vertex_object_space(inout vec3 vertex_object){}' + LineEnding;
+            if PlugVertex.IndexOf('PLUG_texture_coord') >= 0 then
+              Plug2 := ''
+            else
+              Plug2 := 'void PLUG_texture_coord(inout vec2 texture_coord){}' + LineEnding;
+            SrcVertex := VertexShaderSourceQuad_Part1 + Plug1 + Plug2 + PlugVertex + VertexShaderSourceQuad_Part2;
+            Self.LocalRenderProgramQuad.AttachVertexShader(SrcVertex);
+          end else
+            Self.LocalRenderProgramQuad.AttachVertexShader(VertexShaderSourceQuad);
+          //
+          if PlugFragment <> '' then
+          begin
+            if PlugFragment.IndexOf('PLUG_color') >= 0 then
+              Plug1 := ''
+            else
+              Plug1 := 'void PLUG_color(inout vec4 color){}' + LineEnding;
+            if PlugFragment.IndexOf('PLUG_texture_color') >= 0 then
+              Plug2 := ''
+            else
+              Plug2 := 'void PLUG_texture_color(inout vec4 texture_color){}' + LineEnding;
+            SrcFragment := FragmentShaderSourceMesh_Part1 + Plug1 + Plug2 + PlugFragment + FragmentShaderSourceMesh_Part2;
+            Self.LocalRenderProgramQuad.AttachFragmentShader(SrcFragment)
+          end else
+            Self.LocalRenderProgramQuad.AttachFragmentShader(FragmentShaderSourceQuad);
+          Self.LocalRenderProgramQuad.Link;
+
+          // Mesh
+          if Self.LocalRenderProgramMesh = RenderProgramMesh then
+          begin
+            Self.LocalRenderProgramMesh := TGLSLProgram.Create;
+          end;
+          Self.LocalRenderProgramMesh.DetachAllShaders;
+          if PlugVertex <> '' then
+          begin
+            if PlugVertex.IndexOf('void PLUG_vertex_object_space') >= 0 then
+              Plug1 := ''
+            else
+              Plug1 := 'void PLUG_vertex_object_space(inout vec3 vertex_object){}' + LineEnding;
+            if PlugVertex.IndexOf('void PLUG_texture_coord') >= 0 then
+              Plug2 := ''
+            else
+              Plug2 := 'void PLUG_texture_coord(inout vec2 texture_coord){}' + LineEnding;
+            SrcVertex := VertexShaderSourceMesh_Part1 + Plug1 + Plug2 + PlugVertex + VertexShaderSourceMesh_Part2;
+            Self.LocalRenderProgramMesh.AttachVertexShader(SrcVertex);
+          end else
+            Self.LocalRenderProgramMesh.AttachVertexShader(VertexShaderSourceMesh);
+          //
+          if PlugFragment <> '' then
+          begin
+            if PlugFragment.IndexOf('PLUG_color') >= 0 then
+              Plug1 := ''
+            else
+              Plug1 := 'void PLUG_color(inout vec4 color){}' + LineEnding;
+            if PlugFragment.IndexOf('PLUG_texture_color') >= 0 then
+              Plug2 := ''
+            else
+              Plug2 := 'void PLUG_texture_color(inout vec4 texture_color){}' + LineEnding;
+            SrcFragment := FragmentShaderSourceMesh_Part1 + Plug1 + Plug2 + PlugFragment + FragmentShaderSourceMesh_Part2;
+            Self.LocalRenderProgramMesh.AttachFragmentShader(SrcFragment)
+          end else
+            Self.LocalRenderProgramMesh.AttachFragmentShader(FragmentShaderSourceMesh);
+          Self.LocalRenderProgramMesh.Link;
+
+          Shaders.Shader1 := Self.LocalRenderProgramQuad;
+          Shaders.Shader2 := Self.LocalRenderProgramMesh;
+          ShaderCache.AddOrSetValue(Key, Shaders);
         end;
-        Self.LocalRenderProgramQuad.DetachAllShaders;
-        if PlugVertex <> '' then
-        begin
-          if PlugVertex.IndexOf('PLUG_vertex_object_space') >= 0 then
-            Plug1 := ''
-          else
-            Plug1 := 'void PLUG_vertex_object_space(inout vec3 vertex_object){}' + LineEnding;
-          if PlugVertex.IndexOf('PLUG_texture_coord') >= 0 then
-            Plug2 := ''
-          else
-            Plug2 := 'void PLUG_texture_coord(inout vec2 texture_coord){}' + LineEnding;
-          SrcVertex := VertexShaderSourceQuad_Part1 + Plug1 + Plug2 + PlugVertex + VertexShaderSourceQuad_Part2;
-          Self.LocalRenderProgramQuad.AttachVertexShader(SrcVertex);
-        end else
-          Self.LocalRenderProgramQuad.AttachVertexShader(VertexShaderSourceQuad);
-        //
-        if PlugFragment <> '' then
-        begin
-          if PlugFragment.IndexOf('PLUG_color') >= 0 then
-            Plug1 := ''
-          else
-            Plug1 := 'void PLUG_color(inout vec4 color){}' + LineEnding;
-          if PlugFragment.IndexOf('PLUG_texture_color') >= 0 then
-            Plug2 := ''
-          else
-            Plug2 := 'void PLUG_texture_color(inout vec4 texture_color){}' + LineEnding;
-          SrcFragment := FragmentShaderSourceMesh_Part1 + Plug1 + Plug2 + PlugFragment + FragmentShaderSourceMesh_Part2;
-          Self.LocalRenderProgramQuad.AttachFragmentShader(SrcFragment)
-        end else
-          Self.LocalRenderProgramQuad.AttachFragmentShader(FragmentShaderSourceQuad);
-        Self.LocalRenderProgramQuad.Link;
-        // Mesh
-        if Self.LocalRenderProgramMesh = RenderProgramMesh then
-        begin
-          Self.LocalRenderProgramMesh := TGLSLProgram.Create;
-        end;
-        Self.LocalRenderProgramMesh.DetachAllShaders;
-        if PlugVertex <> '' then
-        begin
-          if PlugVertex.IndexOf('void PLUG_vertex_object_space') >= 0 then
-            Plug1 := ''
-          else
-            Plug1 := 'void PLUG_vertex_object_space(inout vec3 vertex_object){}' + LineEnding;
-          if PlugVertex.IndexOf('void PLUG_texture_coord') >= 0 then
-            Plug2 := ''
-          else
-            Plug2 := 'void PLUG_texture_coord(inout vec2 texture_coord){}' + LineEnding;
-          SrcVertex := VertexShaderSourceMesh_Part1 + Plug1 + Plug2 + PlugVertex + VertexShaderSourceMesh_Part2;
-          Self.LocalRenderProgramMesh.AttachVertexShader(SrcVertex);
-        end else
-          Self.LocalRenderProgramMesh.AttachVertexShader(VertexShaderSourceMesh);
-        //
-        if PlugFragment <> '' then
-        begin
-          if PlugFragment.IndexOf('PLUG_color') >= 0 then
-            Plug1 := ''
-          else
-            Plug1 := 'void PLUG_color(inout vec4 color){}' + LineEnding;
-          if PlugFragment.IndexOf('PLUG_texture_color') >= 0 then
-            Plug2 := ''
-          else
-            Plug2 := 'void PLUG_texture_color(inout vec4 texture_color){}' + LineEnding;
-          SrcFragment := FragmentShaderSourceMesh_Part1 + Plug1 + Plug2 + PlugFragment + FragmentShaderSourceMesh_Part2;
-          Self.LocalRenderProgramMesh.AttachFragmentShader(SrcFragment)
-        end else
-          Self.LocalRenderProgramMesh.AttachFragmentShader(FragmentShaderSourceMesh);
-        Self.LocalRenderProgramMesh.Link;
       end else
       begin
-        if Self.LocalRenderProgramQuad <> RenderProgramQuad then
-        begin
-          Self.LocalRenderProgramQuad.Free;
-          Self.LocalRenderProgramQuad := RenderProgramQuad;
-        end;
-        if Self.LocalRenderProgramMesh <> RenderProgramMesh then
-        begin
-          Self.LocalRenderProgramMesh.Free;
-          Self.LocalRenderProgramMesh := RenderProgramMesh;
-        end;
+        Self.LocalRenderProgramQuad := RenderProgramQuad;
+        Self.LocalRenderProgramMesh := RenderProgramMesh;
       end;
     except
       on E: Exception do
@@ -2927,5 +2955,9 @@ initialization
   RegisterSerializableComponent(TCastleParticleAttractor, ['Particle', 'Particle Attractor']);
   RegisterSerializableComponent(TCastleParticleEffect, ['Particle', 'Particle Effect']);
   RegisterSerializableComponent(TCastleParticleViewport, ['Particle', 'Viewport (Particle)']);
+  ShaderCache := TCastleParticleShaderCache.Create;
+
+finalization
+  ShaderCache.Free;
 
 end.
