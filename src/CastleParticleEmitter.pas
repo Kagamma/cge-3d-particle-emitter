@@ -535,7 +535,7 @@ const
 '  );'nl
 '}';
 
-  TransformVertexShaderSourceMultipleInstances: String =
+  TransformVertexShaderSourceMultipleInstances_Part1 =
 {$ifdef GLES}
 '#version 300 es'nl
 {$else}
@@ -688,10 +688,9 @@ CommonTransformVertexFunctions nl
 '  outRotationXY.y = rotationSpeed.x + rotationSpeedVariance.x * (rnd() * 2.0 - 1.0);'nl
 '  outRotationXY.z = rotation.y + rotationVariance.y * (rnd() * 2.0 - 1.0);'nl
 '  outRotationXY.w = rotationSpeed.y + rotationSpeedVariance.y * (rnd() * 2.0 - 1.0);'nl
-'}'nl
+'}'+ LineEnding;
 
-'%PLUG_update_after_declare%'nl
-
+  TransformVertexShaderSourceMultipleInstances_Part2 =
 'void updateParticle() {'nl
 '  float timeBetweenParticle = max(deltaTime, particleLifeSpan / float(maxParticles));'nl
 '  if (outTimeToLive.x <= 0.0 && emissionTime == 0.0) {'nl
@@ -744,7 +743,7 @@ CommonTransformVertexFunctions nl
 '  outSizeRotation.z += outSizeRotation.w * deltaTime;'nl
 '  outRotationXY.x += outRotationXY.y * deltaTime;'nl
 '  outRotationXY.z += outRotationXY.w * deltaTime;'nl
-'  %PLUG_update_after_call%'nl
+'  PLUG_update_after();'nl
 '}'nl
 
 'void main() {'nl
@@ -752,7 +751,12 @@ CommonTransformVertexFunctions nl
 '  updateParticle();'nl
 '}';
 
-  TransformVertexShaderSourceSingleInstance: String =
+  TransformVertexShaderSourceMultipleInstances: String =
+    TransformVertexShaderSourceMultipleInstances_Part1 +
+    'void PLUG_update_after(){}' + LineEnding +
+    TransformVertexShaderSourceMultipleInstances_Part2;
+
+  TransformVertexShaderSourceSingleInstance_Part1 =
 {$ifdef GLES}
 '#version 300 es'nl
 {$else}
@@ -912,10 +916,9 @@ CommonTransformVertexFunctions nl
 '  outRotationXY.y = rotationSpeed.x + rotationSpeedVariance.x * (rnd() * 2.0 - 1.0);'nl
 '  outRotationXY.z = rotation.y + rotationVariance.y * (rnd() * 2.0 - 1.0);'nl
 '  outRotationXY.w = rotationSpeed.y + rotationSpeedVariance.y * (rnd() * 2.0 - 1.0);'nl
-'}'nl
+'}' + LineEnding;
 
-'%PLUG_update_after_declare%'nl
-
+  TransformVertexShaderSourceSingleInstance_Part2 =
 'void updateParticle() {'nl
 '  float timeBetweenParticle = max(deltaTime, particleLifeSpan / float(maxParticles));'nl
 '  if (outTimeToLive.x <= 0.0 && emissionTime == 0.0) {'nl
@@ -969,7 +972,7 @@ CommonTransformVertexFunctions nl
 '  outSizeRotation.z += outSizeRotation.w * deltaTime;'nl
 '  outRotationXY.x += outRotationXY.y * deltaTime;'nl
 '  outRotationXY.z += outRotationXY.w * deltaTime;'nl
-'  %PLUG_update_after_call%'nl
+'  PLUG_update_after();'nl
 '}'nl
 
 'void main() {'nl
@@ -977,7 +980,12 @@ CommonTransformVertexFunctions nl
 '  updateParticle();'nl
 '}';
 
-  VertexShaderSourceQuad: String =
+  TransformVertexShaderSourceSingleInstance: String =
+    TransformVertexShaderSourceSingleInstance_Part1 +
+    'void PLUG_update_after(){}' + LineEnding +
+    TransformVertexShaderSourceSingleInstance_Part2;
+
+  VertexShaderSourceQuad_Part1 =
 {$ifdef GLES}
 '#version 300 es'nl
 {$else}
@@ -1008,11 +1016,14 @@ CommonTransformVertexFunctions nl
 'uniform int rotationType;'nl
 'uniform float time;'nl
 
-CommonVertexFunctions nl
+CommonVertexFunctions nl'';
 
+  VertexShaderSourceQuad_Part2 =
 'void main() {'nl
 '  if (inTimeToLive.x > 0.0) {'nl
-'    fragTexCoord = inTexcoord;'nl
+'    vec2 texCoord = inTexcoord;'nl
+'    PLUG_texture_coord(texCoord);'nl
+'    fragTexCoord = texCoord;'nl
 '    fragColor = inColor;'nl
 '    vec3 center = vec3(vOrMvMatrix * vec4(inPosition.xyz, 1.0)).xyz;'nl
 '    float angle = inSizeRotation.z;'nl
@@ -1024,14 +1035,22 @@ CommonVertexFunctions nl
 '      angle = atan(centerDelta.y, centerDelta.x);'nl
 '    }'nl
 '    mat3 m = createRotate(vec3(inRotationXY.x, inRotationXY.z, angle));'nl
-'    vec4 p = vec4(m * (inVertex * vec3(scaleX, scaleY, scaleZ) * vec3(inSizeRotation.x)) + center, 1.0);'nl
+'    vec3 obj_vert = inVertex;'nl
+'    PLUG_vertex_object_space(obj_vert);'nl
+'    vec4 p = vec4(m * (obj_vert * vec3(scaleX, scaleY, scaleZ) * vec3(inSizeRotation.x)) + center, 1.0);'nl
 '    fragFogCoord = abs(p.z / p.w);'nl
 '    gl_Position = pMatrix * p;'nl
 '  } else'nl
 '    gl_Position = vec4(-1.0, -1.0, -1.0, 1.0);'nl // Discard this vertex by making it outside of clip plane
 '}';
 
-  FragmentShaderSourceQuad: String =
+  VertexShaderSourceQuad: String =
+    VertexShaderSourceQuad_Part1 +
+    'void PLUG_vertex_object_space(inout vec3 vertex_object){}' + LineEnding +
+    'void PLUG_texture_coord(inout vec2 texture_coord){}' + LineEnding +
+    VertexShaderSourceQuad_Part2;
+
+  FragmentShaderSourceQuad_Part1 =
 {$ifdef GLES}
 '#version 300 es'nl
 {$else}
@@ -1048,10 +1067,15 @@ CommonVertexFunctions nl
 'uniform int fogEnable;'nl
 'uniform float fogEnd;'nl
 'uniform vec3 fogColor;'nl
-'uniform float time;'nl
+'uniform float time;'nl '';
 
+  FragmentShaderSourceQuad_Part2 =
 'void main() {'nl
-'  outColor = texture(baseColor, fragTexCoord) * fragColor;'nl
+'  vec4 color = fragColor;'nl
+'  PLUG_color(color);'nl
+'  vec4 texture_color = texture(baseColor, fragTexCoord);'nl
+'  PLUG_texture_color(texture_color);'nl
+'  outColor = texture_color * color;'nl
 '  if (fogEnable == 1) {'nl
 '    float fogFactor = (fogEnd - fragFogCoord) / fogEnd;'nl
 '    outColor.rgb = mix(fogColor, outColor.rgb, clamp(fogFactor, 0.0, 1.0));'nl
@@ -1059,7 +1083,13 @@ CommonVertexFunctions nl
 '  outColor.rgb *= outColor.a;'nl
 '}';
 
-  VertexShaderSourceMesh: String =
+  FragmentShaderSourceQuad: String =
+    FragmentShaderSourceQuad_Part1 +
+    'void PLUG_color(inout vec4 color){}' + LineEnding +
+    'void PLUG_texture_color(inout vec4 texture_color){}' + LineEnding +
+    FragmentShaderSourceQuad_Part2;
+
+  VertexShaderSourceMesh_Part1 =
 {$ifdef GLES}
 '#version 300 es'nl
 {$else}
@@ -1090,11 +1120,14 @@ CommonVertexFunctions nl
 'uniform int rotationType;'nl
 'uniform float time;'nl
 
-CommonVertexFunctions nl
+CommonVertexFunctions nl'';
 
+  VertexShaderSourceMesh_Part2 =
 'void main() {'nl
 '  if (inTimeToLive.x > 0.0) {'nl
-'    fragTexCoord = inTexcoord;'nl
+'    vec2 texCoord = inTexcoord;'nl
+'    PLUG_texture_coord(texCoord);'nl
+'    fragTexCoord = texCoord;'nl
 '    fragColor = inColor;'nl
 '    mat3 m;'nl
 '    if (rotationType == ROTATION_PREVIOUS_POSITION) {'nl
@@ -1103,14 +1136,22 @@ CommonVertexFunctions nl
 '    } else {'nl
 '      m = createRotate(vec3(inRotationXY.x, inRotationXY.z, inSizeRotation.z));'nl
 '    }'nl
-'    vec4 p = vOrMvMatrix * vec4(m * inVertex * vec3(scaleX, scaleY, scaleZ) * vec3(inSizeRotation.x) + inPosition.xyz, 1.0);'nl
+'    vec3 obj_vert = inVertex;'nl
+'    PLUG_vertex_object_space(obj_vert);'nl
+'    vec4 p = vOrMvMatrix * vec4(m * obj_vert * vec3(scaleX, scaleY, scaleZ) * vec3(inSizeRotation.x) + inPosition.xyz, 1.0);'nl
 '    fragFogCoord = abs(p.z / p.w);'nl
 '    gl_Position = pMatrix * p;'nl
 '  } else'nl
 '    gl_Position = vec4(-1.0, -1.0, -1.0, 1.0);'nl // Discard this vertex by making it outside of clip plane
 '}';
 
-  FragmentShaderSourceMesh: String =
+  VertexShaderSourceMesh: String =
+    VertexShaderSourceMesh_Part1 +
+    'void PLUG_vertex_object_space(inout vec3 vertex_object){}' + LineEnding +
+    'void PLUG_texture_coord(inout vec2 texture_coord){}' + LineEnding +
+    VertexShaderSourceMesh_Part2;
+
+  FragmentShaderSourceMesh_Part1 =
 {$ifdef GLES}
 '#version 300 es'nl
 {$else}
@@ -1127,16 +1168,27 @@ CommonVertexFunctions nl
 'uniform int fogEnable;'nl
 'uniform float fogEnd;'nl
 'uniform vec3 fogColor;'nl
-'uniform float time;'nl
+'uniform float time;'nl'';
 
+  FragmentShaderSourceMesh_Part2 =
 'void main() {'nl
-'  outColor = texture(baseColor, fragTexCoord) * fragColor;'nl
+'  vec4 color = fragColor;'nl
+'  PLUG_color(color);'nl
+'  vec4 texture_color = texture(baseColor, fragTexCoord);'nl
+'  PLUG_texture_color(texture_color);'nl
+'  outColor = texture_color * color;'nl
 '  if (fogEnable == 1) {'nl
 '    float fogFactor = (fogEnd - fragFogCoord) / fogEnd;'nl
 '    outColor.rgb = mix(fogColor, outColor.rgb, clamp(fogFactor, 0.0, 1.0));'nl
 '  }'nl
 '  outColor.rgb *= outColor.a;'nl
 '}';
+
+  FragmentShaderSourceMesh: String =
+    FragmentShaderSourceMesh_Part1 +
+    'void PLUG_color(inout vec4 color){}' + LineEnding +
+    'void PLUG_texture_color(inout vec4 texture_color){}' + LineEnding +
+    FragmentShaderSourceMesh_Part2;
 
 {$ifdef GLES}
   FragmentShaderSourceDummy: String =
@@ -2206,7 +2258,6 @@ var
   V,
   ProgramId,
   EffectUniformIndex: GLuint;
-  S: String;
 begin
   // Safeguard
   if not ApplicationProperties.IsGLContextOpen then Exit;
@@ -2228,18 +2279,16 @@ begin
   if TransformFeedbackProgramSingleInstance = nil then
   begin
     try
-      S := StringsReplace(TransformVertexShaderSourceSingleInstance, ['%PLUG_update_after_declare%', '%PLUG_update_after_call%'], ['', ''], [rfReplaceAll]);
       TransformFeedbackProgramSingleInstance := TGLSLProgram.Create;
-      TransformFeedbackProgramSingleInstance.AttachVertexShader(S);
+      TransformFeedbackProgramSingleInstance.AttachVertexShader(TransformVertexShaderSourceSingleInstance);
       {$ifdef GLES}
         TransformFeedbackProgramSingleInstance.AttachFragmentShader(FragmentShaderSourceDummy);
       {$endif}
       TransformFeedbackProgramSingleInstance.SetTransformFeedbackVaryings(Varyings);
       TransformFeedbackProgramSingleInstance.Link;
 
-      S := StringsReplace(TransformVertexShaderSourceMultipleInstances, ['%PLUG_update_after_declare%', '%PLUG_update_after_call%'], ['', ''], [rfReplaceAll]);
       TransformFeedbackProgramMultipleInstances := TGLSLProgram.Create;
-      TransformFeedbackProgramMultipleInstances.AttachVertexShader(S);
+      TransformFeedbackProgramMultipleInstances.AttachVertexShader(TransformVertexShaderSourceMultipleInstances);
       {$ifdef GLES}
         TransformFeedbackProgramMultipleInstances.AttachFragmentShader(FragmentShaderSourceDummy);
       {$endif}
@@ -2476,7 +2525,7 @@ var
   ProgramId,
   EffectUniformIndex: GLuint;
   I: Integer;
-  Plug, SrcVertex, SrcFragment: String;
+  PlugVertex, PlugFragment, Plug1, Plug2, SrcVertex, SrcFragment: String;
 begin
   if Self.FEffect = nil then
     Exit;
@@ -2490,11 +2539,11 @@ begin
     try
       Self.FEffect.IsNeedRecompile := False;
       // TransformFeedback shader
-      Plug := Self.FEffect.CustomTransformFeedbackVertexShader.Text;
-      if Plug <> '' then
+      PlugVertex := Self.FEffect.CustomTransformFeedbackVertexShader.Text;
+      if PlugVertex <> '' then
       begin
         // Single instance
-        SrcVertex := StringsReplace(TransformVertexShaderSourceSingleInstance, ['%PLUG_update_after_declare%', '%PLUG_update_after_call%'], [Plug, 'PLUG_update_after();'], [rfReplaceAll]);
+        SrcVertex := TransformVertexShaderSourceSingleInstance_Part1 + PlugVertex + TransformVertexShaderSourceSingleInstance_Part2;
         if Self.LocalTransformFeedbackProgramSingleInstance = TransformFeedbackProgramSingleInstance then
         begin
           Self.LocalTransformFeedbackProgramSingleInstance := TGLSLProgram.Create;
@@ -2507,7 +2556,7 @@ begin
         Self.LocalTransformFeedbackProgramSingleInstance.SetTransformFeedbackVaryings(Varyings);
         Self.LocalTransformFeedbackProgramSingleInstance.Link;
         // Multiple instances
-        SrcVertex := StringsReplace(TransformVertexShaderSourceMultipleInstances, ['%PLUG_update_after_declare%', '%PLUG_update_after_call%'], [Plug, 'PLUG_update_after();'], [rfReplaceAll]);
+        SrcVertex := TransformVertexShaderSourceMultipleInstances_Part1 + PlugVertex + TransformVertexShaderSourceMultipleInstances_Part2;
         if Self.LocalTransformFeedbackProgramMultipleInstances = TransformFeedbackProgramMultipleInstances then
         begin
           Self.LocalTransformFeedbackProgramMultipleInstances := TGLSLProgram.Create;
@@ -2546,9 +2595,9 @@ begin
         end;
       end;
       // Render shader
-      SrcVertex := Self.FEffect.CustomRenderVertexShader.Text;
-      SrcFragment := Self.FEffect.CustomRenderFragmentShader.Text;
-      if (SrcVertex <> '') or (SrcFragment <> '') then
+      PlugVertex := Self.FEffect.CustomRenderVertexShader.Text;
+      PlugFragment := Self.FEffect.CustomRenderFragmentShader.Text;
+      if (PlugVertex <> '') or (PlugFragment <> '') then
       begin
         // Quad
         if Self.LocalRenderProgramQuad = RenderProgramQuad then
@@ -2556,13 +2605,34 @@ begin
           Self.LocalRenderProgramQuad := TGLSLProgram.Create;
         end;
         Self.LocalRenderProgramQuad.DetachAllShaders;
-        if SrcVertex <> '' then
-          Self.LocalRenderProgramQuad.AttachVertexShader(SrcVertex)
-        else
+        if PlugVertex <> '' then
+        begin
+          if PlugVertex.IndexOf('PLUG_vertex_object_space') >= 0 then
+            Plug1 := ''
+          else
+            Plug1 := 'void PLUG_vertex_object_space(inout vec3 vertex_object){}' + LineEnding;
+          if PlugVertex.IndexOf('PLUG_texture_coord') >= 0 then
+            Plug2 := ''
+          else
+            Plug2 := 'void PLUG_texture_coord(inout vec2 texture_coord){}' + LineEnding;
+          SrcVertex := VertexShaderSourceQuad_Part1 + Plug1 + Plug2 + PlugVertex + VertexShaderSourceQuad_Part2;
+          Self.LocalRenderProgramQuad.AttachVertexShader(SrcVertex);
+        end else
           Self.LocalRenderProgramQuad.AttachVertexShader(VertexShaderSourceQuad);
-        if SrcFragment <> '' then
+        //
+        if PlugFragment <> '' then
+        begin
+          if PlugFragment.IndexOf('PLUG_color') >= 0 then
+            Plug1 := ''
+          else
+            Plug1 := 'void PLUG_color(inout vec4 color){}' + LineEnding;
+          if PlugFragment.IndexOf('PLUG_texture_color') >= 0 then
+            Plug2 := ''
+          else
+            Plug2 := 'void PLUG_texture_color(inout vec4 texture_color){}' + LineEnding;
+          SrcFragment := FragmentShaderSourceMesh_Part1 + Plug1 + Plug2 + PlugFragment + FragmentShaderSourceMesh_Part2;
           Self.LocalRenderProgramQuad.AttachFragmentShader(SrcFragment)
-        else
+        end else
           Self.LocalRenderProgramQuad.AttachFragmentShader(FragmentShaderSourceQuad);
         Self.LocalRenderProgramQuad.Link;
         // Mesh
@@ -2571,13 +2641,34 @@ begin
           Self.LocalRenderProgramMesh := TGLSLProgram.Create;
         end;
         Self.LocalRenderProgramMesh.DetachAllShaders;
-        if SrcVertex <> '' then
-          Self.LocalRenderProgramMesh.AttachVertexShader(SrcVertex)
-        else
+        if PlugVertex <> '' then
+        begin
+          if PlugVertex.IndexOf('void PLUG_vertex_object_space') >= 0 then
+            Plug1 := ''
+          else
+            Plug1 := 'void PLUG_vertex_object_space(inout vec3 vertex_object){}' + LineEnding;
+          if PlugVertex.IndexOf('void PLUG_texture_coord') >= 0 then
+            Plug2 := ''
+          else
+            Plug2 := 'void PLUG_texture_coord(inout vec2 texture_coord){}' + LineEnding;
+          SrcVertex := VertexShaderSourceMesh_Part1 + Plug1 + Plug2 + PlugVertex + VertexShaderSourceMesh_Part2;
+          Self.LocalRenderProgramMesh.AttachVertexShader(SrcVertex);
+        end else
           Self.LocalRenderProgramMesh.AttachVertexShader(VertexShaderSourceMesh);
-        if SrcFragment <> '' then
+        //
+        if PlugFragment <> '' then
+        begin
+          if PlugFragment.IndexOf('PLUG_color') >= 0 then
+            Plug1 := ''
+          else
+            Plug1 := 'void PLUG_color(inout vec4 color){}' + LineEnding;
+          if PlugFragment.IndexOf('PLUG_texture_color') >= 0 then
+            Plug2 := ''
+          else
+            Plug2 := 'void PLUG_texture_color(inout vec4 texture_color){}' + LineEnding;
+          SrcFragment := FragmentShaderSourceMesh_Part1 + Plug1 + Plug2 + PlugFragment + FragmentShaderSourceMesh_Part2;
           Self.LocalRenderProgramMesh.AttachFragmentShader(SrcFragment)
-        else
+        end else
           Self.LocalRenderProgramMesh.AttachFragmentShader(FragmentShaderSourceMesh);
         Self.LocalRenderProgramMesh.Link;
       end else
