@@ -81,7 +81,7 @@ Used to render particles on screen. Controlled by the `CustomRenderVertexShader`
 The shaders supplied in these parameters **completely replace** the default render shader.
 
 #### Transform Feedback Shader
-Used to update particle position, size, and color. Controlled by the `CustomTransformFeedbackVertexShader` parameter.
+Used to update particle position, rotation, velocity, size, and color. Controlled by the `CustomTransformFeedbackVertexShader` parameter.
 
 This shader does not replace the default shader. Instead, it is inserted into the default shader as a **plug**.
 
