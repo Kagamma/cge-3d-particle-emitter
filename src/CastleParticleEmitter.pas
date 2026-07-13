@@ -2565,7 +2565,7 @@ begin
     try
       Self.FEffect.IsNeedRecompile := False;
       // TransformFeedback shader
-      PlugVertex := Self.FEffect.CustomTransformFeedbackVertexShader.Text;
+      PlugVertex := Trim(Self.FEffect.CustomTransformFeedbackVertexShader.Text);
       if PlugVertex <> '' then
       begin
         Key := MD5Print(MD5String(PlugVertex));
@@ -2620,8 +2620,8 @@ begin
         Self.LocalTransformFeedbackProgramMultipleInstances := TransformFeedbackProgramMultipleInstances;
       end;
       // Render shader
-      PlugVertex := Self.FEffect.CustomRenderVertexShader.Text;
-      PlugFragment := Self.FEffect.CustomRenderFragmentShader.Text;
+      PlugVertex := Trim(Self.FEffect.CustomRenderVertexShader.Text);
+      PlugFragment := Trim(Self.FEffect.CustomRenderFragmentShader.Text);
       if (PlugVertex <> '') or (PlugFragment <> '') then
       begin
         Key := MD5Print(MD5String(PlugVertex + PlugFragment));
