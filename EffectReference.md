@@ -80,7 +80,7 @@ Used to render particles on screen. Controlled by the `CustomRenderVertexShader`
 
 This shader does not replace the default shader. Instead, it is inserted into the default shader as **plug**, similar to CGE's PLUG system.
 
-**Currently supported plugs:**
+Currently supported plugs:
 - `void PLUG_vertex_object_space(inout vec3 vertex_object)`: Only for vertex shader, allowed to modify vertex in object space.
 - `void PLUG_texture_coord(inout vec2 texture_coord)`: Only for vertex shader, allowed to modify texture coordinate.
 - `void PLUG_color(inout vec4 color)`: Only for fragment shader, allowed to modify particle's color value.
@@ -91,5 +91,5 @@ Used to update particle position, rotation, velocity, size, and color. Controlle
 
 This shader does not replace the default shader. Instead, it is inserted into the default shader as **plug**, similar to CGE's PLUG system.
 
-**Currently supported plugs:**
+Currently supported plugs:
 - `void PLUG_update_after()`: Called after the particle’s calculations are complete. Primarily used to modify particles after all other updates. See the `Snow` effect in the gallery demo for an example.
