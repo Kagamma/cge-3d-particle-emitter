@@ -80,11 +80,13 @@ Used to render particles on screen. Controlled by the `CustomRenderVertexShader`
 
 This shader does not replace the default shader. Instead, it is inserted into the default shader as **plug**, similar to CGE's PLUG system.
 
-Currently supported plugs:
-- `void PLUG_vertex_object_space(inout vec3 vertex_object)`: Only for vertex shader, allowed to modify vertex in object space.
-- `void PLUG_texture_coord(inout vec2 texture_coord)`: Only for vertex shader, allowed to modify texture coordinate.
-- `void PLUG_color(inout vec4 color)`: Only for fragment shader, allowed to modify particle's color value.
-- `void PLUG_texture_color(inout vec4 texture_color)`: Only for fragment shader, allowed to modify particle's texture color value.
+Currently supported plugs for vertex shader:
+- `void PLUG_vertex_object_space(inout vec3 vertex_object)`: Allowed to modify vertex in object space.
+- `void PLUG_texture_coord(inout vec2 texture_coord)`: Allowed to modify texture coordinate.
+
+Currently supported plugs for fragment shader:
+- `void PLUG_color(inout vec4 color)`: Allowed to modify particle's color value.
+- `void PLUG_texture_color(inout vec4 texture_color)`: Allowed to modify particle's texture color value.
 
 #### Transform Feedback Shader
 Used to update particle position, rotation, velocity, size, and color. Controlled by the `CustomTransformFeedbackVertexShader` parameter.
