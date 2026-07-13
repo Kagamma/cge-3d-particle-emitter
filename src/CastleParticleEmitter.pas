@@ -358,11 +358,14 @@ type
   TCastleParticleAttractor = class(TCastleTransform)
   strict private
     FAttraction: Single;
+    FKillDistance: Single;
     FAttractorType: TCastleParticleAttractorType;
   protected
+    constructor Create(AOwner: TComponent); override;
     function PropertySections(const PropertyName: String): TPropertySections; override;
   published
     property Attraction: Single read FAttraction write FAttraction;
+    property KillDistance: Single read FKillDistance write FKillDistance default -1;
     property AttactorType: TCastleParticleAttractorType read FAttractorType write FAttractorType default patDistance;
   end;
 
@@ -419,6 +422,7 @@ type
     FDeltaTime,
     FTimePlayingSpeed: Single;
     FAttractorList: TVector4List;
+    FAttractorKillDistanceList: TSingleList;
     FAttractorTypeList: TInt32List;
     //
     FCameraMatrix: TMatrix4;
@@ -599,6 +603,7 @@ const
 '  int textureAsSourcePositionSize;'nl
 '};'nl
 'uniform vec4 attractors[4];'nl
+'uniform float attractorKillDistances[4];'nl
 'uniform int attractorCount;'nl
 'uniform int attractorType[4];'nl
 'uniform float time;'nl
@@ -719,6 +724,12 @@ CommonTransformVertexFunctions nl
 '  outTimeToLive.x = max(0.0, outTimeToLive.x - deltaTime);'nl
 '  outVelocity.xyz = rotate(outVelocity.xyz, outVelocity.w * deltaTime, outDirection) + gravity * deltaTime;'nl
 '  for (int i = 0; i < attractorCount; i++) {'nl
+'    if (attractorKillDistances[i] >= 0) {'nl
+'      float dist = distance(attractors[i].xyz, outPosition.xyz);'nl
+'      if (dist <= attractorKillDistances[i]) {'nl
+'        outTimeToLive.x = 0.0;'nl
+'      }'nl
+'    }'nl
 '    vec3 a = outPosition.xyz - attractors[i].xyz;'nl
 '    if (attractorType[i] == ATTRACTOR_GRAVITY_POINT) {'nl
 '      float force = 6.674 * attractors[i].w / length(a);'nl
@@ -809,6 +820,7 @@ CommonTransformVertexFunctions nl
 '  int textureAsSourcePositionSize;'nl
 '};'nl
 'uniform vec4 attractors[4];'nl
+'uniform float attractorKillDistances[4];'nl
 'uniform int attractorCount;'nl
 'uniform int attractorType[4];'nl
 'uniform mat4 mMatrix;'nl
@@ -936,6 +948,12 @@ CommonTransformVertexFunctions nl
 '  outTimeToLive.x = max(0.0, outTimeToLive.x - deltaTime);'nl
 '  outVelocity.xyz = rotate(outVelocity.xyz, outVelocity.w * deltaTime, outDirection) + gravity * deltaTime;'nl
 '  for (int i = 0; i < attractorCount; i++) {'nl
+'    if (attractorKillDistances[i] >= 0) {'nl
+'      float dist = distance(attractors[i].xyz + outTranslate, outPosition.xyz);'nl
+'      if (dist <= attractorKillDistances[i]) {'nl
+'        outTimeToLive.x = 0.0;'nl
+'      }'nl
+'    }'nl
 '    vec3 a = outPosition.xyz - (attractors[i].xyz + outTranslate);'nl
 '    if (attractorType[i] == ATTRACTOR_GRAVITY_POINT) {'nl
 '      float force = 6.674 * attractors[i].w / length(a);'nl
@@ -1813,6 +1831,7 @@ begin
   FTimePlaying := true;
   FTimePlayingSpeed := 1.0;
   Self.FAttractorList := TVector4List.Create;
+  Self.FAttractorKillDistanceList := TSingleList.Create;
   Self.FAttractorTypeList := TInt32List.Create;
   Self.FAttractorList.Capacity := 4;
   Self.FAttractorTypeList.Capacity := 4;
@@ -1835,6 +1854,7 @@ destructor TCastleParticleEmitter.Destroy;
 begin
   Self.FAttractorTypeList.Free;
   Self.FAttractorList.Free;
+  Self.FAttractorKillDistanceList.Free;
   inherited;
 end;
 
@@ -1902,6 +1922,7 @@ begin
       end;
       // Build list of attractor
       Self.FAttractorList.Count := 0;
+      Self.FAttractorKillDistanceList.Count := 0;
       Self.FAttractorTypeList.Count := 0;
       for I := 0 to Self.Count - 1 do
       begin
@@ -1909,11 +1930,13 @@ begin
         if Self.Items[I].Exists and Self.Items[I].Visible and (Self.Items[I] is TCastleParticleAttractor) then
         begin
           Self.FAttractorList.Add(Vector4(Self.Items[I].Translation, -TCastleParticleAttractor(Self.Items[I]).Attraction));
+          Self.FAttractorKillDistanceList.Add(TCastleParticleAttractor(Self.Items[I]).KillDistance);
           Self.FAttractorTypeList.Add(CastleParticleAttractorType[TCastleParticleAttractor(Self.Items[I]).AttactorType]);
         end;
       end;
       TransformFeedbackProgram.Uniform('attractorCount').SetValue(TGLint(Self.FAttractorList.Count));
       TransformFeedbackProgram.Uniform('attractors').SetValue(Self.FAttractorList);
+      TransformFeedbackProgram.Uniform('attractorKillDistances').SetValue(Self.FAttractorKillDistanceList);
       TransformFeedbackProgram.Uniform('attractorType').SetValue(Self.FAttractorTypeList);
 
       // We want editor to always update UBO
@@ -2767,9 +2790,16 @@ begin
   end;
 end;
 
+constructor TCastleParticleAttractor.Create(AOwner: TComponent);
+begin
+  inherited;
+  Self.FKillDistance := -1;
+end;
+
 function TCastleParticleAttractor.PropertySections(const PropertyName: String): TPropertySections;
 begin
   if (PropertyName = 'AttactorType')
+    or (PropertyName = 'KillDistance')
     or (PropertyName = 'Attraction') then
     Result := [psBasic]
   else
