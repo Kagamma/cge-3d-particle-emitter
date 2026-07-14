@@ -1092,6 +1092,7 @@ CommonTransformVertexFunctions nl
 'out vec2 fragTexCoord;'nl
 'out vec4 fragColor;'nl
 'out float fragFogCoord;'nl
+'out float time;'nl
 
 'uniform mat4 vOrMvMatrix;'nl
 'uniform mat4 pMatrix;'nl
@@ -1099,13 +1100,14 @@ CommonTransformVertexFunctions nl
 'uniform float scaleY;'nl
 'uniform float scaleZ;'nl
 'uniform int rotationType;'nl
-'uniform float time;'nl
+'uniform float uniformTime;'nl
 
 CommonVertexFunctions nl'';
 
   VertexShaderSourceQuad_Part2 =
 'void main() {'nl
 '  if (inTimeToLive.x > 0.0) {'nl
+'    time = uniformTime;'nl
 '    vec2 texCoord = inTexcoord;'nl
 '    PLUG_texture_coord(texCoord);'nl
 '    fragTexCoord = texCoord;'nl
@@ -1145,14 +1147,14 @@ CommonVertexFunctions nl'';
 'in vec2 fragTexCoord;'nl
 'in vec4 fragColor;'nl
 'in float fragFogCoord;'nl
+'in float time;'nl
 
 'out vec4 outColor;'nl
 
 'uniform sampler2D baseColor;'nl
 'uniform int fogEnable;'nl
 'uniform float fogEnd;'nl
-'uniform vec3 fogColor;'nl
-'uniform float time;'nl '';
+'uniform vec3 fogColor;'nl '';
 
   FragmentShaderSourceQuad_Part2 =
 'void main() {'nl
@@ -1196,6 +1198,7 @@ CommonVertexFunctions nl'';
 'out vec2 fragTexCoord;'nl
 'out vec4 fragColor;'nl
 'out float fragFogCoord;'nl
+'out float time;'nl
 
 'uniform mat4 vOrMvMatrix;'nl
 'uniform mat4 pMatrix;'nl
@@ -1203,13 +1206,14 @@ CommonVertexFunctions nl'';
 'uniform float scaleY;'nl
 'uniform float scaleZ;'nl
 'uniform int rotationType;'nl
-'uniform float time;'nl
+'uniform float uniformTime;'nl
 
 CommonVertexFunctions nl'';
 
   VertexShaderSourceMesh_Part2 =
 'void main() {'nl
 '  if (inTimeToLive.x > 0.0) {'nl
+'    time = uniformTime;'nl
 '    vec2 texCoord = inTexcoord;'nl
 '    PLUG_texture_coord(texCoord);'nl
 '    fragTexCoord = texCoord;'nl
@@ -1246,14 +1250,14 @@ CommonVertexFunctions nl'';
 'in vec2 fragTexCoord;'nl
 'in vec4 fragColor;'nl
 'in float fragFogCoord;'nl
+'in float time;'nl
 
 'out vec4 outColor;'nl
 
 'uniform sampler2D baseColor;'nl
 'uniform int fogEnable;'nl
 'uniform float fogEnd;'nl
-'uniform vec3 fogColor;'nl
-'uniform float time;'nl'';
+'uniform vec3 fogColor;'nl '';
 
   FragmentShaderSourceMesh_Part2 =
 'void main() {'nl
@@ -2420,7 +2424,7 @@ begin
   end;
   RenderProgram.Uniform('pMatrix').SetValue(RenderContext.ProjectionMatrix);
   RenderProgram.Uniform('rotationType').SetValue(Integer(Self.FEffect.RotationType));
-  RenderProgram.Uniform('time').SetValue(Self.FTime);
+  RenderProgram.Uniform('uniformTime').SetValue(Self.FTime);
   glBindVertexArray(Self.VAOMeshes[Self.CurrentBuffer]);
   glActiveTexture(GL_TEXTURE0);
   if Self.FEffect.TextureViewport = nil then
