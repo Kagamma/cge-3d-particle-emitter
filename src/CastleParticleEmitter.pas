@@ -2287,6 +2287,7 @@ begin
       glDisable(GL_RASTERIZER_DISCARD);
       glBindVertexArray(GLObjectNone);
       glBindTexture(GL_TEXTURE_2D, GLObjectNone);
+      glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, GLObjectNone);
       CurrentBuffer := (Self.CurrentBuffer + 1) mod 2;
     end;
   end;
