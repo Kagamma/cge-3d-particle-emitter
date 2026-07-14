@@ -2055,8 +2055,9 @@ begin
   Self.FAttractorList := TVector4List.Create;
   Self.FAttractorKillDistanceList := TSingleList.Create;
   Self.FAttractorTypeList := TInt32List.Create;
-  Self.FAttractorList.Capacity := 4;
-  Self.FAttractorTypeList.Capacity := 4;
+  Self.FAttractorList.Count := 4;
+  Self.FAttractorTypeList.Count := 4;
+  Self.FAttractorKillDistanceList.Count := 4;
   Self.FDeltaTime := 0;
   Self.FTime := 0;
 
@@ -2103,7 +2104,7 @@ end;
 
 procedure TCastleParticleEmitter.Update(const SecondsPassed: Single; var RemoveMe: TRemoveType);
 var
-  I, AnchorCount: Integer;
+  I, AnchorCount, AttractorCount: Integer;
   RealSecondsPassed: Single;
   AnchorItem: TCastleParticleEffectAnchorItem;
 begin
@@ -2164,17 +2165,16 @@ begin
         TransformFeedbackProgram.Uniform('mMatrix').SetValue(Self.WorldTransform);
       end;
       // Build list of attractor
-      Self.FAttractorList.Count := 0;
-      Self.FAttractorKillDistanceList.Count := 0;
-      Self.FAttractorTypeList.Count := 0;
+      AttractorCount := 0;
       for I := 0 to Self.Count - 1 do
       begin
-        if Self.FAttractorList.Count >= 4 then Break;
+        if AttractorCount >= 4 then Break;
         if Self.Items[I].Exists and Self.Items[I].Visible and (Self.Items[I] is TCastleParticleAttractor) then
         begin
-          Self.FAttractorList.Add(Vector4(Self.Items[I].Translation, -TCastleParticleAttractor(Self.Items[I]).Attraction));
-          Self.FAttractorKillDistanceList.Add(TCastleParticleAttractor(Self.Items[I]).KillDistance);
-          Self.FAttractorTypeList.Add(CastleParticleAttractorType[TCastleParticleAttractor(Self.Items[I]).AttactorType]);
+          Self.FAttractorList[AttractorCount] := Vector4(Self.Items[I].Translation, -TCastleParticleAttractor(Self.Items[I]).Attraction);
+          Self.FAttractorKillDistanceList[AttractorCount] := (TCastleParticleAttractor(Self.Items[I]).KillDistance);
+          Self.FAttractorTypeList[AttractorCount] := CastleParticleAttractorType[TCastleParticleAttractor(Self.Items[I]).AttactorType];
+          Inc(AttractorCount);
         end;
       end;
       TransformFeedbackProgram.Uniform('attractorCount').SetValue(TGLint(Self.FAttractorList.Count));
@@ -2500,13 +2500,20 @@ begin
     WritelnLog('GL_MAX_VERTEX_ATTRIBS: ' + IntToStr(V));
     if V < 16 then
       raise Exception.Create('TCastleParticleEmitter requires GL_MAX_VERTEX_ATTRIBS at least 16');
-    // Check MAX_VERTEX_UNIFORM_COMPONENTS
+    // Check GL_MAX_VERTEX_UNIFORM_COMPONENTS
     {$ifdef WASI}
       V := glGetParameter(GL_MAX_VERTEX_UNIFORM_COMPONENTS);
     {$else}
       glGetIntegerv($8B4A, @V);
     {$endif}
-    WritelnLog('MAX_VERTEX_UNIFORM_COMPONENTS: ' + IntToStr(V));
+    WritelnLog('GL_MAX_VERTEX_UNIFORM_COMPONENTS: ' + IntToStr(V));
+    // Check GL_MAX_TRANSFORM_FEEDBACK_SEPARATE_ATTRIBS
+    {$ifdef WASI}
+      V := glGetParameter(GL_MAX_TRANSFORM_FEEDBACK_SEPARATE_ATTRIBS);
+    {$else}
+      glGetIntegerv(GL_MAX_TRANSFORM_FEEDBACK_SEPARATE_ATTRIBS, @V);
+    {$endif}
+    WritelnLog('GL_MAX_TRANSFORM_FEEDBACK_SEPARATE_ATTRIBS: ' + IntToStr(V));
     IsCheckedForUsable := True;
   end;
 
@@ -2530,25 +2537,19 @@ begin
       TransformFeedbackProgramMultipleInstances.Link;
 
       // CGE doesn't expose ProgramId, so we work around by quering for it from OpenGL
+      {$ifndef WASI}
       TransformFeedbackProgramSingleInstance.Enable;
-      {$ifdef WASI}
-        ProgramId := glGetParameter(GL_CURRENT_PROGRAM);
-      {$else}
-        glGetIntegerv(GL_CURRENT_PROGRAM, @ProgramId);
-      {$endif}
+      glGetIntegerv(GL_CURRENT_PROGRAM, @ProgramId);
       EffectUniformIndex := glGetUniformBlockIndex(ProgramId, 'Effect');
       glUniformBlockBinding(ProgramId, EffectUniformIndex, 0);
       TransformFeedbackProgramSingleInstance.Disable;
 
       TransformFeedbackProgramMultipleInstances.Enable;
-      {$ifdef WASI}
-        ProgramId := glGetParameter(GL_CURRENT_PROGRAM);
-      {$else}
-        glGetIntegerv(GL_CURRENT_PROGRAM, @ProgramId);
-      {$endif}
+      glGetIntegerv(GL_CURRENT_PROGRAM, @ProgramId);
       EffectUniformIndex := glGetUniformBlockIndex(ProgramId, 'Effect');
       glUniformBlockBinding(ProgramId, EffectUniformIndex, 0);
       TransformFeedbackProgramMultipleInstances.Disable;
+      {$endif}
 
       RenderProgramQuad := TGLSLProgram.Create;
       RenderProgramQuad.AttachVertexShader(VertexShaderSourceQuad);
@@ -2850,26 +2851,20 @@ begin
           Self.LocalTransformFeedbackProgramMultipleInstances.SetTransformFeedbackVaryings(Varyings);
           Self.LocalTransformFeedbackProgramMultipleInstances.Link;
 
+          {$ifndef WASI}
           // CGE doesn't expose ProgramId, so we work around by quering for it from OpenGL
           Self.LocalTransformFeedbackProgramSingleInstance.Enable;
-          {$ifdef WASI}
-            ProgramId := glGetParameter(GL_CURRENT_PROGRAM);
-          {$else}
-            glGetIntegerv(GL_CURRENT_PROGRAM, @ProgramId);
-          {$endif}
+          glGetIntegerv(GL_CURRENT_PROGRAM, @ProgramId);
           EffectUniformIndex := glGetUniformBlockIndex(ProgramId, 'Effect');
           glUniformBlockBinding(ProgramId, EffectUniformIndex, 0);
           Self.LocalTransformFeedbackProgramSingleInstance.Disable;
 
           Self.LocalTransformFeedbackProgramMultipleInstances.Enable;
-          {$ifdef WASI}
-            ProgramId := glGetParameter(GL_CURRENT_PROGRAM);
-          {$else}
-            glGetIntegerv(GL_CURRENT_PROGRAM, @ProgramId);
-          {$endif}
+          glGetIntegerv(GL_CURRENT_PROGRAM, @ProgramId);
           EffectUniformIndex := glGetUniformBlockIndex(ProgramId, 'Effect');
           glUniformBlockBinding(ProgramId, EffectUniformIndex, 0);
           Self.LocalTransformFeedbackProgramMultipleInstances.Disable;
+          {$endif}
 
           Shaders.Shader1 := Self.LocalTransformFeedbackProgramSingleInstance;
           Shaders.Shader2 := Self.LocalTransformFeedbackProgramMultipleInstances;
