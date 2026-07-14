@@ -2397,15 +2397,16 @@ begin
       glDeleteTextures(1, @Self.TextureAsSourcePosition);
     Self.FIsGLContextInitialized := False;
 
-    // These are cached, so we don't need to free them
-    {if Self.LocalRenderProgramMesh <> RenderProgramMesh then
-      FreeAndNil(Self.LocalRenderProgramMesh);
-    if Self.LocalRenderProgramQuad <> RenderProgramQuad then
-      FreeAndNil(Self.LocalRenderProgramQuad);
-    if Self.LocalTransformFeedbackProgramSingleInstance <> TransformFeedbackProgramSingleInstance then
-      FreeAndNil(Self.LocalTransformFeedbackProgramSingleInstance);
-    if Self.LocalTransformFeedbackProgramMultipleInstances <> TransformFeedbackProgramMultipleInstances then
-      FreeAndNil(Self.LocalTransformFeedbackProgramMultipleInstances);}
+    {$ifdef CASTLE_DESIGN_MODE}
+      if Self.LocalRenderProgramMesh <> RenderProgramMesh then
+        FreeAndNil(Self.LocalRenderProgramMesh);
+      if Self.LocalRenderProgramQuad <> RenderProgramQuad then
+        FreeAndNil(Self.LocalRenderProgramQuad);
+      if Self.LocalTransformFeedbackProgramSingleInstance <> TransformFeedbackProgramSingleInstance then
+        FreeAndNil(Self.LocalTransformFeedbackProgramSingleInstance);
+      if Self.LocalTransformFeedbackProgramMultipleInstances <> TransformFeedbackProgramMultipleInstances then
+        FreeAndNil(Self.LocalTransformFeedbackProgramMultipleInstances);
+    {$endif}
   end;
   inherited;
 end;
@@ -2578,18 +2579,25 @@ begin
         begin
           // Single instance
           SrcVertex := TransformVertexShaderSourceSingleInstance_Part1 + PlugVertex + TransformVertexShaderSourceSingleInstance_Part2;
+          {$ifdef CASTLE_DESIGN_MODE}
+            if Self.LocalTransformFeedbackProgramSingleInstance <> TransformFeedbackProgramSingleInstance then
+              FreeAndNil(Self.LocalTransformFeedbackProgramSingleInstance);
+          {$endif}
           Self.LocalTransformFeedbackProgramSingleInstance := TGLSLProgram.Create;
-          Self.LocalTransformFeedbackProgramSingleInstance.DetachAllShaders;
           Self.LocalTransformFeedbackProgramSingleInstance.AttachVertexShader(SrcVertex);
           {$ifdef GLES}
             Self.LocalTransformFeedbackProgramSingleInstance.AttachFragmentShader(FragmentShaderSourceDummy);
           {$endif}
           Self.LocalTransformFeedbackProgramSingleInstance.SetTransformFeedbackVaryings(Varyings);
           Self.LocalTransformFeedbackProgramSingleInstance.Link;
+
           // Multiple instances
           SrcVertex := TransformVertexShaderSourceMultipleInstances_Part1 + PlugVertex + TransformVertexShaderSourceMultipleInstances_Part2;
+          {$ifdef CASTLE_DESIGN_MODE}
+            if Self.LocalTransformFeedbackProgramMultipleInstances <> TransformFeedbackProgramMultipleInstances then
+              FreeAndNil(Self.LocalTransformFeedbackProgramMultipleInstances);
+          {$endif}
           Self.LocalTransformFeedbackProgramMultipleInstances := TGLSLProgram.Create;
-          Self.LocalTransformFeedbackProgramMultipleInstances.DetachAllShaders;
           Self.LocalTransformFeedbackProgramMultipleInstances.AttachVertexShader(SrcVertex);
           {$ifdef GLES}
             Self.LocalTransformFeedbackProgramMultipleInstances.AttachFragmentShader(FragmentShaderSourceDummy);
@@ -2612,20 +2620,30 @@ begin
 
           Shaders.Shader1 := Self.LocalTransformFeedbackProgramSingleInstance;
           Shaders.Shader2 := Self.LocalTransformFeedbackProgramMultipleInstances;
-          ShaderCache.AddOrSetValue(Key, Shaders);
+          {$ifndef CASTLE_DESIGN_MODE}
+            ShaderCache.AddOrSetValue(Key, Shaders);
+          {$endif}
         end;
       end else
       begin
         Self.LocalTransformFeedbackProgramSingleInstance := TransformFeedbackProgramSingleInstance;
         Self.LocalTransformFeedbackProgramMultipleInstances := TransformFeedbackProgramMultipleInstances;
       end;
+    except
+      on E: Exception do
+      begin
+        WritelnWarning('CastleParticleEmitter', E.Message);
+        Self.LocalTransformFeedbackProgramSingleInstance := TransformFeedbackProgramSingleInstance;
+        Self.LocalTransformFeedbackProgramMultipleInstances := TransformFeedbackProgramMultipleInstances;
+      end;
+    end;
+    try
       // Render shader
       PlugVertex := Trim(Self.FEffect.CustomRenderVertexShader.Text);
       PlugFragment := Trim(Self.FEffect.CustomRenderFragmentShader.Text);
       if (PlugVertex <> '') or (PlugFragment <> '') then
       begin
         Key := MD5Print(MD5String(PlugVertex + PlugFragment));
-
         if ShaderCache.ContainsKey(Key) then
         begin
           Shaders := ShaderCache[Key];
@@ -2634,6 +2652,10 @@ begin
         end else
         begin
           // Quad
+          {$ifdef CASTLE_DESIGN_MODE}
+            if Self.LocalRenderProgramQuad <> RenderProgramQuad then
+              FreeAndNil(Self.LocalRenderProgramQuad);
+          {$endif}
           Self.LocalRenderProgramQuad := TGLSLProgram.Create;
           if PlugVertex <> '' then
           begin
@@ -2667,11 +2689,11 @@ begin
           Self.LocalRenderProgramQuad.Link;
 
           // Mesh
-          if Self.LocalRenderProgramMesh = RenderProgramMesh then
-          begin
-            Self.LocalRenderProgramMesh := TGLSLProgram.Create;
-          end;
-          Self.LocalRenderProgramMesh.DetachAllShaders;
+          {$ifdef CASTLE_DESIGN_MODE}
+            if Self.LocalRenderProgramMesh <> RenderProgramMesh then
+              FreeAndNil(Self.LocalRenderProgramMesh);
+          {$endif}
+          Self.LocalRenderProgramMesh := TGLSLProgram.Create;
           if PlugVertex <> '' then
           begin
             if PlugVertex.IndexOf('void PLUG_vertex_object_space') >= 0 then
@@ -2705,7 +2727,9 @@ begin
 
           Shaders.Shader1 := Self.LocalRenderProgramQuad;
           Shaders.Shader2 := Self.LocalRenderProgramMesh;
-          ShaderCache.AddOrSetValue(Key, Shaders);
+          {$ifndef CASTLE_DESIGN_MODE}
+            ShaderCache.AddOrSetValue(Key, Shaders);
+          {$endif}
         end;
       end else
       begin
@@ -2716,6 +2740,8 @@ begin
       on E: Exception do
       begin
         WritelnWarning('CastleParticleEmitter', E.Message);
+        Self.LocalRenderProgramQuad := RenderProgramQuad;
+        Self.LocalRenderProgramMesh := RenderProgramMesh;
       end;
     end;
   end;
