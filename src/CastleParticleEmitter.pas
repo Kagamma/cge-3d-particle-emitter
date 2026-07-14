@@ -4,8 +4,6 @@ unit CastleParticleEmitter;
 {$macro on}
 {$define nl:=+ LineEnding +}
 
-{$ifdef ANDROID}{$define GLES}{$endif}
-{$ifdef iOS}{$define GLES}{$endif}
 {$ifdef FPC}
   {$mode delphi}
 {$endif}
@@ -14,7 +12,7 @@ interface
 
 uses
   Classes, SysUtils, fpjsonrtti, md5,
-  {$ifdef GLES}
+  {$ifdef OpenGLES}
   CastleGLES,
   {$else}
   CastleGL,
@@ -536,7 +534,7 @@ const
 '}';
 
   TransformVertexShaderSourceMultipleInstances_Part1 =
-{$ifdef GLES}
+{$ifdef OpenGLES}
 '#version 300 es'nl
 {$else}
 '#version 330'nl
@@ -757,7 +755,7 @@ CommonTransformVertexFunctions nl
     TransformVertexShaderSourceMultipleInstances_Part2;
 
   TransformVertexShaderSourceSingleInstance_Part1 =
-{$ifdef GLES}
+{$ifdef OpenGLES}
 '#version 300 es'nl
 {$else}
 '#version 330'nl
@@ -986,7 +984,7 @@ CommonTransformVertexFunctions nl
     TransformVertexShaderSourceSingleInstance_Part2;
 
   VertexShaderSourceQuad_Part1 =
-{$ifdef GLES}
+{$ifdef OpenGLES}
 '#version 300 es'nl
 {$else}
 '#version 330'nl
@@ -1051,7 +1049,7 @@ CommonVertexFunctions nl'';
     VertexShaderSourceQuad_Part2;
 
   FragmentShaderSourceQuad_Part1 =
-{$ifdef GLES}
+{$ifdef OpenGLES}
 '#version 300 es'nl
 {$else}
 '#version 330'nl
@@ -1090,7 +1088,7 @@ CommonVertexFunctions nl'';
     FragmentShaderSourceQuad_Part2;
 
   VertexShaderSourceMesh_Part1 =
-{$ifdef GLES}
+{$ifdef OpenGLES}
 '#version 300 es'nl
 {$else}
 '#version 330'nl
@@ -1152,7 +1150,7 @@ CommonVertexFunctions nl'';
     VertexShaderSourceMesh_Part2;
 
   FragmentShaderSourceMesh_Part1 =
-{$ifdef GLES}
+{$ifdef OpenGLES}
 '#version 300 es'nl
 {$else}
 '#version 330'nl
@@ -1190,7 +1188,7 @@ CommonVertexFunctions nl'';
     'void PLUG_texture_color(inout vec4 texture_color){}' + LineEnding +
     FragmentShaderSourceMesh_Part2;
 
-{$ifdef GLES}
+{$ifdef OpenGLES}
   FragmentShaderSourceDummy: String =
 '#version 300 es'nl
 'precision lowp float;'nl
@@ -2302,7 +2300,7 @@ begin
     try
       TransformFeedbackProgramSingleInstance := TGLSLProgram.Create;
       TransformFeedbackProgramSingleInstance.AttachVertexShader(TransformVertexShaderSourceSingleInstance);
-      {$ifdef GLES}
+      {$ifdef OpenGLES}
         TransformFeedbackProgramSingleInstance.AttachFragmentShader(FragmentShaderSourceDummy);
       {$endif}
       TransformFeedbackProgramSingleInstance.SetTransformFeedbackVaryings(Varyings);
@@ -2310,7 +2308,7 @@ begin
 
       TransformFeedbackProgramMultipleInstances := TGLSLProgram.Create;
       TransformFeedbackProgramMultipleInstances.AttachVertexShader(TransformVertexShaderSourceMultipleInstances);
-      {$ifdef GLES}
+      {$ifdef OpenGLES}
         TransformFeedbackProgramMultipleInstances.AttachFragmentShader(FragmentShaderSourceDummy);
       {$endif}
       TransformFeedbackProgramMultipleInstances.SetTransformFeedbackVaryings(Varyings);
@@ -2585,7 +2583,7 @@ begin
           {$endif}
           Self.LocalTransformFeedbackProgramSingleInstance := TGLSLProgram.Create;
           Self.LocalTransformFeedbackProgramSingleInstance.AttachVertexShader(SrcVertex);
-          {$ifdef GLES}
+          {$ifdef OpenGLES}
             Self.LocalTransformFeedbackProgramSingleInstance.AttachFragmentShader(FragmentShaderSourceDummy);
           {$endif}
           Self.LocalTransformFeedbackProgramSingleInstance.SetTransformFeedbackVaryings(Varyings);
@@ -2599,7 +2597,7 @@ begin
           {$endif}
           Self.LocalTransformFeedbackProgramMultipleInstances := TGLSLProgram.Create;
           Self.LocalTransformFeedbackProgramMultipleInstances.AttachVertexShader(SrcVertex);
-          {$ifdef GLES}
+          {$ifdef OpenGLES}
             Self.LocalTransformFeedbackProgramMultipleInstances.AttachFragmentShader(FragmentShaderSourceDummy);
           {$endif}
           Self.LocalTransformFeedbackProgramMultipleInstances.SetTransformFeedbackVaryings(Varyings);
