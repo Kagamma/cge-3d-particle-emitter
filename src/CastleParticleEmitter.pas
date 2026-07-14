@@ -154,6 +154,15 @@ type
   end;
 
   TCastleParticleEffectUBO = packed record
+    {$ifdef WASI}
+    AnchorCount: Integer;
+    Anchor,
+    AnchorSize,
+    AnchorSizeVariance: TSingleList;
+    AnchorColor,
+    AnchorColorVariance: TVector4List;
+    TextureAsSourcePositionSize: Integer;
+    {$else}
     Rotation: TVector3;
     LifeSpan: Single;
     RotationVariance: TVector3;
@@ -179,6 +188,7 @@ type
     AnchorColorVariance: array[0..4] of TVector4;
     MaxParticles,
     TextureAsSourcePositionSize: Integer;
+    {$endif}
   end;
 
   TCastleParticleEffect = class(TCastleComponent)
@@ -393,7 +403,9 @@ type
     VAOMeshes: array[0..1] of TGLVertexArrayObject;
     VBOTnFs: array[0..1] of TGLBuffer;
     VBOMesh, VBOMeshIndices: TGLBuffer;
+    {$ifndef WASI}
     UBO: TGLBuffer;
+    {$endif}
     CurrentBuffer: TGLuint;
     Particles: packed array of TCastleParticle;
     ParticleMesh: packed array of TCastleParticleMesh;
@@ -586,6 +598,33 @@ const
 'out vec4 outRotationXY;'nl
 'out vec4 outPreviousPosition;'nl
 
+{$ifdef WASI}
+'uniform vec3 rotation;'nl
+'uniform float particleLifeSpan;'nl
+'uniform vec3 rotationVariance;'nl
+'uniform float particleLifeSpanVariance;'nl
+'uniform vec3 rotationSpeed;'nl
+'uniform float speed;'nl
+'uniform vec3 rotationSpeedVariance;'nl
+'uniform float speedVariance;'nl
+'uniform vec3 sourcePosition;'nl
+'uniform float radial;'nl
+'uniform vec3 sourcePositionVariance;'nl
+'uniform float radialVariance;'nl
+'uniform vec3 gravity;'nl
+'uniform float directionVariance;'nl
+'uniform vec3 direction;'nl
+'uniform int sourceType;'nl
+'uniform vec3 sourcePositionLocalVariance;'nl
+'uniform int anchorCount;'nl
+'uniform float anchor[8];'nl
+'uniform float anchorSize[8];'nl
+'uniform float anchorSizeVariance[8];'nl
+'uniform vec4 anchorColor[5];'nl
+'uniform vec4 anchorColorVariance[5];'nl
+'uniform int maxParticles;'nl
+'uniform int textureAsSourcePositionSize;'nl
+{$else}
 'layout(packed) uniform Effect {'nl
 '  vec3 rotation;'nl
 '  float particleLifeSpan;'nl
@@ -613,6 +652,8 @@ const
 '  int maxParticles;'nl
 '  int textureAsSourcePositionSize;'nl
 '};'nl
+{$endif}
+
 'uniform vec4 attractors[4];'nl
 'uniform float attractorKillDistances[4];'nl
 'uniform int attractorCount;'nl
@@ -807,6 +848,33 @@ CommonTransformVertexFunctions nl
 'out vec4 outRotationXY;'nl
 'out vec4 outPreviousPosition;'nl
 
+{$ifdef WASI}
+'uniform vec3 rotation;'nl
+'uniform float particleLifeSpan;'nl
+'uniform vec3 rotationVariance;'nl
+'uniform float particleLifeSpanVariance;'nl
+'uniform vec3 rotationSpeed;'nl
+'uniform float speed;'nl
+'uniform vec3 rotationSpeedVariance;'nl
+'uniform float speedVariance;'nl
+'uniform vec3 sourcePosition;'nl
+'uniform float radial;'nl
+'uniform vec3 sourcePositionVariance;'nl
+'uniform float radialVariance;'nl
+'uniform vec3 gravity;'nl
+'uniform float directionVariance;'nl
+'uniform vec3 direction;'nl
+'uniform int sourceType;'nl
+'uniform vec3 sourcePositionLocalVariance;'nl
+'uniform int anchorCount;'nl
+'uniform float anchor[8];'nl
+'uniform float anchorSize[8];'nl
+'uniform float anchorSizeVariance[8];'nl
+'uniform vec4 anchorColor[5];'nl
+'uniform vec4 anchorColorVariance[5];'nl
+'uniform int maxParticles;'nl
+'uniform int textureAsSourcePositionSize;'nl
+{$else}
 'layout(packed) uniform Effect {'nl
 '  vec3 rotation;'nl
 '  float particleLifeSpan;'nl
@@ -834,6 +902,8 @@ CommonTransformVertexFunctions nl
 '  int maxParticles;'nl
 '  int textureAsSourcePositionSize;'nl
 '};'nl
+{$endif}
+
 'uniform vec4 attractors[4];'nl
 'uniform float attractorKillDistances[4];'nl
 'uniform int attractorCount;'nl
@@ -1989,6 +2059,20 @@ begin
   Self.FAttractorTypeList.Capacity := 4;
   Self.FDeltaTime := 0;
   Self.FTime := 0;
+
+  {$ifdef WASI}
+  Self.FEffectUBO.Anchor := TSingleList.Create;
+  Self.FEffectUBO.Anchor.Count := 8;
+  Self.FEffectUBO.AnchorSize := TSingleList.Create;
+  Self.FEffectUBO.AnchorSize.Count := 8;
+  Self.FEffectUBO.AnchorSizeVariance := TSingleList.Create;
+  Self.FEffectUBO.AnchorSizeVariance.Count := 8;
+  Self.FEffectUBO.AnchorColor := TVector4List.Create;
+  Self.FEffectUBO.AnchorColor.Count := 5;
+  Self.FEffectUBO.AnchorColorVariance := TVector4List.Create;
+  Self.FEffectUBO.AnchorColorVariance.Count := 5;
+  {$endif}
+
   {$ifdef CASTLE_DESIGN_MODE}
   DebugScene := TCastleScene.Create(Self);
   DebugScene.SetTransient;
@@ -2004,6 +2088,13 @@ end;
 
 destructor TCastleParticleEmitter.Destroy;
 begin
+  {$ifdef WASI}
+  Self.FEffectUBO.Anchor.Free;
+  Self.FEffectUBO.AnchorSize.Free;
+  Self.FEffectUBO.AnchorSizeVariance.Free;
+  Self.FEffectUBO.AnchorColor.Free;
+  Self.FEffectUBO.AnchorColorVariance.Free;
+  {$endif}
   Self.FAttractorTypeList.Free;
   Self.FAttractorList.Free;
   Self.FAttractorKillDistanceList.Free;
@@ -2095,6 +2186,9 @@ begin
       {$ifdef CASTLE_DESIGN_MODE}
         Self.FIsEffectChanged := True;
       {$endif}
+      {$ifdef WASI}
+        Self.FIsEffectChanged := True;
+      {$endif}
       // We only update UBO if Effect.IsChanged = True
       if Self.FEffect.IsChanged or Self.FIsEffectChanged then
       begin
@@ -2117,6 +2211,34 @@ begin
           Self.FEffectUBO.AnchorColorVariance[AnchorCount] := AnchorItem.ColorVariance;
           Inc(AnchorCount);
         end;
+        {$ifdef WASI}
+        TransformFeedbackProgram.Uniform('anchorCount').SetValue(AnchorCount);
+        TransformFeedbackProgram.Uniform('anchor').SetValue(Self.FEffectUBO.Anchor);
+        TransformFeedbackProgram.Uniform('anchorSize').SetValue(Self.FEffectUBO.AnchorSize);
+        TransformFeedbackProgram.Uniform('anchorSizeVariance').SetValue(Self.FEffectUBO.AnchorSizeVariance);
+        TransformFeedbackProgram.Uniform('anchorColor').SetValue(Self.FEffectUBO.AnchorColor);
+        TransformFeedbackProgram.Uniform('anchorColorVariance').SetValue(Self.FEffectUBO.AnchorColorVariance);
+        TransformFeedbackProgram.Uniform('textureAsSourcePositionSize').SetValue(Self.FEffectUBO.TextureAsSourcePositionSize);
+
+        TransformFeedbackProgram.Uniform('sourceType').SetValue(TGLint(CastleParticleSourceValues[Self.FEffect.SourceType]));
+        TransformFeedbackProgram.Uniform('sourcePosition').SetValue(Self.FEffect.SourcePosition);
+        TransformFeedbackProgram.Uniform('sourcePositionVariance').SetValue(Self.FEffect.SourcePositionVariance);
+        TransformFeedbackProgram.Uniform('sourcePositionLocalVariance').SetValue(Self.FEffect.SourcePositionLocalVariance);
+        TransformFeedbackProgram.Uniform('maxParticles').SetValue(Self.FEffect.MaxParticles);
+        TransformFeedbackProgram.Uniform('particleLifeSpan').SetValue(Self.FEffect.LifeSpan);
+        TransformFeedbackProgram.Uniform('particleLifeSpanVariance').SetValue(Self.FEffect.LifeSpanVariance);
+        TransformFeedbackProgram.Uniform('rotation').SetValue(Self.FEffect.Rotation);
+        TransformFeedbackProgram.Uniform('rotationVariance').SetValue(Self.FEffect.RotationVariance);
+        TransformFeedbackProgram.Uniform('rotationSpeed').SetValue(Self.FEffect.RotationSpeed);
+        TransformFeedbackProgram.Uniform('rotationSpeedVariance').SetValue(Self.FEffect.RotationSpeedVariance);
+        TransformFeedbackProgram.Uniform('direction').SetValue(Self.FEffect.Direction);
+        TransformFeedbackProgram.Uniform('directionVariance').SetValue(Self.FEffect.DirectionVariance);
+        TransformFeedbackProgram.Uniform('speed').SetValue(Self.FEffect.Speed);
+        TransformFeedbackProgram.Uniform('speedVariance').SetValue(Self.FEffect.SpeedVariance);
+        TransformFeedbackProgram.Uniform('gravity').SetValue(Self.FEffect.Gravity);
+        TransformFeedbackProgram.Uniform('radial').SetValue(Self.FEffect.Radial);
+        TransformFeedbackProgram.Uniform('radialVariance').SetValue(Self.FEffect.RadialVariance);
+        {$else}
         Self.FEffectUBO.AnchorCount := AnchorCount;
         Self.FEffectUBO.SourceType := CastleParticleSourceValues[Self.FEffect.SourceType];
         Self.FEffectUBO.SourcePosition := Self.FEffect.SourcePosition;
@@ -2140,12 +2262,16 @@ begin
         glBindBuffer(GL_UNIFORM_BUFFER, Self.UBO);
         glBufferSubData(GL_UNIFORM_BUFFER, 0, SizeOf(TCastleParticleEffectUBO), @Self.FEffectUBO);
         glBindBuffer(GL_UNIFORM_BUFFER, GLObjectNone);
+        {$endif}
         Self.FIsEffectChanged := False;
       end;
+
       glActiveTexture(GL_TEXTURE0);
       glBindTexture(GL_TEXTURE_2D, Self.TextureAsSourcePosition);
       glBindVertexArray(Self.VAOTnFs[Self.CurrentBuffer]);
+      {$ifndef WASI}
       glBindBufferBase(GL_UNIFORM_BUFFER, 0, Self.UBO);
+      {$endif}
       glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, Self.VBOTnFs[(Self.CurrentBuffer + 1) mod 2]);
       glBeginTransformFeedback(GL_POINTS);
       glDrawArrays(GL_POINTS, 0, Self.FEffect.MaxParticles);
@@ -2451,7 +2577,9 @@ begin
   glGenBuffers(1, @Self.VBOMesh);
   glGenBuffers(1, @Self.VBOMeshIndices);
   glGenVertexArrays(2, @Self.VAOMeshes);
+  {$ifndef WASI}
   glGenBuffers(1, @Self.UBO);
+  {$endif}
   Self.FIsGLContextInitialized := True;
   Self.FIsNeedRefresh := True;
   //
@@ -2488,7 +2616,9 @@ begin
     glDeleteVertexArrays(2, @Self.VAOMeshes);
     glDeleteBuffers(2, @Self.VBOTnFs);
     glDeleteVertexArrays(2, @Self.VAOTnFs);
+    {$ifndef WASI}
     glDeleteBuffers(1, @Self.UBO);
+    {$endif}
     glDeleteTextures(1, @Self.Texture);
     if Self.TextureAsSourcePosition <> GLObjectNone then
       glDeleteTextures(1, @Self.TextureAsSourcePosition);
@@ -2928,10 +3058,13 @@ begin
     TransformFeedbackProgram := TransformFeedbackProgramMultipleInstances
   else
     TransformFeedbackProgram := TransformFeedbackProgramSingleInstance;
+
+  {$ifndef WASI}
   // Create UBO
   glBindBuffer(GL_UNIFORM_BUFFER, Self.UBO);
   glBufferData(GL_UNIFORM_BUFFER, SizeOf(TCastleParticleEffectUBO), @Self.FEffectUBO, GL_STATIC_DRAW);
   glBindBuffer(GL_UNIFORM_BUFFER, GLObjectNone);
+  {$endif}
 
   // Drawing VAO
   glBindBuffer(GL_ARRAY_BUFFER, Self.VBOMesh);
@@ -3010,8 +3143,6 @@ begin
 
     if Length(Self.ParticleMeshIndices) > 0 then
       glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Self.VBOMeshIndices);
-
-    glBindBuffer(GL_UNIFORM_BUFFER, Self.UBO);
 
     glBindVertexArray(GLObjectNone);
   end;
