@@ -754,6 +754,7 @@ CommonTransformVertexFunctions nl
 '    outTimeToLive.x = min(0.0, outTimeToLive.x + timeBetweenParticle);'nl
 '    return;'nl
 '  }'nl
+'  PLUG_update_before();'nl
 '  outColor += outColorDelta * deltaTime;'nl
 '  if ((outTimeToLive.x >= outTimeToLive.y) && (outTimeToLive.x - deltaTime < outTimeToLive.y)) {'nl
 '    int a = int(outTimeToLive.w) + 1;'nl
@@ -805,6 +806,7 @@ CommonTransformVertexFunctions nl
 
   TransformVertexShaderSourceMultipleInstances: String =
     TransformVertexShaderSourceMultipleInstances_Part1 +
+    'void PLUG_update_before(){}' + LineEnding +
     'void PLUG_update_after(){}' + LineEnding +
     TransformVertexShaderSourceMultipleInstances_Part2;
 
@@ -1011,6 +1013,7 @@ CommonTransformVertexFunctions nl
 '    outTimeToLive.x = min(0.0, outTimeToLive.x + timeBetweenParticle);'nl
 '    return;'nl
 '  }'nl
+'  PLUG_update_before();'nl
 '  outColor += outColorDelta * deltaTime;'nl
 '  if ((outTimeToLive.x >= outTimeToLive.y) && (outTimeToLive.x - deltaTime < outTimeToLive.y)) {'nl
 '    int a = int(outTimeToLive.w) + 1;'nl
@@ -1063,6 +1066,7 @@ CommonTransformVertexFunctions nl
 
   TransformVertexShaderSourceSingleInstance: String =
     TransformVertexShaderSourceSingleInstance_Part1 +
+    'void PLUG_update_before(){}' + LineEnding +
     'void PLUG_update_after(){}' + LineEnding +
     TransformVertexShaderSourceSingleInstance_Part2;
 
@@ -2823,8 +2827,16 @@ begin
           Self.LocalTransformFeedbackProgramMultipleInstances := Shaders.Shader2;
         end else
         begin
+          if PlugVertex.IndexOf('PLUG_update_before') >= 0 then
+            Plug1 := ''
+          else
+            Plug1 := 'void PLUG_update_before(){}' + LineEnding;
+          if PlugVertex.IndexOf('PLUG_update_after') >= 0 then
+            Plug2 := ''
+          else
+            Plug2 := 'void PLUG_update_after(){}' + LineEnding;
           // Single instance
-          SrcVertex := TransformVertexShaderSourceSingleInstance_Part1 + PlugVertex + TransformVertexShaderSourceSingleInstance_Part2;
+          SrcVertex := TransformVertexShaderSourceSingleInstance_Part1 + Plug1 + Plug2 + PlugVertex + TransformVertexShaderSourceSingleInstance_Part2;
           {$ifdef CASTLE_DESIGN_MODE}
             if Self.LocalTransformFeedbackProgramSingleInstance <> TransformFeedbackProgramSingleInstance then
               FreeAndNil(Self.LocalTransformFeedbackProgramSingleInstance);
@@ -2838,7 +2850,7 @@ begin
           Self.LocalTransformFeedbackProgramSingleInstance.Link;
 
           // Multiple instances
-          SrcVertex := TransformVertexShaderSourceMultipleInstances_Part1 + PlugVertex + TransformVertexShaderSourceMultipleInstances_Part2;
+          SrcVertex := TransformVertexShaderSourceMultipleInstances_Part1 + Plug1 + Plug2 + PlugVertex + TransformVertexShaderSourceMultipleInstances_Part2;
           {$ifdef CASTLE_DESIGN_MODE}
             if Self.LocalTransformFeedbackProgramMultipleInstances <> TransformFeedbackProgramMultipleInstances then
               FreeAndNil(Self.LocalTransformFeedbackProgramMultipleInstances);
