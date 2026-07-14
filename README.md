@@ -1,8 +1,10 @@
 GPU-based Particle System for Castle Game Engine
 
-Supports: Windows, Linux, Android, WebGL
+Support platforms: Windows, Linux, Android, Web
 
-Supports but not test due to lack of hardware: OSX, iOS
+Support platforms but not test due to lack of hardware: OSX, iOS
+
+Support APIs: OpenGL 3.3, OpenGL ES 3.0, WebGL2
 
 ### Notes ###
 
