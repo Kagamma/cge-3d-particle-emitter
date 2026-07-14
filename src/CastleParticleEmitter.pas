@@ -2607,8 +2607,8 @@ begin
     begin
       Size := Self.FEffect.MaxParticles * SizeOf(TCastleParticle);
       // Backup current state of particles to RAM
-      glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, Self.VBOTnFs[Self.CurrentBuffer]);
       {$ifndef WASI}
+      glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, Self.VBOTnFs[Self.CurrentBuffer]);
       P := glMapBufferRange(GL_TRANSFORM_FEEDBACK_BUFFER, 0, Size, GL_MAP_READ_BIT);
       if P <> nil then
       begin
@@ -2617,8 +2617,8 @@ begin
       end else
         WritelnLog('Error while backing up particles''s state to RAM: ' + IntToStr(glGetError()));
       glUnmapBuffer(GL_TRANSFORM_FEEDBACK_BUFFER);
-      {$endif}
       glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, GLObjectNone);
+      {$endif}
     end;
     glDeleteBuffers(1, @Self.VBOMesh);
     glDeleteBuffers(1, @Self.VBOMeshIndices);
