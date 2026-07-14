@@ -1,5 +1,7 @@
 GPU-based Particle System for Castle Game Engine
 
+Web Demo: https://kagamma.github.io/cge-3d-particle-demo
+
 Support platforms: Windows, Linux, Android, Web
 
 Support platforms but not test due to lack of hardware: OSX, iOS
