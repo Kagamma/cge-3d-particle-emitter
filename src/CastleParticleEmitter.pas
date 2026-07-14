@@ -2177,7 +2177,7 @@ begin
           Inc(AttractorCount);
         end;
       end;
-      TransformFeedbackProgram.Uniform('attractorCount').SetValue(TGLint(Self.FAttractorList.Count));
+      TransformFeedbackProgram.Uniform('attractorCount').SetValue(AttractorCount);
       TransformFeedbackProgram.Uniform('attractors').SetValue(Self.FAttractorList);
       TransformFeedbackProgram.Uniform('attractorKillDistances').SetValue(Self.FAttractorKillDistanceList);
       TransformFeedbackProgram.Uniform('attractorType').SetValue(Self.FAttractorTypeList);
