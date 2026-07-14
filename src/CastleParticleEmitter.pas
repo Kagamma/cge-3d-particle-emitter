@@ -668,7 +668,7 @@ CommonTransformVertexFunctions nl
 '      outPosition.xyz = sourcePosition + sourcePositionVariance * vrpos;'nl
 '    }'nl
 '  } else {'nl
-'    outPosition.xyz = texelFetch(textureAsSourcePosition, ivec2(floor(rnd() * textureAsSourcePositionSize), 0), 0).xyz * sourcePositionVariance;'nl
+'    outPosition.xyz = texelFetch(textureAsSourcePosition, ivec2(floor(rnd() * float(textureAsSourcePositionSize)), 0), 0).xyz * sourcePositionVariance;'nl
 '  }'nl
 '  outPreviousPosition.xyz = outPosition.xyz;'nl
 '  outPreviousPosition.w = rnd();'nl
@@ -734,7 +734,7 @@ CommonTransformVertexFunctions nl
 '  outTimeToLive.x = max(0.0, outTimeToLive.x - deltaTime);'nl
 '  outVelocity.xyz = rotate(outVelocity.xyz, outVelocity.w * deltaTime, outDirection) + gravity * deltaTime;'nl
 '  for (int i = 0; i < attractorCount; i++) {'nl
-'    if (attractorKillDistances[i] >= 0) {'nl
+'    if (attractorKillDistances[i] >= 0.0) {'nl
 '      float dist = distance(attractors[i].xyz, outPosition.xyz);'nl
 '      if (dist <= attractorKillDistances[i]) {'nl
 '        outTimeToLive.x = 0.0;'nl
@@ -896,7 +896,7 @@ CommonTransformVertexFunctions nl
 '      outStartPos = rMatrix * (sourcePosition + scale * sourcePositionVariance * vrpos);'nl
 '    }'nl
 '  } else {'nl
-'    outStartPos = rMatrix * (sourcePosition + texelFetch(textureAsSourcePosition, ivec2(floor(rnd() * textureAsSourcePositionSize), 0), 0).xyz * sourcePositionVariance);'nl
+'    outStartPos = rMatrix * (sourcePosition + texelFetch(textureAsSourcePosition, ivec2(floor(rnd() * float(textureAsSourcePositionSize)), 0), 0).xyz * sourcePositionVariance);'nl
 '  }'nl
 '  outStartPos += sourcePositionLocalVariance * normalize(vec3(rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0));'nl
 '  outTranslate = vec3(mMatrix[3][0], mMatrix[3][1], mMatrix[3][2]);'nl
@@ -962,7 +962,7 @@ CommonTransformVertexFunctions nl
 '  outTimeToLive.x = max(0.0, outTimeToLive.x - deltaTime);'nl
 '  outVelocity.xyz = rotate(outVelocity.xyz, outVelocity.w * deltaTime, outDirection) + gravity * deltaTime;'nl
 '  for (int i = 0; i < attractorCount; i++) {'nl
-'    if (attractorKillDistances[i] >= 0) {'nl
+'    if (attractorKillDistances[i] >= 0.0) {'nl
 '      float dist = distance(attractors[i].xyz + outTranslate, outPosition.xyz);'nl
 '      if (dist <= attractorKillDistances[i]) {'nl
 '        outTimeToLive.x = 0.0;'nl
@@ -2367,7 +2367,7 @@ begin
   begin
     // Check maximum number of vertex attributes
     {$ifdef WASI}
-      V := 16;//glGetParameter(GL_MAX_VERTEX_ATTRIBS);
+      V := glGetParameter(GL_MAX_VERTEX_ATTRIBS);
     {$else}
       glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, @V);
     {$endif}
