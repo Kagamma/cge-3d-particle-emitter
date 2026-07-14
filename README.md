@@ -1,5 +1,9 @@
 GPU-based Particle System for Castle Game Engine
 
+Supports: Windows, Linux, Android, WebGL
+
+Supports but not test due to lack of hardware: OSX, iOS
+
 ### Notes ###
 
 Due to emitter uses direct OpenGL calls instead of CGE's own renderer, only a few of TCastleScene's features are supported at the moment:
