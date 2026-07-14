@@ -372,18 +372,18 @@ type
   TCastleParticleEmitter = class(TCastleTransform)
   strict private
     Texture,
-    TextureAsSourcePosition: GLuint;
+    TextureAsSourcePosition: TGLTexture;
 
     LocalRenderProgramQuad,
     LocalRenderProgramMesh,
     LocalTransformFeedbackProgramSingleInstance,
     LocalTransformFeedbackProgramMultipleInstances: TGLSLProgram;
     VAOTnFs,
-    VAOMeshes,
-    VBOTnFs: array[0..1] of GLuint;
-    VBOMesh, VBOMeshIndices: GLuint;
-    UBO: GLuint;
-    CurrentBuffer: GLuint;
+    VAOMeshes: array[0..1] of TGLVertexArrayObject;
+    VBOTnFs: array[0..1] of TGLBuffer;
+    VBOMesh, VBOMeshIndices: TGLBuffer;
+    UBO: TGLBuffer;
+    CurrentBuffer: TGLuint;
     Particles: packed array of TCastleParticle;
     ParticleMesh: packed array of TCastleParticleMesh;
     ParticleMeshIndices: packed array of GLushort;
