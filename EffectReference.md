@@ -16,7 +16,8 @@ There are several spawning methods, controlled by the `SourceType` parameter.
 
 #### Common parameters:
 - `SourcePosition`: The location of the source.
-- `SourcePositionLocationVariance`: See Variance.
+- `SourcePositionLocationVariance`: Determines the position variance of each spawned particle using the following formula:
+  `particle's position + SourcePositionLocationVariance * normalize(vec3(rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0))`
 
 #### Special parameters:
 `SourcePositionVariance` changes meaning depending on the value of `SourceType`:
