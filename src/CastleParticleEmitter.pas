@@ -26,6 +26,9 @@ uses
   {$ifdef CASTLE_DESIGN_MODE}
   PropEdits, CastlePropEdits, CastleDebugTransform,
   {$endif}
+  {$ifdef WASI}
+  Job.JS, CastleInternalJobWeb,
+  {$endif}
   CastleTransform, CastleScene, CastleComponentSerialize, CastleColors, CastleBoxes,
   CastleVectors, CastleRenderContext, Generics.Collections, CastleGLImages, CastleLog,
   CastleUtils, CastleApplicationProperties, CastleGLShaders, CastleClassUtils,
@@ -373,6 +376,10 @@ type
     property AttactorType: TCastleParticleAttractorType read FAttractorType write FAttractorType default patDistance;
   end;
 
+  PGLVertexArrayObject = ^TGLVertexArrayObject;
+  PGLBuffer = ^TGLBuffer;
+  PGLTexture = ^TGLTexture;
+
   TCastleParticleEmitter = class(TCastleTransform)
   strict private
     Texture,
@@ -390,7 +397,7 @@ type
     CurrentBuffer: TGLuint;
     Particles: packed array of TCastleParticle;
     ParticleMesh: packed array of TCastleParticleMesh;
-    ParticleMeshIndices: packed array of GLushort;
+    ParticleMeshIndices: packed array of TGLushort;
 
     FStartEmitting: Boolean;
     FEffect: TCastleParticleEffect;
@@ -1241,6 +1248,74 @@ var
   RenderProgramMesh: TGLSLProgram = nil;
   RenderProgramQuad: TGLSLProgram = nil;
 
+{$ifdef WASI}
+procedure glGenBuffers(Size: TGLuint; V: PGLBuffer);
+var
+  I: Integer;
+begin
+  for I := 0 to Size - 1 do
+  begin
+    V^ := glCreateBuffer();
+    Inc(V);
+  end;
+end;
+
+procedure glDeleteBuffers(Size: TGLuint; V: PGLBuffer);
+var
+  I: Integer;
+begin
+  for I := 0 to Size - 1 do
+  begin
+    glDeleteBuffer(V^);
+    Inc(V);
+  end;
+end;
+
+procedure glGenVertexArrays(Size: TGLuint; V: PGLVertexArrayObject);
+var
+  I: Integer;
+begin
+  for I := 0 to Size - 1 do
+  begin
+    V^ := glCreateVertexArray();
+    Inc(V);
+  end;
+end;
+
+procedure glDeleteVertexArrays(Size: TGLuint; V: PGLVertexArrayObject);
+var
+  I: Integer;
+begin
+  for I := 0 to Size - 1 do
+  begin
+    glDeleteVertexArray(V^);
+    Inc(V);
+  end;
+end;
+
+procedure glGenTextures(Size: TGLuint; V: PGLTexture);
+var
+  I: Integer;
+begin
+  for I := 0 to Size - 1 do
+  begin
+    V^ := glCreateTexture();
+    Inc(V);
+  end;
+end;
+
+procedure glDeleteTextures(Size: TGLuint; V: PGLTexture);
+var
+  I: Integer;
+begin
+  for I := 0 to Size - 1 do
+  begin
+    glDeleteTexture(V^);
+    Inc(V);
+  end;
+end;
+{$endif}
+
 { Call when OpenGL context is closed }
 procedure FreeGLContext;
 var
@@ -1895,8 +1970,8 @@ var
 begin
   inherited;
   Self.FIsUpdated := False;
-  Self.Texture := 0;
-  Self.TextureAsSourcePosition := 0;
+  Self.Texture := GLObjectNone;
+  Self.TextureAsSourcePosition := GLObjectNone;
   Self.Scale := Vector3(1, 1, 1);
   Self.FIsGLContextInitialized := False;
   Self.FIsNeedRefresh := False;
@@ -2064,7 +2139,7 @@ begin
 
         glBindBuffer(GL_UNIFORM_BUFFER, Self.UBO);
         glBufferSubData(GL_UNIFORM_BUFFER, 0, SizeOf(TCastleParticleEffectUBO), @Self.FEffectUBO);
-        glBindBuffer(GL_UNIFORM_BUFFER, 0);
+        glBindBuffer(GL_UNIFORM_BUFFER, GLObjectNone);
         Self.FIsEffectChanged := False;
       end;
       glActiveTexture(GL_TEXTURE0);
@@ -2076,8 +2151,8 @@ begin
       glDrawArrays(GL_POINTS, 0, Self.FEffect.MaxParticles);
       glEndTransformFeedback();
       glDisable(GL_RASTERIZER_DISCARD);
-      glBindVertexArray(0);
-      glBindTexture(GL_TEXTURE_2D, 0);
+      glBindVertexArray(GLObjectNone);
+      glBindTexture(GL_TEXTURE_2D, GLObjectNone);
       CurrentBuffer := (Self.CurrentBuffer + 1) mod 2;
     end;
   end;
@@ -2227,10 +2302,10 @@ begin
   if IndicesCount = 0 then
     glDrawArraysInstanced(GL_TRIANGLES, 0, Length(Self.ParticleMesh), Self.FEffect.MaxParticles)
   else
-    glDrawElementsInstanced(GL_TRIANGLES, IndicesCount, GL_UNSIGNED_SHORT, nil, Self.FEffect.MaxParticles);
+    glDrawElementsInstanced(GL_TRIANGLES, IndicesCount, GL_UNSIGNED_SHORT, {$ifdef WASI}0{$else}nil{$endif}, Self.FEffect.MaxParticles);
   glActiveTexture(GL_TEXTURE1);
-  glBindTexture(GL_TEXTURE_2D, 0);
-  glBindVertexArray(0);
+  glBindTexture(GL_TEXTURE_2D, GLObjectNone);
+  glBindVertexArray(GLObjectNone);
   // Render boundingbox in editor
   {$ifdef CASTLE_DESIGN_MODE}
   Self.FDebugBox.Box := Self.FEffect.BBox;
@@ -2280,9 +2355,9 @@ end;
 
 procedure TCastleParticleEmitter.GLContextOpen;
 var
-  V,
-  ProgramId,
-  EffectUniformIndex: GLuint;
+  V: TGLuint;
+  ProgramId: TGLProgram;
+  EffectUniformIndex: TGLuint;
 begin
   // Safeguard
   if not ApplicationProperties.IsGLContextOpen then Exit;
@@ -2291,12 +2366,20 @@ begin
   if not IsCheckedForUsable then
   begin
     // Check maximum number of vertex attributes
-    glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, @V);
+    {$ifdef WASI}
+      V := 16;//glGetParameter(GL_MAX_VERTEX_ATTRIBS);
+    {$else}
+      glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, @V);
+    {$endif}
     WritelnLog('GL_MAX_VERTEX_ATTRIBS: ' + IntToStr(V));
     if V < 16 then
       raise Exception.Create('TCastleParticleEmitter requires GL_MAX_VERTEX_ATTRIBS at least 16');
     // Check MAX_VERTEX_UNIFORM_COMPONENTS
-    glGetIntegerv($8B4A, @V);
+    {$ifdef WASI}
+      V := glGetParameter(GL_MAX_VERTEX_UNIFORM_COMPONENTS);
+    {$else}
+      glGetIntegerv($8B4A, @V);
+    {$endif}
     WritelnLog('MAX_VERTEX_UNIFORM_COMPONENTS: ' + IntToStr(V));
     IsCheckedForUsable := True;
   end;
@@ -2322,13 +2405,21 @@ begin
 
       // CGE doesn't expose ProgramId, so we work around by quering for it from OpenGL
       TransformFeedbackProgramSingleInstance.Enable;
-      glGetIntegerv(GL_CURRENT_PROGRAM, @ProgramId);
+      {$ifdef WASI}
+        ProgramId := glGetParameter(GL_CURRENT_PROGRAM);
+      {$else}
+        glGetIntegerv(GL_CURRENT_PROGRAM, @ProgramId);
+      {$endif}
       EffectUniformIndex := glGetUniformBlockIndex(ProgramId, 'Effect');
       glUniformBlockBinding(ProgramId, EffectUniformIndex, 0);
       TransformFeedbackProgramSingleInstance.Disable;
 
       TransformFeedbackProgramMultipleInstances.Enable;
-      glGetIntegerv(GL_CURRENT_PROGRAM, @ProgramId);
+      {$ifdef WASI}
+        ProgramId := glGetParameter(GL_CURRENT_PROGRAM);
+      {$else}
+        glGetIntegerv(GL_CURRENT_PROGRAM, @ProgramId);
+      {$endif}
       EffectUniformIndex := glGetUniformBlockIndex(ProgramId, 'Effect');
       glUniformBlockBinding(ProgramId, EffectUniformIndex, 0);
       TransformFeedbackProgramMultipleInstances.Disable;
@@ -2380,6 +2471,7 @@ begin
       Size := Self.FEffect.MaxParticles * SizeOf(TCastleParticle);
       // Backup current state of particles to RAM
       glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, Self.VBOTnFs[Self.CurrentBuffer]);
+      {$ifndef WASI}
       P := glMapBufferRange(GL_TRANSFORM_FEEDBACK_BUFFER, 0, Size, GL_MAP_READ_BIT);
       if P <> nil then
       begin
@@ -2388,7 +2480,8 @@ begin
       end else
         WritelnLog('Error while backing up particles''s state to RAM: ' + IntToStr(glGetError()));
       glUnmapBuffer(GL_TRANSFORM_FEEDBACK_BUFFER);
-      glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, 0);
+      {$endif}
+      glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, GLObjectNone);
     end;
     glDeleteBuffers(1, @Self.VBOMesh);
     glDeleteBuffers(1, @Self.VBOMeshIndices);
@@ -2397,7 +2490,7 @@ begin
     glDeleteVertexArrays(2, @Self.VAOTnFs);
     glDeleteBuffers(1, @Self.UBO);
     glDeleteTextures(1, @Self.Texture);
-    if Self.TextureAsSourcePosition <> 0 then
+    if Self.TextureAsSourcePosition <> GLObjectNone then
       glDeleteTextures(1, @Self.TextureAsSourcePosition);
     Self.FIsGLContextInitialized := False;
 
@@ -2504,9 +2597,27 @@ var
   TextureData: packed array of TVector3;
   MaxTextureSize,
   ActualTextureSize: Integer;
+
+  {$ifdef WASI}
+  function TextureJSData: IJSTypedArray;
+  var
+    Len: Cardinal;
+    ResultFloat32: IJSFloat32Array;
+  begin
+    Len := Length(TextureData) * 3;
+    ResultFloat32 := TJSFloat32Array.Create(Len);
+    ResultFloat32.CopyFromMemory(@TextureData[0], Len);
+    Result := ResultFloat32;
+  end;
+  {$endif}
+
 begin
   if (Self.FEffect.MeshAsSourcePosition = '') or (not URIFileExists(Self.FEffect.MeshAsSourcePosition)) then exit;
-  glGetIntegerv(GL_MAX_TEXTURE_SIZE, @MaxTextureSize);
+  {$ifdef WASI}
+    MaxTextureSize := glGetParameter(GL_MAX_TEXTURE_SIZE);
+  {$else}
+    glGetIntegerv(GL_MAX_TEXTURE_SIZE, @MaxTextureSize);
+  {$endif}
   Scene := TCastleScene.Create(nil);
   Scene.URL := Self.FEffect.MeshAsSourcePosition;
   try
@@ -2530,7 +2641,7 @@ begin
       end;
       Self.FEffectUBO.TextureAsSourcePositionSize := ActualTextureSize;
       // Generate texture
-      if Self.TextureAsSourcePosition = 0 then
+      if Self.TextureAsSourcePosition = GLObjectNone then
         glGenTextures(1, @Self.TextureAsSourcePosition);
       glBindTexture(GL_TEXTURE_2D, Self.TextureAsSourcePosition);
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -2538,7 +2649,7 @@ begin
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
       // TODO: Optimize MaxTextureSize, support actual 2D texture
-      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, ActualTextureSize, 1, 0, GL_RGB, GL_FLOAT, @TextureData[0]);
+      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, ActualTextureSize, 1, 0, GL_RGB, GL_FLOAT, {$ifdef WASI}TextureJSData{$else}@TextureData[0]{$endif});
     except
       on E: Exception do
       begin
@@ -2552,8 +2663,8 @@ end;
 
 procedure TCastleParticleEmitter.InternalRefreshEffect;
 var
-  ProgramId,
-  EffectUniformIndex: GLuint;
+  ProgramId: TGLProgram;
+  EffectUniformIndex: TGLuint;
   I: Integer;
   Key, PlugVertex, PlugFragment, Plug1, Plug2, SrcVertex, SrcFragment: String;
   Shaders: TCastleParticleShaders;
@@ -2611,13 +2722,21 @@ begin
 
           // CGE doesn't expose ProgramId, so we work around by quering for it from OpenGL
           Self.LocalTransformFeedbackProgramSingleInstance.Enable;
-          glGetIntegerv(GL_CURRENT_PROGRAM, @ProgramId);
+          {$ifdef WASI}
+            ProgramId := glGetParameter(GL_CURRENT_PROGRAM);
+          {$else}
+            glGetIntegerv(GL_CURRENT_PROGRAM, @ProgramId);
+          {$endif}
           EffectUniformIndex := glGetUniformBlockIndex(ProgramId, 'Effect');
           glUniformBlockBinding(ProgramId, EffectUniformIndex, 0);
           Self.LocalTransformFeedbackProgramSingleInstance.Disable;
 
           Self.LocalTransformFeedbackProgramMultipleInstances.Enable;
-          glGetIntegerv(GL_CURRENT_PROGRAM, @ProgramId);
+          {$ifdef WASI}
+            ProgramId := glGetParameter(GL_CURRENT_PROGRAM);
+          {$else}
+            glGetIntegerv(GL_CURRENT_PROGRAM, @ProgramId);
+          {$endif}
           EffectUniformIndex := glGetUniformBlockIndex(ProgramId, 'Effect');
           glUniformBlockBinding(ProgramId, EffectUniformIndex, 0);
           Self.LocalTransformFeedbackProgramMultipleInstances.Disable;
@@ -2759,10 +2878,10 @@ begin
     Self.FEffect.LifeSpan := 0.001;
 
   glDeleteTextures(1, @Self.Texture);
-  if Self.TextureAsSourcePosition <> 0 then
+  if Self.TextureAsSourcePosition <> GLObjectNone then
   begin
     glDeleteTextures(1, @Self.TextureAsSourcePosition);
-    Self.TextureAsSourcePosition := 0;
+    Self.TextureAsSourcePosition := GLObjectNone;
   end;
   Self.FEffectUBO.TextureAsSourcePositionSize := 0;
   Self.InternalLoadMeshAsSourcePosition;
@@ -2812,17 +2931,17 @@ begin
   // Create UBO
   glBindBuffer(GL_UNIFORM_BUFFER, Self.UBO);
   glBufferData(GL_UNIFORM_BUFFER, SizeOf(TCastleParticleEffectUBO), @Self.FEffectUBO, GL_STATIC_DRAW);
-  glBindBuffer(GL_UNIFORM_BUFFER, 0);
+  glBindBuffer(GL_UNIFORM_BUFFER, GLObjectNone);
 
   // Drawing VAO
   glBindBuffer(GL_ARRAY_BUFFER, Self.VBOMesh);
   glBufferData(GL_ARRAY_BUFFER, Length(Self.ParticleMesh) * SizeOf(TCastleParticleMesh), @Self.ParticleMesh[0], GL_STATIC_DRAW);
-  glBindBuffer(GL_ARRAY_BUFFER, 0);
+  glBindBuffer(GL_ARRAY_BUFFER, GLObjectNone);
   if Length(Self.ParticleMeshIndices) > 0 then
   begin
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Self.VBOMeshIndices);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, Length(Self.ParticleMeshIndices) * SizeOf(GLushort), @Self.ParticleMeshIndices[0], GL_STATIC_DRAW);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, Length(Self.ParticleMeshIndices) * SizeOf(TGLushort), @Self.ParticleMeshIndices[0], GL_STATIC_DRAW);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, GLObjectNone);
   end;
   Self.CurrentBuffer := 0;
   for I := 0 to 1 do
@@ -2834,27 +2953,27 @@ begin
     glBufferData(GL_ARRAY_BUFFER, Self.FEffect.MaxParticles * SizeOf(TCastleParticle), @Self.Particles[0], GL_STATIC_DRAW);
 
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), Pointer(0));
+    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), {$ifndef WASI}Pointer{$endif}(0));
     glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), Pointer(16));
+    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), {$ifndef WASI}Pointer{$endif}(16));
     glEnableVertexAttribArray(2);
-    glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), Pointer(32));
+    glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), {$ifndef WASI}Pointer{$endif}(32));
     glEnableVertexAttribArray(3);
-    glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), Pointer(48));
+    glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), {$ifndef WASI}Pointer{$endif}(48));
     glEnableVertexAttribArray(4);
-    glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), Pointer(64));
+    glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), {$ifndef WASI}Pointer{$endif}(64));
     glEnableVertexAttribArray(5);
-    glVertexAttribPointer(5, 3, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), Pointer(80));
+    glVertexAttribPointer(5, 3, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), {$ifndef WASI}Pointer{$endif}(80));
     glEnableVertexAttribArray(6);
-    glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), Pointer(92));
+    glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), {$ifndef WASI}Pointer{$endif}(92));
     glEnableVertexAttribArray(7);
-    glVertexAttribPointer(7, 3, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), Pointer(108));
+    glVertexAttribPointer(7, 3, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), {$ifndef WASI}Pointer{$endif}(108));
     glEnableVertexAttribArray(8);
-    glVertexAttribPointer(8, 3, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), Pointer(120));
+    glVertexAttribPointer(8, 3, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), {$ifndef WASI}Pointer{$endif}(120));
     glEnableVertexAttribArray(9);
-    glVertexAttribPointer(9, 4, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), Pointer(132));
+    glVertexAttribPointer(9, 4, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), {$ifndef WASI}Pointer{$endif}(132));
     glEnableVertexAttribArray(10);
-    glVertexAttribPointer(10, 4, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), Pointer(148));
+    glVertexAttribPointer(10, 4, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), {$ifndef WASI}Pointer{$endif}(148));
 
     // Instancing VAO
     glBindVertexArray(Self.VAOMeshes[I]);
@@ -2862,39 +2981,39 @@ begin
     glBindBuffer(GL_ARRAY_BUFFER, Self.VBOTnFs[I]);
 
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), Pointer(0));
+    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), {$ifndef WASI}Pointer{$endif}(0));
     glVertexAttribDivisor(0, 1);
     glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), Pointer(16));
+    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), {$ifndef WASI}Pointer{$endif}(16));
     glVertexAttribDivisor(1, 1);
     glEnableVertexAttribArray(2);
-    glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), Pointer(32));
+    glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), {$ifndef WASI}Pointer{$endif}(32));
     glVertexAttribDivisor(2, 1);
     glEnableVertexAttribArray(3);
-    glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), Pointer(48));
+    glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), {$ifndef WASI}Pointer{$endif}(48));
     glVertexAttribDivisor(3, 1);
     glEnableVertexAttribArray(9);
-    glVertexAttribPointer(9, 4, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), Pointer(132));
+    glVertexAttribPointer(9, 4, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), {$ifndef WASI}Pointer{$endif}(132));
     glVertexAttribDivisor(9, 1);
     glEnableVertexAttribArray(10);
-    glVertexAttribPointer(10, 4, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), Pointer(148));
+    glVertexAttribPointer(10, 4, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), {$ifndef WASI}Pointer{$endif}(148));
     glVertexAttribDivisor(10, 1);
 
     glBindBuffer(GL_ARRAY_BUFFER, Self.VBOMesh);
 
     glEnableVertexAttribArray(13);
-    glVertexAttribPointer(13, 3, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticleMesh), Pointer(0));
+    glVertexAttribPointer(13, 3, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticleMesh), {$ifndef WASI}Pointer{$endif}(0));
     glEnableVertexAttribArray(14);
-    glVertexAttribPointer(14, 2, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticleMesh), Pointer(12));
+    glVertexAttribPointer(14, 2, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticleMesh), {$ifndef WASI}Pointer{$endif}(12));
     glEnableVertexAttribArray(15);
-    glVertexAttribPointer(15, 3, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticleMesh), Pointer(20));
+    glVertexAttribPointer(15, 3, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticleMesh), {$ifndef WASI}Pointer{$endif}(20));
 
     if Length(Self.ParticleMeshIndices) > 0 then
       glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Self.VBOMeshIndices);
 
     glBindBuffer(GL_UNIFORM_BUFFER, Self.UBO);
 
-    glBindVertexArray(0);
+    glBindVertexArray(GLObjectNone);
   end;
   SetLength(Self.Particles, 0);
 
