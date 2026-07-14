@@ -1,3 +1,4 @@
+- [Variance](#variance)
 - [Spawning Methods](#spawning-methods)
 - [Life Cycle](#life-cycle)
 - [Rotation](#rotation)
@@ -5,14 +6,17 @@
 - [Attractors](#attractors)
 - [Custom Shaders](#custom-shaders)
 
+## Variance
+
+Many parameters come with it's variance, for example `Size` and `SizeVariance`, the final result is calculated using the following formula: `final = value + variance * (rnd() * 2.0 - 1.0)`
+
 ## Spawning Methods
 
 There are several spawning methods, controlled by the `SourceType` parameter.
 
 #### Common parameters:
 - `SourcePosition`: The location of the source.
-- `SourcePositionLocationVariance`: Determines the position variance of each spawned particle using the following formula:  
-  `particle's position + SourcePositionLocationVariance * normalize(vec3(rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0))`
+- `SourcePositionLocationVariance`: See Variance.
 
 #### Special parameters:
 `SourcePositionVariance` changes meaning depending on the value of `SourceType`:
