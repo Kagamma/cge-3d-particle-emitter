@@ -112,10 +112,10 @@ Currently supported plugs:
 - `inTimeToLive.z / outTimeToLive.y`: Used internally by anchors.
 - `inTimeToLive.z / outTimeToLive.z`: The lifespan of a particle. It is assigned the moment a particle is spawned.
 - `inTimeToLive.w / outTimeToLive.w`: Current anchor.
-- `inSizeRotation.xy / outSizeRotation.xy`: X represents Size, Y represents Size's delta value.
-- `inSizeRotation.zw / outSizeRotation.zw`: Z reprerents the Z component of Rotation, W represents the Z component of Rotation's delta value.
-- `outRotationXY.xy / inRotationXY.xy`: X represents the X component of Rotation, Y represents the X component of Rotation's delta value.
-- `outRotationXY.zw / inRotationXY.zw`: Z represents the Y component of Rotation, W represents the Y component of Rotation's delta value.
+- `inRotationSize.xyz / outRotationSize.xyz`: Stores the XYZ components of rotation.
+- `inRotationSize.w / outRotationSize.w`: Stores the scale value.
+- `inRotationSizeSpeed.xyz / outRotationSizeSpeed.xyz`: Stores the XYZ components of rotation's delta.
+- `inRotationSizeSpeed.w / outRotationSizeSpeed.w`: Stores the delta value of scale.
 - `inColor.xyzw / outColor.xyzw`: Stores the color value of a particle.
 - `inColorDelta.xyzw / outColorDelta.xyzw`: Used to calculate the color shift for the next frame.
 - `inVelocity.xyz / outVelocity.xyz`: Stores the velocity of a particle.

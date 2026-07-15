@@ -84,18 +84,15 @@ type
   TCastleParticle = packed record
     Position: TVector4;
     TimeToLive: TVector2;
-    Life, AnchorCount,
-    Size,
-    SizeDelta,
-    Rotation,
-    RotationDelta: Single;
+    Life, AnchorCount: Single;
+    RotationSize: TVector4;
     Color,
     ColorDelta: TVector4;
     StartPos: TVector4;
     Velocity: TVector4;
     Direction: TVector3;
     Translate: TVector3;
-    RotationXY: TVector4;
+    RotationSizeSpeed: TVector4;
     PreviousPosition: TVector4;
   end;
 
@@ -578,26 +575,26 @@ const
 
 'layout(location = 0) in vec4 inPosition;'nl
 'layout(location = 1) in vec4 inTimeToLive;'nl
-'layout(location = 2) in vec4 inSizeRotation;'nl
+'layout(location = 2) in vec4 inRotationSize;'nl
 'layout(location = 3) in vec4 inColor;'nl
 'layout(location = 4) in vec4 inColorDelta;'nl
 'layout(location = 5) in vec4 inStartPos;'nl
 'layout(location = 6) in vec4 inVelocity;'nl
 'layout(location = 7) in vec3 inDirection;'nl
 'layout(location = 8) in vec3 inTranslate;'nl
-'layout(location = 9) in vec4 inRotationXY;'nl
+'layout(location = 9) in vec4 inRotationSizeSpeed;'nl
 'layout(location = 10) in vec4 inPreviousPosition;'nl
 
 'out vec4 outPosition;'nl
 'out vec4 outTimeToLive;'nl
-'out vec4 outSizeRotation;'nl
+'out vec4 outRotationSize;'nl
 'out vec4 outColor;'nl
 'out vec4 outColorDelta;'nl
 'out vec4 outStartPos;'nl
 'out vec4 outVelocity;'nl
 'out vec3 outDirection;'nl
 'out vec3 outTranslate;'nl
-'out vec4 outRotationXY;'nl
+'out vec4 outRotationSizeSpeed;'nl
 'out vec4 outPreviousPosition;'nl
 
 {$ifdef WASI}
@@ -670,14 +667,14 @@ CommonTransformVertexFunctions nl
 'void initParticle() {'nl
 '  outPosition = inPosition;'nl
 '  outTimeToLive = inTimeToLive;'nl
-'  outSizeRotation = inSizeRotation;'nl
+'  outRotationSize = inRotationSize;'nl
 '  outColor = inColor;'nl
 '  outColorDelta = inColorDelta;'nl
 '  outStartPos = inStartPos;'nl
 '  outVelocity = inVelocity;'nl
 '  outDirection = inDirection;'nl
 '  outTranslate = inTranslate;'nl
-'  outRotationXY = inRotationXY;'nl
+'  outRotationSizeSpeed = inRotationSizeSpeed;'nl
 '  outPreviousPosition = inPreviousPosition;'nl
 '}'nl
 
@@ -734,14 +731,17 @@ CommonTransformVertexFunctions nl
 '  outColorDelta = (middleColor - outColor) * invTimeRemaining;'nl
 '  float startSize = max(0.0001, anchorSize[0] + anchorSizeVariance[0] * (rnd() * 2.0 - 1.0));'nl
 '  float finishSize = anchorCount == 1 ? startSize : max(0.0001, anchorSize[1] + anchorSizeVariance[1] * (rnd() * 2.0 - 1.0));'nl
-'  outSizeRotation.xy = vec2(startSize, (finishSize - startSize) * invTimeRemaining);'nl
 
-'  outSizeRotation.z = rotation.z + rotationVariance.z * (rnd() * 2.0 - 1.0);'nl
-'  outSizeRotation.w = rotationSpeed.z + rotationSpeedVariance.z * (rnd() * 2.0 - 1.0);'nl
-'  outRotationXY.x = rotation.x + rotationVariance.x * (rnd() * 2.0 - 1.0);'nl
-'  outRotationXY.y = rotationSpeed.x + rotationSpeedVariance.x * (rnd() * 2.0 - 1.0);'nl
-'  outRotationXY.z = rotation.y + rotationVariance.y * (rnd() * 2.0 - 1.0);'nl
-'  outRotationXY.w = rotationSpeed.y + rotationSpeedVariance.y * (rnd() * 2.0 - 1.0);'nl
+'  outRotationSize = vec4('nl
+'    rotation.x + rotationVariance.x * (rnd() * 2.0 - 1.0),'nl
+'    rotation.y + rotationVariance.y * (rnd() * 2.0 - 1.0),'nl
+'    rotation.z + rotationVariance.z * (rnd() * 2.0 - 1.0),'nl
+'    startSize);'nl
+'  outRotationSizeSpeed = vec4('nl
+'    rotationSpeed.x + rotationSpeedVariance.x * (rnd() * 2.0 - 1.0),'nl
+'    rotationSpeed.y + rotationSpeedVariance.y * (rnd() * 2.0 - 1.0),'nl
+'    rotationSpeed.z + rotationSpeedVariance.z * (rnd() * 2.0 - 1.0),'nl
+'    (finishSize - startSize) * invTimeRemaining);'nl
 '}'+ LineEnding;
 
   TransformVertexShaderSourceMultipleInstances_Part2 =
@@ -768,10 +768,10 @@ CommonTransformVertexFunctions nl
 '      vec4 finishColor = anchorColor[a] + anchorColorVariance[a] * vec4(rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0);'nl
 '      outColorDelta = (finishColor - outColor) * invTimeRemaining;'nl
 '      float finishSize = max(0.0001, anchorSize[a] + anchorSizeVariance[a] * (rnd() * 2.0 - 1.0));'nl
-'      outSizeRotation.y = (finishSize - outSizeRotation.x) * invTimeRemaining;'nl
+'      outRotationSizeSpeed.w = (finishSize - outRotationSize.w) * invTimeRemaining;'nl
 '    } else {'nl
 '      outColorDelta = vec4(0.0);'nl
-'      outSizeRotation.y = 0.0;'nl
+'      outRotationSizeSpeed.w = 0.0;'nl
 '      outTimeToLive.y = outTimeToLive.z;'nl
 '    }'nl
 '  }'nl
@@ -794,10 +794,7 @@ CommonTransformVertexFunctions nl
 '  }'nl
 '  outPreviousPosition.xyz = outPosition.xyz;'nl
 '  outPosition.xyz = rotate(outPosition.xyz, outVelocity.w * deltaTime, outDirection) + outVelocity.xyz * deltaTime;'nl
-'  outSizeRotation.x += outSizeRotation.y * deltaTime;'nl
-'  outSizeRotation.z += outSizeRotation.w * deltaTime;'nl
-'  outRotationXY.x += outRotationXY.y * deltaTime;'nl
-'  outRotationXY.z += outRotationXY.w * deltaTime;'nl
+'  outRotationSize += outRotationSizeSpeed * deltaTime;'nl
 '  PLUG_update_after();'nl
 '}'nl
 
@@ -832,26 +829,26 @@ CommonTransformVertexFunctions nl
 
 'layout(location = 0) in vec4 inPosition;'nl
 'layout(location = 1) in vec4 inTimeToLive;'nl
-'layout(location = 2) in vec4 inSizeRotation;'nl
+'layout(location = 2) in vec4 inRotationSize;'nl
 'layout(location = 3) in vec4 inColor;'nl
 'layout(location = 4) in vec4 inColorDelta;'nl
 'layout(location = 5) in vec4 inStartPos;'nl
 'layout(location = 6) in vec4 inVelocity;'nl
 'layout(location = 7) in vec3 inDirection;'nl
 'layout(location = 8) in vec3 inTranslate;'nl
-'layout(location = 9) in vec4 inRotationXY;'nl
+'layout(location = 9) in vec4 inRotationSizeSpeed;'nl
 'layout(location = 10) in vec4 inPreviousPosition;'nl
 
 'out vec4 outPosition;'nl
 'out vec4 outTimeToLive;'nl
-'out vec4 outSizeRotation;'nl
+'out vec4 outRotationSize;'nl
 'out vec4 outColor;'nl
 'out vec4 outColorDelta;'nl
 'out vec4 outStartPos;'nl
 'out vec4 outVelocity;'nl
 'out vec3 outDirection;'nl
 'out vec3 outTranslate;'nl
-'out vec4 outRotationXY;'nl
+'out vec4 outRotationSizeSpeed;'nl
 'out vec4 outPreviousPosition;'nl
 
 {$ifdef WASI}
@@ -925,14 +922,14 @@ CommonTransformVertexFunctions nl
 'void initParticle() {'nl
 '  outPosition = inPosition;'nl
 '  outTimeToLive = inTimeToLive;'nl
-'  outSizeRotation = inSizeRotation;'nl
+'  outRotationSize = inRotationSize;'nl
 '  outColor = inColor;'nl
 '  outColorDelta = inColorDelta;'nl
 '  outStartPos = inStartPos;'nl
 '  outVelocity = inVelocity;'nl
 '  outDirection = inDirection;'nl
 '  outTranslate = inTranslate;'nl
-'  outRotationXY = inRotationXY;'nl
+'  outRotationSizeSpeed = inRotationSizeSpeed;'nl
 '  outPreviousPosition = inPreviousPosition;'nl
 '}'nl
 
@@ -995,14 +992,17 @@ CommonTransformVertexFunctions nl
 '  outColorDelta = (middleColor - outColor) * invTimeRemaining;'nl
 '  float startSize = max(0.0001, anchorSize[0] + anchorSizeVariance[0] * (rnd() * 2.0 - 1.0));'nl
 '  float finishSize = anchorCount == 1 ? startSize : max(0.0001, anchorSize[1] + anchorSizeVariance[1] * (rnd() * 2.0 - 1.0));'nl
-'  outSizeRotation.xy = vec2(startSize, (finishSize - startSize) * invTimeRemaining);'nl
 
-'  outSizeRotation.z = rotation.z + rotationVariance.z * (rnd() * 2.0 - 1.0);'nl
-'  outSizeRotation.w = rotationSpeed.z + rotationSpeedVariance.z * (rnd() * 2.0 - 1.0);'nl
-'  outRotationXY.x = rotation.x + rotationVariance.x * (rnd() * 2.0 - 1.0);'nl
-'  outRotationXY.y = rotationSpeed.x + rotationSpeedVariance.x * (rnd() * 2.0 - 1.0);'nl
-'  outRotationXY.z = rotation.y + rotationVariance.y * (rnd() * 2.0 - 1.0);'nl
-'  outRotationXY.w = rotationSpeed.y + rotationSpeedVariance.y * (rnd() * 2.0 - 1.0);'nl
+'  outRotationSize = vec4('nl
+'    rotation.x + rotationVariance.x * (rnd() * 2.0 - 1.0),'nl
+'    rotation.y + rotationVariance.y * (rnd() * 2.0 - 1.0),'nl
+'    rotation.z + rotationVariance.z * (rnd() * 2.0 - 1.0),'nl
+'    startSize);'nl
+'  outRotationSizeSpeed = vec4('nl
+'    rotationSpeed.x + rotationSpeedVariance.x * (rnd() * 2.0 - 1.0),'nl
+'    rotationSpeed.y + rotationSpeedVariance.y * (rnd() * 2.0 - 1.0),'nl
+'    rotationSpeed.z + rotationSpeedVariance.z * (rnd() * 2.0 - 1.0),'nl
+'    (finishSize - startSize) * invTimeRemaining);'nl
 '}' + LineEnding;
 
   TransformVertexShaderSourceSingleInstance_Part2 =
@@ -1029,10 +1029,10 @@ CommonTransformVertexFunctions nl
 '      vec4 finishColor = anchorColor[a] + anchorColorVariance[a] * vec4(rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0);'nl
 '      outColorDelta = (finishColor - outColor) * invTimeRemaining;'nl
 '      float finishSize = max(0.0001, anchorSize[a] + anchorSizeVariance[a] * (rnd() * 2.0 - 1.0));'nl
-'      outSizeRotation.y = (finishSize - outSizeRotation.x) * invTimeRemaining;'nl
+'      outRotationSizeSpeed.w = (finishSize - outRotationSize.w) * invTimeRemaining;'nl
 '    } else {'nl
 '      outColorDelta = vec4(0.0);'nl
-'      outSizeRotation.y = 0.0;'nl
+'      outRotationSizeSpeed.w = 0.0;'nl
 '      outTimeToLive.y = outTimeToLive.z;'nl
 '    }'nl
 '  }'nl
@@ -1056,10 +1056,7 @@ CommonTransformVertexFunctions nl
 '  outStartPos.xyz = rotate(outStartPos.xyz, outVelocity.w * deltaTime, outDirection) + outVelocity.xyz * deltaTime;'nl
 '  outPreviousPosition.xyz = outPosition.xyz;'nl
 '  outPosition.xyz = outStartPos.xyz + outTranslate;'nl
-'  outSizeRotation.x += outSizeRotation.y * deltaTime;'nl
-'  outSizeRotation.z += outSizeRotation.w * deltaTime;'nl
-'  outRotationXY.x += outRotationXY.y * deltaTime;'nl
-'  outRotationXY.z += outRotationXY.w * deltaTime;'nl
+'  outRotationSize += outRotationSizeSpeed * deltaTime;'nl
 '  PLUG_update_after();'nl
 '}'nl
 
@@ -1086,9 +1083,9 @@ CommonTransformVertexFunctions nl
 
 'layout(location = 0) in vec4 inPosition;'nl
 'layout(location = 1) in vec4 inTimeToLive;'nl
-'layout(location = 2) in vec4 inSizeRotation;'nl
+'layout(location = 2) in vec4 inRotationSize;'nl
 'layout(location = 3) in vec4 inColor;'nl
-'layout(location = 9) in vec4 inRotationXY;'nl
+'layout(location = 9) in vec4 inRotationSizeSpeed;'nl
 'layout(location = 10) in vec4 inPreviousPosition;'nl
 'layout(location = 13) in vec3 inVertex;'nl
 'layout(location = 14) in vec2 inTexcoord;'nl
@@ -1125,7 +1122,7 @@ CommonVertexFunctions nl'';
 '    fragTexCoord = texCoord;'nl
 '    fragColor = inColor;'nl
 '    vec3 center = vec3(vOrMvMatrix * vec4(inPosition.xyz, 1.0)).xyz;'nl
-'    float angle = inSizeRotation.z;'nl
+'    float angle = inRotationSize.z;'nl
 '    if (rotationType == ROTATION_PREVIOUS_POSITION) {'nl
 '      vec3 centerScreen = vec4(pMatrix * vec4(center, 1.0)).xyz;'nl
 '      vec3 centerPrevious = vec3(vOrMvMatrix * vec4(inPreviousPosition.xyz, 1.0)).xyz;'nl
@@ -1133,10 +1130,10 @@ CommonVertexFunctions nl'';
 '      vec3 centerDelta = centerPreviousScreen - centerScreen;'nl
 '      angle = atan(centerDelta.y, centerDelta.x);'nl
 '    }'nl
-'    mat3 m = createRotate(vec3(inRotationXY.x, inRotationXY.z, angle));'nl
+'    mat3 m = createRotate(vec3(inRotationSize.x, inRotationSize.y, angle));'nl
 '    vec3 obj_vert = inVertex;'nl
 '    PLUG_vertex_object_space(obj_vert);'nl
-'    vec4 p = vec4(m * (obj_vert * vec3(scaleX, scaleY, scaleZ) * vec3(inSizeRotation.x)) + center, 1.0);'nl
+'    vec4 p = vec4(m * (obj_vert * vec3(scaleX, scaleY, scaleZ) * vec3(inRotationSize.w)) + center, 1.0);'nl
 '    fragFogCoord = abs(p.z / p.w);'nl
 '    gl_Position = pMatrix * p;'nl
 '  } else'nl
@@ -1205,9 +1202,9 @@ CommonVertexFunctions nl'';
 
 'layout(location = 0) in vec4 inPosition;'nl
 'layout(location = 1) in vec4 inTimeToLive;'nl
-'layout(location = 2) in vec4 inSizeRotation;'nl
+'layout(location = 2) in vec4 inRotationSize;'nl
 'layout(location = 3) in vec4 inColor;'nl
-'layout(location = 9) in vec4 inRotationXY;'nl
+'layout(location = 9) in vec4 inRotationSizeSpeed;'nl
 'layout(location = 10) in vec4 inPreviousPosition;'nl
 'layout(location = 13) in vec3 inVertex;'nl
 'layout(location = 14) in vec2 inTexcoord;'nl
@@ -1248,11 +1245,11 @@ CommonVertexFunctions nl'';
 '      vec3 posDelta = normalize(inPreviousPosition.xyz - inPosition.xyz);'nl
 '      m = createLookup(posDelta);'nl
 '    } else {'nl
-'      m = createRotate(vec3(inRotationXY.x, inRotationXY.z, inSizeRotation.z));'nl
+'      m = createRotate(inRotationSize.xyz);'nl
 '    }'nl
 '    vec3 obj_vert = inVertex;'nl
 '    PLUG_vertex_object_space(obj_vert);'nl
-'    vec4 p = vOrMvMatrix * vec4(m * obj_vert * vec3(scaleX, scaleY, scaleZ) * vec3(inSizeRotation.x) + inPosition.xyz, 1.0);'nl
+'    vec4 p = vOrMvMatrix * vec4(m * obj_vert * vec3(scaleX, scaleY, scaleZ) * vec3(inRotationSize.w) + inPosition.xyz, 1.0);'nl
 '    fragFogCoord = abs(p.z / p.w);'nl
 '    gl_Position = pMatrix * p;'nl
 '  } else'nl
@@ -1322,14 +1319,14 @@ CommonVertexFunctions nl'';
   Varyings: array[0..10] of String = (
     'outPosition',
     'outTimeToLive',
-    'outSizeRotation',
+    'outRotationSize',
     'outColor',
     'outColorDelta',
     'outStartPos',
     'outVelocity',
     'outDirection',
     'outTranslate',
-    'outRotationXY',
+    'outRotationSizeSpeed',
     'outPreviousPosition'
   );
 
