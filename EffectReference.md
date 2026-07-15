@@ -109,7 +109,7 @@ Currently supported plugs:
 - `inPreviousPosition.xyz / outPreviousPosition.xyz`: Stored the previous position of a particle.
 - `inPreviousPosition.w / outPreviousPosition.w`: A random value which is assigned when a particle is spawned.
 - `inTimeToLive.x / outTimeToLive.x`: Particle's current life, if the value hit 0, then the particle is dead.
-- `inTimeToLive.z / outTimeToLive.y`: Used internally by anchors.
+- `inTimeToLive.y / outTimeToLive.y`: Used internally by anchors.
 - `inTimeToLive.z / outTimeToLive.z`: The lifespan of a particle. It is assigned the moment a particle is spawned.
 - `inTimeToLive.w / outTimeToLive.w`: Current anchor.
 - `inRotationSize.xyz / outRotationSize.xyz`: Stores the XYZ components of rotation.
