@@ -122,3 +122,4 @@ Currently supported plugs:
 - `inVelocity.w / outVelocity.w`: Stores the radial value of a particle. This value is assigned when a particle is spawned.
 - `inDirection.xyz / outDirection.xyz`: Stores the direction of a particle. This value is assigned when a particle is spawned.
 - `inDirectionVariance.xyz / inDirectionVariance.xyz`: Stores the direction variance of a particle. This value is assigned when a particle is spawned.
+- `inStartPos.w / outStartPos.w`: Stores the index of particle.

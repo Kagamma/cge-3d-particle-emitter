@@ -91,7 +91,7 @@ type
     RotationDelta: Single;
     Color,
     ColorDelta: TVector4;
-    StartPos: TVector3;
+    StartPos: TVector4;
     Velocity: TVector4;
     Direction: TVector3;
     Translate: TVector3;
@@ -565,6 +565,8 @@ const
 '#version 330'nl
 {$endif}
 
+'#define SINGLE_INSTANCE false'nl
+
 '#define SOURCE_BOX 0'nl
 '#define SOURCE_SPHEROID 1'nl
 '#define SOURCE_BOXSURFACE 2'nl
@@ -579,7 +581,7 @@ const
 'layout(location = 2) in vec4 inSizeRotation;'nl
 'layout(location = 3) in vec4 inColor;'nl
 'layout(location = 4) in vec4 inColorDelta;'nl
-'layout(location = 5) in vec3 inStartPos;'nl
+'layout(location = 5) in vec4 inStartPos;'nl
 'layout(location = 6) in vec4 inVelocity;'nl
 'layout(location = 7) in vec3 inDirection;'nl
 'layout(location = 8) in vec3 inTranslate;'nl
@@ -591,7 +593,7 @@ const
 'out vec4 outSizeRotation;'nl
 'out vec4 outColor;'nl
 'out vec4 outColorDelta;'nl
-'out vec3 outStartPos;'nl
+'out vec4 outStartPos;'nl
 'out vec4 outVelocity;'nl
 'out vec3 outDirection;'nl
 'out vec3 outTranslate;'nl
@@ -715,7 +717,7 @@ CommonTransformVertexFunctions nl
 '  outPreviousPosition.w = rnd();'nl
 '  outPosition.xyz += sourcePositionLocalVariance * normalize(vec3(rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0));'nl
 '  outTranslate = vec3(0.0);'nl // Do nothing
-'  outStartPos = vec3(0.0);'nl // Do nothing
+'  outStartPos.xyz = vec3(0.0);'nl // Do nothing
 '  outDirection = direction;'nl
 '  vec3 cd = normalize(cross(outDirection, outDirection.zxy));'nl
 '  float angle = directionVariance * (rnd() * 2.0 - 1.0);'nl
@@ -817,6 +819,8 @@ CommonTransformVertexFunctions nl
 '#version 330'nl
 {$endif}
 
+'#define SINGLE_INSTANCE true'nl
+
 '#define SOURCE_BOX 0'nl
 '#define SOURCE_SPHEROID 1'nl
 '#define SOURCE_BOXSURFACE 2'nl
@@ -831,7 +835,7 @@ CommonTransformVertexFunctions nl
 'layout(location = 2) in vec4 inSizeRotation;'nl
 'layout(location = 3) in vec4 inColor;'nl
 'layout(location = 4) in vec4 inColorDelta;'nl
-'layout(location = 5) in vec3 inStartPos;'nl
+'layout(location = 5) in vec4 inStartPos;'nl
 'layout(location = 6) in vec4 inVelocity;'nl
 'layout(location = 7) in vec3 inDirection;'nl
 'layout(location = 8) in vec3 inTranslate;'nl
@@ -843,7 +847,7 @@ CommonTransformVertexFunctions nl
 'out vec4 outSizeRotation;'nl
 'out vec4 outColor;'nl
 'out vec4 outColorDelta;'nl
-'out vec3 outStartPos;'nl
+'out vec4 outStartPos;'nl
 'out vec4 outVelocity;'nl
 'out vec3 outDirection;'nl
 'out vec3 outTranslate;'nl
@@ -950,7 +954,7 @@ CommonTransformVertexFunctions nl
 '  if (textureAsSourcePositionSize == 0) {'nl
 '    if (sourceType == SOURCE_SPHEROID) {'nl
 '      vrpos = vec3(rnd(), rnd(), rnd()) * normalize(vrpos);'nl
-'      outStartPos = rMatrix * (sourcePosition + scale * sourcePositionVariance * vrpos);'nl
+'      outStartPos.xyz = rMatrix * (sourcePosition + scale * sourcePositionVariance * vrpos);'nl
 '    } else if (sourceType == SOURCE_BOXSURFACE) {'nl
 '      float face = rnd();'nl
 '      if (face < 1.0 / 3.0)'nl
@@ -959,20 +963,20 @@ CommonTransformVertexFunctions nl
 '        vrpos = vec3(vrpos.x, sign(vrpos.y), vrpos.z);'nl
 '      else'nl
 '        vrpos = vec3(vrpos.x, vrpos.y, sign(vrpos.z));'nl
-'      outStartPos = rMatrix * (sourcePosition + scale * sourcePositionVariance * vrpos);'nl
+'      outStartPos.xyz = rMatrix * (sourcePosition + scale * sourcePositionVariance * vrpos);'nl
 '    } else if (sourceType == SOURCE_SPHEROIDSURFACE) {'nl
-'      outStartPos = rMatrix * (sourcePosition + scale * sourcePositionVariance * normalize(vrpos));'nl
+'      outStartPos.xyz = rMatrix * (sourcePosition + scale * sourcePositionVariance * normalize(vrpos));'nl
 '    } else if (sourceType == SOURCE_CYLINDERSURFACE) {'nl
-'      outStartPos = rMatrix * (sourcePosition + scale * sourcePositionVariance * vec3(normalize(vrpos.xz), vrpos.y).xzy);'nl
+'      outStartPos.xyz = rMatrix * (sourcePosition + scale * sourcePositionVariance * vec3(normalize(vrpos.xz), vrpos.y).xzy);'nl
 '    } else {'nl
-'      outStartPos = rMatrix * (sourcePosition + scale * sourcePositionVariance * vrpos);'nl
+'      outStartPos.xyz = rMatrix * (sourcePosition + scale * sourcePositionVariance * vrpos);'nl
 '    }'nl
 '  } else {'nl
-'    outStartPos = rMatrix * (sourcePosition + texelFetch(textureAsSourcePosition, ivec2(floor(rnd() * float(textureAsSourcePositionSize)), 0), 0).xyz * sourcePositionVariance);'nl
+'    outStartPos.xyz = rMatrix * (sourcePosition + texelFetch(textureAsSourcePosition, ivec2(floor(rnd() * float(textureAsSourcePositionSize)), 0), 0).xyz * sourcePositionVariance);'nl
 '  }'nl
-'  outStartPos += sourcePositionLocalVariance * normalize(vec3(rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0));'nl
+'  outStartPos.xyz += sourcePositionLocalVariance * normalize(vec3(rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0, rnd() * 2.0 - 1.0));'nl
 '  outTranslate = vec3(mMatrix[3][0], mMatrix[3][1], mMatrix[3][2]);'nl
-'  outPosition.xyz = outTranslate + outStartPos;'nl
+'  outPosition.xyz = outTranslate + outStartPos.xyz;'nl
 '  outPreviousPosition.xyz = outStartPos.xyz;'nl
 '  outPreviousPosition.w = rnd();'nl
 '  outDirection = rMatrix * direction;'nl
@@ -1049,9 +1053,9 @@ CommonTransformVertexFunctions nl
 '      outVelocity.xyz += a * attractors[i].w;'nl
 '    }'nl
 '  }'nl
-'  outStartPos = rotate(outStartPos, outVelocity.w * deltaTime, outDirection) + outVelocity.xyz * deltaTime;'nl
+'  outStartPos.xyz = rotate(outStartPos.xyz, outVelocity.w * deltaTime, outDirection) + outVelocity.xyz * deltaTime;'nl
 '  outPreviousPosition.xyz = outPosition.xyz;'nl
-'  outPosition.xyz = outStartPos + outTranslate;'nl
+'  outPosition.xyz = outStartPos.xyz + outTranslate;'nl
 '  outSizeRotation.x += outSizeRotation.y * deltaTime;'nl
 '  outSizeRotation.z += outSizeRotation.w * deltaTime;'nl
 '  outRotationXY.x += outRotationXY.y * deltaTime;'nl
@@ -3061,6 +3065,7 @@ begin
         // Position.W is being used as random seed
         Position := Vector4(Random, Random, Random, Random);
         Direction := Vector3(1, 0, 0);
+        StartPos.W := I;
       end;
     end;
   end;
@@ -3108,17 +3113,17 @@ begin
     glEnableVertexAttribArray(4);
     glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), {$ifndef WASI}Pointer{$endif}(64));
     glEnableVertexAttribArray(5);
-    glVertexAttribPointer(5, 3, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), {$ifndef WASI}Pointer{$endif}(80));
+    glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), {$ifndef WASI}Pointer{$endif}(80));
     glEnableVertexAttribArray(6);
-    glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), {$ifndef WASI}Pointer{$endif}(92));
+    glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), {$ifndef WASI}Pointer{$endif}(96));
     glEnableVertexAttribArray(7);
-    glVertexAttribPointer(7, 3, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), {$ifndef WASI}Pointer{$endif}(108));
+    glVertexAttribPointer(7, 3, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), {$ifndef WASI}Pointer{$endif}(112));
     glEnableVertexAttribArray(8);
-    glVertexAttribPointer(8, 3, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), {$ifndef WASI}Pointer{$endif}(120));
+    glVertexAttribPointer(8, 3, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), {$ifndef WASI}Pointer{$endif}(124));
     glEnableVertexAttribArray(9);
-    glVertexAttribPointer(9, 4, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), {$ifndef WASI}Pointer{$endif}(132));
+    glVertexAttribPointer(9, 4, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), {$ifndef WASI}Pointer{$endif}(136));
     glEnableVertexAttribArray(10);
-    glVertexAttribPointer(10, 4, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), {$ifndef WASI}Pointer{$endif}(148));
+    glVertexAttribPointer(10, 4, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), {$ifndef WASI}Pointer{$endif}(152));
 
     // Instancing VAO
     glBindVertexArray(Self.VAOMeshes[I]);
@@ -3138,10 +3143,10 @@ begin
     glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), {$ifndef WASI}Pointer{$endif}(48));
     glVertexAttribDivisor(3, 1);
     glEnableVertexAttribArray(9);
-    glVertexAttribPointer(9, 4, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), {$ifndef WASI}Pointer{$endif}(132));
+    glVertexAttribPointer(9, 4, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), {$ifndef WASI}Pointer{$endif}(136));
     glVertexAttribDivisor(9, 1);
     glEnableVertexAttribArray(10);
-    glVertexAttribPointer(10, 4, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), {$ifndef WASI}Pointer{$endif}(148));
+    glVertexAttribPointer(10, 4, GL_FLOAT, GL_FALSE, SizeOf(TCastleParticle), {$ifndef WASI}Pointer{$endif}(152));
     glVertexAttribDivisor(10, 1);
 
     glBindBuffer(GL_ARRAY_BUFFER, Self.VBOMesh);
