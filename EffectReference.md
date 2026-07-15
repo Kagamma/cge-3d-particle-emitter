@@ -105,7 +105,7 @@ Currently supported plugs:
 
 ## List of transform feedback varyings
 - `inPosition.xyz / outPosition.xyz`: Stored the XYZ position of a particle. If the shader is for single instance, then the position is in global space. If the shader is for multiple instance, set by `AllowsInstancing` parameter, then the position is in object space.
-- `inPosition.w / outPosition.w`: Global seed, used by rnd() function.
+- `inPosition.w / outPosition.w`: Local seed for a particle, used by rnd() function.
 - `inPreviousPosition.xyz / outPreviousPosition.xyz`: Stored the previous position of a particle.
 - `inPreviousPosition.w / outPreviousPosition.w`: A random value which is assigned when a particle is spawned.
 - `inTimeToLive.x / outTimeToLive.x`: Particle's current life, if the value hit 0, then the particle is dead.
