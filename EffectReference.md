@@ -5,6 +5,7 @@
 - [Anchors](#anchors)
 - [Attractors](#attractors)
 - [Custom Shaders](#custom-shaders)
+- [List of transform feedback varyings](#list-of-transform-feedback-varyings)
 
 ## Variance
 
@@ -101,3 +102,23 @@ This shader does not replace the default shader. Instead, it is inserted into th
 Currently supported plugs:
 - `void PLUG_update_before()`: Called before any update.
 - `void PLUG_update_after()`: Called after the particle’s calculations are complete. Primarily used to modify particles after all other updates. See the `Snow` effect in the gallery demo for an example.
+
+## List of transform feedback varyings
+- `inPosition.xyz / outPosition.xyz`: Stored the XYZ position of a particle. If the shader is for single instance, then the position is in global space. If the shader is for multiple instance, set by `AllowsInstancing` parameter, then the position is in object space.
+- `inPosition.w / outPosition.w`: Global seed, used by rnd() function.
+- `inPreviousPosition.xyz / outPreviousPosition.xyz`: Stored the previous position of a particle.
+- `inPreviousPosition.w / outPreviousPosition.w`: A random value which is assigned when a particle is spawned.
+- `inTimeToLive.x / outTimeToLive.x`: Particle's current life, if the value hit 0, then the particle is dead.
+- `inTimeToLive.z / outTimeToLive.y`: Used internally by anchors.
+- `inTimeToLive.z / outTimeToLive.z`: The lifespan of a particle. It is assigned the moment a particle is spawned.
+- `inTimeToLive.w / outTimeToLive.w`: Current anchor.
+- `inSizeRotation.xy / outSizeRotation.xy`: X represents Size, Y represents SizeVariance.
+- `inSizeRotation.zw / outSizeRotation.zw`: Z reprerents the Z component of Rotation, W represents the Z component of RotationVariance.
+- `outRotationXY.xy / inRotationXY.xy`: X represents the X component of Rotation, Y represents the X component of RotationVariance.
+- `outRotationXY.zw / inRotationXY.zw`: Z represents the Y component of Rotation, W represents the Y component of RotationVariance.
+- `inColor.xyzw / outColor.xyzw`: Stores the color value of a particle.
+- `inColorDelta.xyzw / outColorDelta.xyzw`: Used to calculate the color shift for the next frame.
+- `inVelocity.xyz / outVelocity.xyz`: Stores the velocity of a particle.
+- `inVelocity.w / outVelocity.w`: Stores the radial value of a particle. This value is assigned when a particle is spawned.
+- `inDirection.xyz / outDirection.xyz`: Stores the direction of a particle. This value is assigned when a particle is spawned.
+- `inDirectionVariance.xyz / inDirectionVariance.xyz`: Stores the direction variance of a particle. This value is assigned when a particle is spawned.
