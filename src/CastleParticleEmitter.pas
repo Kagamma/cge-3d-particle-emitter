@@ -1096,7 +1096,9 @@ CommonTransformVertexFunctions nl
 'out vec2 fragTexCoord;'nl
 'out vec4 fragColor;'nl
 'out float fragFogCoord;'nl
+{$ifdef WASI}
 'out float time;'nl
+{$endif}
 
 'uniform mat4 vOrMvMatrix;'nl
 'uniform mat4 pMatrix;'nl
@@ -1104,14 +1106,20 @@ CommonTransformVertexFunctions nl
 'uniform float scaleY;'nl
 'uniform float scaleZ;'nl
 'uniform int rotationType;'nl
+{$ifdef WASI}
 'uniform float uniformTime;'nl
+{$else}
+'uniform float time;'nl
+{$endif}
 
 CommonVertexFunctions nl'';
 
   VertexShaderSourceQuad_Part2 =
 'void main() {'nl
 '  if (inTimeToLive.x > 0.0) {'nl
+{$ifdef WASI}
 '    time = uniformTime;'nl
+{$endif}
 '    vec2 texCoord = inTexcoord;'nl
 '    PLUG_texture_coord(texCoord);'nl
 '    fragTexCoord = texCoord;'nl
@@ -1151,10 +1159,15 @@ CommonVertexFunctions nl'';
 'in vec2 fragTexCoord;'nl
 'in vec4 fragColor;'nl
 'in float fragFogCoord;'nl
+{$ifdef WASI}
 'in float time;'nl
+{$endif}
 
 'out vec4 outColor;'nl
 
+{$ifndef WASI}
+'uniform float time;'nl
+{$endif}
 'uniform sampler2D baseColor;'nl
 'uniform int fogEnable;'nl
 'uniform float fogEnd;'nl
@@ -1202,7 +1215,9 @@ CommonVertexFunctions nl'';
 'out vec2 fragTexCoord;'nl
 'out vec4 fragColor;'nl
 'out float fragFogCoord;'nl
+{$ifdef WASI}
 'out float time;'nl
+{$endif}
 
 'uniform mat4 vOrMvMatrix;'nl
 'uniform mat4 pMatrix;'nl
@@ -1210,14 +1225,20 @@ CommonVertexFunctions nl'';
 'uniform float scaleY;'nl
 'uniform float scaleZ;'nl
 'uniform int rotationType;'nl
+{$ifdef WASI}
 'uniform float uniformTime;'nl
+{$else}
+'uniform float time;'nl
+{$endif}
 
 CommonVertexFunctions nl'';
 
   VertexShaderSourceMesh_Part2 =
 'void main() {'nl
 '  if (inTimeToLive.x > 0.0) {'nl
+{$ifdef WASI}
 '    time = uniformTime;'nl
+{$endif}
 '    vec2 texCoord = inTexcoord;'nl
 '    PLUG_texture_coord(texCoord);'nl
 '    fragTexCoord = texCoord;'nl
@@ -1254,10 +1275,15 @@ CommonVertexFunctions nl'';
 'in vec2 fragTexCoord;'nl
 'in vec4 fragColor;'nl
 'in float fragFogCoord;'nl
+{$ifdef WASI}
 'in float time;'nl
+{$endif}
 
 'out vec4 outColor;'nl
 
+{$ifndef WASI}
+'uniform float time;'nl
+{$endif}
 'uniform sampler2D baseColor;'nl
 'uniform int fogEnable;'nl
 'uniform float fogEnd;'nl
@@ -2429,7 +2455,11 @@ begin
   end;
   RenderProgram.Uniform('pMatrix').SetValue(RenderContext.ProjectionMatrix);
   RenderProgram.Uniform('rotationType').SetValue(Integer(Self.FEffect.RotationType));
+  {$ifdef WASI}
   RenderProgram.Uniform('uniformTime').SetValue(Self.FTime);
+  {$else}
+  RenderProgram.Uniform('time').SetValue(Self.FTime);
+  {$endif}
   glBindVertexArray(Self.VAOMeshes[Self.CurrentBuffer]);
   glActiveTexture(GL_TEXTURE0);
   if Self.FEffect.TextureViewport = nil then
