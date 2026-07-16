@@ -2892,7 +2892,7 @@ begin
           Self.LocalTransformFeedbackProgramSingleInstance.Link;
 
           // Multiple instances
-          SrcVertex := TransformVertexShaderSourceMultipleInstances_Part1 + Plug1 + Plug2 + PlugVertex + TransformVertexShaderSourceMultipleInstances_Part2;
+          SrcVertex := TransformVertexShaderSourceMultipleInstances_Part1 + Plug3 + Plug1 + Plug2 + PlugVertex + TransformVertexShaderSourceMultipleInstances_Part2;
           {$ifdef CASTLE_DESIGN_MODE}
             if Self.LocalTransformFeedbackProgramMultipleInstances <> TransformFeedbackProgramMultipleInstances then
               FreeAndNil(Self.LocalTransformFeedbackProgramMultipleInstances);
