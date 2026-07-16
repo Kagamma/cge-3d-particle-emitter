@@ -676,8 +676,9 @@ CommonTransformVertexFunctions nl
 '  outTranslate = inTranslate;'nl
 '  outRotationSizeSpeed = inRotationSizeSpeed;'nl
 '  outPreviousPosition = inPreviousPosition;'nl
-'}'nl
+'}' + LineEnding;
 
+  TransformVertexShaderSourceMultipleInstances_Part2 =
 'void emitParticle() {'nl
 '  outTimeToLive.z = particleLifeSpan + particleLifeSpanVariance * (rnd() * 2.0 - 1.0);'nl // Life
 '  outTimeToLive.x = outTimeToLive.z;'nl
@@ -742,9 +743,9 @@ CommonTransformVertexFunctions nl
 '    rotationSpeed.y + rotationSpeedVariance.y * (rnd() * 2.0 - 1.0),'nl
 '    rotationSpeed.z + rotationSpeedVariance.z * (rnd() * 2.0 - 1.0),'nl
 '    (finishSize - startSize) * invTimeRemaining);'nl
-'}'+ LineEnding;
+'  PLUG_spawn_after();'nl
+'}'nl
 
-  TransformVertexShaderSourceMultipleInstances_Part2 =
 'void updateParticle() {'nl
 '  float timeBetweenParticle = max(deltaTime, particleLifeSpan / float(maxParticles));'nl
 '  if (outTimeToLive.x <= 0.0 && emissionTime == 0.0) {'nl
@@ -805,6 +806,7 @@ CommonTransformVertexFunctions nl
 
   TransformVertexShaderSourceMultipleInstances: String =
     TransformVertexShaderSourceMultipleInstances_Part1 +
+    'void PLUG_spawn_after(){}' + LineEnding +
     'void PLUG_update_before(){}' + LineEnding +
     'void PLUG_update_after(){}' + LineEnding +
     TransformVertexShaderSourceMultipleInstances_Part2;
@@ -931,8 +933,9 @@ CommonTransformVertexFunctions nl
 '  outTranslate = inTranslate;'nl
 '  outRotationSizeSpeed = inRotationSizeSpeed;'nl
 '  outPreviousPosition = inPreviousPosition;'nl
-'}'nl
+'}' + LineEnding;
 
+  TransformVertexShaderSourceSingleInstance_Part2 =
 'void emitParticle() {'nl
 '  mat3 rMatrix = mat3(mMatrix);'nl
 '  outTimeToLive.z = particleLifeSpan + particleLifeSpanVariance * (rnd() * 2.0 - 1.0);'nl // Life
@@ -1003,9 +1006,9 @@ CommonTransformVertexFunctions nl
 '    rotationSpeed.y + rotationSpeedVariance.y * (rnd() * 2.0 - 1.0),'nl
 '    rotationSpeed.z + rotationSpeedVariance.z * (rnd() * 2.0 - 1.0),'nl
 '    (finishSize - startSize) * invTimeRemaining);'nl
-'}' + LineEnding;
+'  PLUG_spawn_after();'nl
+'}'nl
 
-  TransformVertexShaderSourceSingleInstance_Part2 =
 'void updateParticle() {'nl
 '  float timeBetweenParticle = max(deltaTime, particleLifeSpan / float(maxParticles));'nl
 '  if (outTimeToLive.x <= 0.0 && emissionTime == 0.0) {'nl
@@ -1067,6 +1070,7 @@ CommonTransformVertexFunctions nl
 
   TransformVertexShaderSourceSingleInstance: String =
     TransformVertexShaderSourceSingleInstance_Part1 +
+    'void PLUG_spawn_after(){}' + LineEnding +
     'void PLUG_update_before(){}' + LineEnding +
     'void PLUG_update_after(){}' + LineEnding +
     TransformVertexShaderSourceSingleInstance_Part2;
@@ -2837,7 +2841,7 @@ var
   ProgramId: TGLProgram;
   EffectUniformIndex: TGLuint;
   I: Integer;
-  Key, PlugVertex, PlugFragment, Plug1, Plug2, SrcVertex, SrcFragment: String;
+  Key, PlugVertex, PlugFragment, Plug1, Plug2, Plug3, SrcVertex, SrcFragment: String;
   Shaders: TCastleParticleShaders;
 begin
   if Self.FEffect = nil then
@@ -2871,8 +2875,12 @@ begin
             Plug2 := ''
           else
             Plug2 := 'void PLUG_update_after(){}' + LineEnding;
+          if PlugVertex.IndexOf('PLUG_spawn_after') >= 0 then
+            Plug3 := ''
+          else
+            Plug3 := 'void PLUG_spawn_after(){}' + LineEnding;
           // Single instance
-          SrcVertex := TransformVertexShaderSourceSingleInstance_Part1 + Plug1 + Plug2 + PlugVertex + TransformVertexShaderSourceSingleInstance_Part2;
+          SrcVertex := TransformVertexShaderSourceSingleInstance_Part1 + Plug3 + Plug1 + Plug2 + PlugVertex + TransformVertexShaderSourceSingleInstance_Part2;
           {$ifdef CASTLE_DESIGN_MODE}
             if Self.LocalTransformFeedbackProgramSingleInstance <> TransformFeedbackProgramSingleInstance then
               FreeAndNil(Self.LocalTransformFeedbackProgramSingleInstance);

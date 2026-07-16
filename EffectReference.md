@@ -100,6 +100,7 @@ Used to update particle position, rotation, velocity, size, and color. Controlle
 This shader does not replace the default shader. Instead, it is inserted into the default shader as **plug**, similar to CGE's PLUG system.
 
 Currently supported plugs:
+- `void PLUG_spawn_after()`: Called after a particle is spawned.
 - `void PLUG_update_before()`: Called before any update.
 - `void PLUG_update_after()`: Called after the particle’s calculations are complete. Primarily used to modify particles after all other updates. See the `Snow` effect in the gallery demo for an example.
 
