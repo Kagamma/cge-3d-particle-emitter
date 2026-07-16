@@ -562,8 +562,6 @@ const
 '#version 330'nl
 {$endif}
 
-'#define SINGLE_INSTANCE false'nl
-
 '#define SOURCE_BOX 0'nl
 '#define SOURCE_SPHEROID 1'nl
 '#define SOURCE_BOXSURFACE 2'nl
@@ -818,7 +816,7 @@ CommonTransformVertexFunctions nl
 '#version 330'nl
 {$endif}
 
-'#define SINGLE_INSTANCE true'nl
+'#define SINGLE_INSTANCE'nl
 
 '#define SOURCE_BOX 0'nl
 '#define SOURCE_SPHEROID 1'nl
