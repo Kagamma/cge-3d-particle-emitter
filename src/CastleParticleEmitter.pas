@@ -2834,6 +2834,32 @@ begin
   end;
 end;
 
+function GetTextFromSL(const SL: TStrings): String;
+var
+  MS: TStream;
+  SS: TStringStream;
+begin
+  if SL.Count > 0 then
+  begin
+    if SL[0].IndexOf(':/') >= 0 then
+    begin
+      MS := Download(SL[0]);
+      SS := TStringStream.Create('');
+      try
+        MS.Position := 0;
+        SS.CopyFrom(MS, MS.Size);
+        Result := SS.DataString;
+      finally
+        SS.Free;
+        MS.Free;
+      end;
+    end else
+    begin
+      Result := SL.Text;
+    end;
+  end;
+end;
+
 procedure TCastleParticleEmitter.InternalRefreshEffect;
 var
   ProgramId: TGLProgram;
@@ -2854,7 +2880,7 @@ begin
     try
       Self.FEffect.IsNeedRecompile := False;
       // TransformFeedback shader
-      PlugVertex := Trim(Self.FEffect.CustomTransformFeedbackVertexShader.Text);
+      PlugVertex := Trim(GetTextFromSL(Self.FEffect.CustomTransformFeedbackVertexShader));
       if PlugVertex <> '' then
       begin
         Key := MD5Print(MD5String(PlugVertex));
@@ -2941,8 +2967,8 @@ begin
     end;
     try
       // Render shader
-      PlugVertex := Trim(Self.FEffect.CustomRenderVertexShader.Text);
-      PlugFragment := Trim(Self.FEffect.CustomRenderFragmentShader.Text);
+      PlugVertex := Trim(GetTextFromSL(Self.FEffect.CustomRenderVertexShader));
+      PlugFragment := Trim(GetTextFromSL(Self.FEffect.CustomRenderFragmentShader));
       if (PlugVertex <> '') or (PlugFragment <> '') then
       begin
         Key := MD5Print(MD5String(PlugVertex + PlugFragment));
