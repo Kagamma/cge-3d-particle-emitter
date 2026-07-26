@@ -191,6 +191,7 @@ type
   TCastleParticleEffect = class(TCastleComponent)
   private
     FBillboard: Boolean;
+    FActualName,
     FMesh,
     FTexture,
     FMeshAsSourcePosition: String;
@@ -367,6 +368,7 @@ type
     property CustomTransformFeedbackVertexShader: TStrings read FCustomTransformFeedbackVertexShader write SetCustomTransformFeedbackVertexShader;
     property CustomRenderVertexShader: TStrings read FCustomRenderVertexShader write SetCustomRenderVertexShader;
     property CustomRenderFragmentShader: TStrings read FCustomRenderFragmentShader write SetCustomRenderFragmentShader;
+    property ActualName: String read FActualName write FActualName;
   end;
 
   TCastleParticleAttractor = class(TCastleTransform)
@@ -389,6 +391,7 @@ type
 
   TCastleParticleEmitter = class(TCastleTransform)
   strict private
+    FActualName: String;
     Texture,
     TextureAsSourcePosition: TGLTexture;
 
@@ -489,6 +492,7 @@ type
     property TimePlayingSpeed: Single read FTimePlayingSpeed write FTimePlayingSpeed default 1.0;
     property DeltaTime: Single read FDeltaTime write FDeltaTime default 0;
     property ReleaseWhenDone: Boolean read FReleaseWhenDone write FReleaseWhenDone default False;
+    property ActualName: String read FActualName write FActualName;
   end;
 
 function CastleParticleBlendValueToBlendMode(const AValue: Integer): TCastleParticleBlendMode;
@@ -1444,7 +1448,7 @@ begin
       Shaders.Shader1.Free;
       Shaders.Shader2.Free;
     end;
-  ShaderCache.Clear;
+  FreeAndNil(ShaderCache);
 end;
 
 function CreateVec3Persistent(const G: TGetVector3Event; const S: TSetVector3Event; const ADefaultValue: TVector3): TCastleVector3Persistent;
@@ -2531,6 +2535,9 @@ begin
   if not ApplicationProperties.IsGLContextOpen then Exit;
   if Self.FIsGLContextInitialized then Exit;
 
+  if ShaderCache = nil then
+    ShaderCache := TCastleParticleShaderCache.Create;
+
   if not IsCheckedForUsable then
   begin
     // Check maximum number of vertex attributes
@@ -2834,32 +2841,6 @@ begin
   end;
 end;
 
-function GetTextFromSL(const SL: TStrings): String;
-var
-  MS: TStream;
-  SS: TStringStream;
-begin
-  if SL.Count > 0 then
-  begin
-    if SL[0].IndexOf(':/') >= 0 then
-    begin
-      MS := Download(SL[0]);
-      SS := TStringStream.Create('');
-      try
-        MS.Position := 0;
-        SS.CopyFrom(MS, MS.Size);
-        Result := SS.DataString;
-      finally
-        SS.Free;
-        MS.Free;
-      end;
-    end else
-    begin
-      Result := SL.Text;
-    end;
-  end;
-end;
-
 procedure TCastleParticleEmitter.InternalRefreshEffect;
 var
   ProgramId: TGLProgram;
@@ -2880,7 +2861,7 @@ begin
     try
       Self.FEffect.IsNeedRecompile := False;
       // TransformFeedback shader
-      PlugVertex := Trim(GetTextFromSL(Self.FEffect.CustomTransformFeedbackVertexShader));
+      PlugVertex := Trim(Self.FEffect.CustomTransformFeedbackVertexShader.Text);
       if PlugVertex <> '' then
       begin
         Key := MD5Print(MD5String(PlugVertex));
@@ -2967,8 +2948,8 @@ begin
     end;
     try
       // Render shader
-      PlugVertex := Trim(GetTextFromSL(Self.FEffect.CustomRenderVertexShader));
-      PlugFragment := Trim(GetTextFromSL(Self.FEffect.CustomRenderFragmentShader));
+      PlugVertex := Trim(Self.FEffect.CustomRenderVertexShader.Text);
+      PlugFragment := Trim(Self.FEffect.CustomRenderFragmentShader.Text);
       if (PlugVertex <> '') or (PlugFragment <> '') then
       begin
         Key := MD5Print(MD5String(PlugVertex + PlugFragment));
@@ -3311,9 +3292,5 @@ initialization
   RegisterSerializableComponent(TCastleParticleAttractor, ['Particle', 'Particle Attractor']);
   RegisterSerializableComponent(TCastleParticleEffect, ['Particle', 'Particle Effect']);
   RegisterSerializableComponent(TCastleParticleViewport, ['Particle', 'Viewport (Particle)']);
-  ShaderCache := TCastleParticleShaderCache.Create;
-
-finalization
-  ShaderCache.Free;
 
 end.
